@@ -1,0 +1,27 @@
+{
+  "name": "selleckt",
+  "description": "Another select replacement. This one loves mustache",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/BrandwatchLtd/selleckt.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "*",
+    "mocha": "~1"
+  },
+  "optionalDependencies": {},
+  "volo": {
+    "dependencies": {
+      "jquery": "jquery/jquery",
+      "underscore": "documentcloud/underscore"
+    }
+  }
+}
