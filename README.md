@@ -1,4 +1,4 @@
-daterangepicker
+Selleckt
 ===============
 
 A select replacement, using mustache.js for templating.
