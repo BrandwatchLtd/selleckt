@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Selleckt demos</title>
+        <link href="css/selleckt.css" type="text/css" rel="stylesheet" />
+        <link href="css/bootstrap.css" type="text/css" rel="stylesheet" />
+
+        <script src="lib/jquery-1.10.1.js"></script>
+        <script src="lib/underscore.js"></script>
+        <script src="lib/mustache.js"></script>
+        <script src="/lib/selleckt.js"></script>
+
+        <style>
+            .demo {
+                margin:40px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Selleckt demo</h1>
+            <select id="demo-1">
+                <option value="1">Foo</option>
+                <option value="2">Bar</option>
+            </select>
+        </div>
+        <script id="mainTemplate" type="text/html">
+            <div class="{{className}}">
+                <div class="selected">
+                    <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
+                </div>
+                <ul class="items">
+                    {{#items}}
+                    <li class="item" data-text="{{label}}" data-value="{{value}}">
+                        {{label}}
+                    </li>
+                    {{/items}}
+                </ul>
+            </div>
+        </script>
+        <script id="itemTemplate" type="text/html">
+            <li class="item {{#isSelected}}selected{{/isSelected}}">
+                {{text}}
+            </li>
+        </script>
+        <script>
+            $(function(){
+                var $select1 = $('#demo-1'),
+                    mainTemplate = document.getElementById('mainTemplate').innerHTML,
+                    itemTemplate = document.getElementById('itemTemplate').innerHTML;
+
+                $select1.selleckt({
+                    mainTemplate : mainTemplate,
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item'
+                });
+            });
+        </script>
+    </body>
+</html>
