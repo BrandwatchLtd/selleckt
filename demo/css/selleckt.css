@@ -21,7 +21,8 @@
     outline: none;
 }
 
-.dropdown .item:hover{
+.dropdown .item:hover,
+.dropdown .item.highlighted{
     background-color: rgba(0, 0, 0, 0.2);
 }
 

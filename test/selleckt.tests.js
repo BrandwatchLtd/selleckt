@@ -339,7 +339,8 @@ define(['lib/selleckt'],
                         data: {}
                     });
 
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mousedown');
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect(selleckt.selectedItem).toEqual({
                         value: '2',
@@ -353,7 +354,8 @@ define(['lib/selleckt'],
                 it('updates the text of the selected item container with the selectedItem\'s label', function(){
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
 
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mousedown');
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('bar');
                 });
@@ -361,7 +363,8 @@ define(['lib/selleckt'],
                     var spy = sinon.spy();
                     selleckt.bind('itemSelected', spy);
 
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mousedown');
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -374,17 +377,91 @@ define(['lib/selleckt'],
                     });
                 });
             });
-        });
 
-        describe('Keyboard input', function(){
-            it('calls hightlightItem with the previous item when up is pressed');
-            it('does not call hightlightItem when up is pressed on the first item');
 
-            it('calls hightlightItem with the next item when down is pressed');
-            it('does not call hightlightItem when down is pressed on the last item');
+            describe('Keyboard input', function(){
+                var $selectedItem,
+                    KEY_CODES = {
+                        DOWN: 40,
+                        UP: 38,
+                        ENTER: 13
+                    };
 
-            it('changes this.selectedItem when enter is pressed on a new item');
-            it('triggers an "itemSelected" event with this.selectedItem when enter is pressed on a new item');
+                beforeEach(function(){
+                    $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+                    selleckt.$sellecktEl.focus();
+                });
+
+                afterEach(function(){
+                    $selectedItem = undefined;
+                });
+
+                it('opens the items list when enter is pressed on a closed selleckt', function(){
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
+                });
+
+                it('selects the current item when enter is pressed on an open selleckt', function(){
+                    var spy = sinon.spy(),
+                        isStub;
+
+                    selleckt.bind('itemSelected', spy);
+
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
+
+                    isStub = sinon.stub($.fn, 'is', function(){
+                        //stubs out the ':visible' check on
+                        return true;
+                    });
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+
+                    //sanity check
+                    expect(isStub.calledOnce).toEqual(true);
+                    expect(isStub.args[0][0]).toEqual(':visible');
+
+                    expect(spy.calledOnce).toEqual(true);
+                    expect(spy.args[0][0]).toEqual({
+                        value: '2',
+                        label: 'bar',
+                        data: {
+                            meh: 'whee',
+                            bah: 'oink'
+                        }
+                    });
+
+                    isStub.restore();
+                });
+
+                it('Highlights the next item when down is pressed', function(){
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+
+                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClassName)).toEqual(false);
+                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClassName)).toEqual(true);
+                });
+
+                it('Highlights the previous item when up is pressed', function(){
+                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
+
+                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClassName)).toEqual(true);
+                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClassName)).toEqual(false);
+                });
+            });
         });
     });
 });
