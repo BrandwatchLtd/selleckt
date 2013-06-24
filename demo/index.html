@@ -38,16 +38,10 @@
                 </ul>
             </div>
         </script>
-        <script id="itemTemplate" type="text/html">
-            <li class="item {{#isSelected}}selected{{/isSelected}}">
-                {{text}}
-            </li>
-        </script>
         <script>
             $(function(){
                 var $select1 = $('#demo-1'),
-                    mainTemplate = document.getElementById('mainTemplate').innerHTML,
-                    itemTemplate = document.getElementById('itemTemplate').innerHTML;
+                    mainTemplate = document.getElementById('mainTemplate').innerHTML;
 
                 $select1.selleckt({
                     mainTemplate : mainTemplate,
