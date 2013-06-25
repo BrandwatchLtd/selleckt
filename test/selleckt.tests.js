@@ -38,7 +38,7 @@ define(['lib/selleckt'],
                     var err;
 
                     try{
-                        selleckt = new Selleckt({
+                        selleckt = Selleckt.create({
                             mainTemplate : mainTemplate,
                             $selectEl : $el,
                             className: 'selleckt',
@@ -60,7 +60,7 @@ define(['lib/selleckt'],
                     var err;
 
                     try{
-                        selleckt = new Selleckt({
+                        selleckt = Selleckt.create({
                             mainTemplate : mainTemplate,
                             $selectEl : $el,
                             className: 'selleckt',
@@ -82,7 +82,7 @@ define(['lib/selleckt'],
                     var err;
 
                     try{
-                        selleckt = new Selleckt({
+                        selleckt = Selleckt.create({
                             mainTemplate : mainTemplate,
                             $selectEl : $el,
                             className: 'selleckt',
@@ -104,7 +104,7 @@ define(['lib/selleckt'],
                     var err;
 
                     try{
-                        selleckt = new Selleckt({
+                        selleckt = Selleckt.create({
                             mainTemplate : mainTemplate,
                             $selectEl : $el,
                             className: 'selleckt',
@@ -126,7 +126,7 @@ define(['lib/selleckt'],
             describe('valid instantation', function(){
 
                 beforeEach(function(){
-                    selleckt = new Selleckt({
+                    selleckt = Selleckt.create({
                         mainTemplate : mainTemplate,
                         $selectEl : $el,
                         className: 'selleckt',
@@ -208,7 +208,7 @@ define(['lib/selleckt'],
 
         describe('rendering', function(){
             beforeEach(function(){
-                selleckt = new Selleckt({
+                selleckt = Selleckt.create({
                     mainTemplate : mainTemplate,
                     $selectEl : $el,
                     className: 'selleckt',
@@ -239,7 +239,7 @@ define(['lib/selleckt'],
 
         describe('Events', function(){
             beforeEach(function(){
-                selleckt = new Selleckt({
+                selleckt = Selleckt.create({
                     mainTemplate : mainTemplate,
                     $selectEl : $el,
                     className: 'selleckt',
@@ -330,6 +330,17 @@ define(['lib/selleckt'],
                 beforeEach(function(){
                     $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
                     $selectedItem.trigger('mousedown');
+                });
+
+                it('does not allow multiple items to be selected', function(){
+                    var item1 = 'foo',
+                        item2 = 'bar';
+
+                    selleckt.selectItem(item1);
+                    expect(selleckt.getSelection()).toEqual(item1);
+
+                    selleckt.selectItem(item2);
+                    expect(selleckt.getSelection()).toEqual(item2);
                 });
 
                 it('stores the selected item as this.selectedItem', function(){
@@ -461,6 +472,93 @@ define(['lib/selleckt'],
                     expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClassName)).toEqual(true);
                     expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClassName)).toEqual(false);
                 });
+            });
+        });
+    });
+
+    describe('multiselleckt', function(){
+        var multiSelleckt,
+            mainTemplate =
+                '<div class="{{className}}">' +
+                    '<ul class="selections">' +
+                    '{{#selections}}' +
+                    '{{/selections}}' +
+                    '</ul>' +
+                    '<div class="selected">' +
+                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                    '</div>' +
+                    '<ul class="items">' +
+                        '{{#items}}' +
+                        '<li class="item{{#selected}} selected{{/selected}}" data-value="{{value}}">' +
+                            '{{label}}' +
+                        '</li>' +
+                        '{{/items}}' +
+                    '</ul>' +
+                '</div>',
+            multiselectItemTemplate =
+                '<li class="selection" data-value="{{value}}">' +
+                    '{{text}}' +
+                    '<i class="icon-remove"></i>' +
+                '</li>',
+            $el;
+
+        beforeEach(function(){
+            $el = $('<select multiple><option value="1">foo</option><option value="2" data-meh="whee" data-bah="oink">bar</option></select>');
+
+            multiSelleckt = Selleckt.create({
+                multiple: true,
+                mainTemplate : mainTemplate,
+                $selectEl : $el,
+                className: 'selleckt',
+                selectedClass: 'selected',
+                selectedTextClass: 'selectedText',
+                itemsClass: 'items',
+                itemClass: 'item',
+                selectedClassName: 'isSelected',
+                highlightClassName: 'isHighlighted'
+            });
+        });
+
+        afterEach(function(){
+            $el = undefined;
+
+            if(multiSelleckt){
+                multiSelleckt.destroy();
+                multiSelleckt = undefined;
+            }
+        });
+
+        describe('initialization', function(){
+            it('stores options.selectionsClass as this.selectionsClass');
+            it('defaults this selectionsClass to "selections"');
+
+            it('stores options.placeholder as this.placeholder');
+            it('defaults this.placeholder to "Please select..."');
+            it('stores options.alternatePlaceholder as this.alternatePlaceholder');
+            it('defaults this.alternatePlaceholder to "Select another..."');
+        });
+
+        describe('rendering', function(){
+            beforeEach(function(){
+                multiSelleckt.render();
+            });
+
+            it('renders the selected items in the multiselectItemTemplate');
+            it('renders the placeholder text in the selectedText area');
+        });
+
+        describe('item selection', function(){
+            it('allows multiple items to be selected', function(){
+                var item1 = 'foo',
+                    item2 = 'bar';
+
+                multiSelleckt.render();
+
+                multiSelleckt.selectItem(item1);
+                expect(multiSelleckt.getSelection()).toEqual([item1]);
+
+                multiSelleckt.selectItem(item2);
+                expect(multiSelleckt.getSelection()).toEqual([item1, item2]);
             });
         });
     });
