@@ -3,6 +3,9 @@
     width: 300px;
     outline: none;
 }
+.dropdown.disabled .selected{
+    opacity: 0.6;
+}
 .dropdown > .selected {
     position: relative;
     font-weight: 700;

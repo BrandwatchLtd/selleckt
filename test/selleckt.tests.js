@@ -387,8 +387,56 @@ define(['lib/selleckt'],
                         }
                     });
                 });
-            });
+                it('hides the selected item from the list', function(){
+                    expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+                });
+                it('shows the previously-selected item in the list', function(){
+                    expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
 
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+
+                    expect(selleckt.$items.find('.item[data-value="1"]').css('display')).not.toEqual('none');
+                    expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
+                });
+                it('highlights the current item on mouseover', function(){
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(true);
+                });
+                it('removes the highlight from the current item on mouseout', function(){
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+
+                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(true);
+
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseout');
+
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+                });
+                it('removes the highlight class from all items when it closes', function(){
+                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+
+                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+
+                    expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(1);
+
+                    selleckt._close();
+
+                    expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(0);
+                });
+                it('adds a class of "disabled" to the select if all options are selected');
+
+                describe('item deselection', function(){
+                    it('removes an item when the "remove" link is clicked');
+                    it('removes the class of "disabled" from the select if all options were selected but one becomes available');
+                });
+            });
 
             describe('Keyboard input', function(){
                 var $selectedItem,
@@ -496,27 +544,20 @@ define(['lib/selleckt'],
                     '</ul>' +
                 '</div>',
             multiselectItemTemplate =
-                '<li class="selection" data-value="{{value}}">' +
+                '<li class="selection selectionItem" data-value="{{value}}">' +
                     '{{text}}' +
-                    '<i class="icon-remove"></i>' +
+                    '<i class="icon-remove remove"></i>' +
                 '</li>',
+            selectHtml  =
+                '<select multiple>' +
+                    '<option value="1" selected>foo</option>' +
+                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                    '<option value="3" selected>foo</option>' +
+                '</select>',
             $el;
 
         beforeEach(function(){
-            $el = $('<select multiple><option value="1">foo</option><option value="2" data-meh="whee" data-bah="oink">bar</option></select>');
-
-            multiSelleckt = Selleckt.create({
-                multiple: true,
-                mainTemplate : mainTemplate,
-                $selectEl : $el,
-                className: 'selleckt',
-                selectedClass: 'selected',
-                selectedTextClass: 'selectedText',
-                itemsClass: 'items',
-                itemClass: 'item',
-                selectedClassName: 'isSelected',
-                highlightClassName: 'isHighlighted'
-            });
+            $el = $(selectHtml);
         });
 
         afterEach(function(){
@@ -529,37 +570,273 @@ define(['lib/selleckt'],
         });
 
         describe('initialization', function(){
-            it('stores options.selectionsClass as this.selectionsClass');
-            it('defaults this selectionsClass to "selections"');
+            describe('custom options', function(){
+                beforeEach(function(){
+                    multiSelleckt = Selleckt.create({
+                        multiple: true,
+                        mainTemplate : mainTemplate,
+                        selectionTemplate: multiselectItemTemplate,
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        selectionsClass: 'mySelections',
+                        selectionItemClass: 'mySelectionItem',
+                        placeholderText: 'click me!',
+                        alternatePlaceholder: 'click me again!',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        removeItemClass: 'removeItem',
+                        selectedClassName: 'isSelected',
+                        highlightClassName: 'isHighlighted'
+                    });
+                });
 
-            it('stores options.placeholder as this.placeholder');
-            it('defaults this.placeholder to "Please select..."');
-            it('stores options.alternatePlaceholder as this.alternatePlaceholder');
-            it('defaults this.alternatePlaceholder to "Select another..."');
+                it('stores options.selectionTemplate as this.selectionTemplate',function(){
+                    expect(multiSelleckt.selectionTemplate).toEqual(multiselectItemTemplate);
+                });
+                it('stores options.selectionsClass as this.selectionsClass',function(){
+                    expect(multiSelleckt.selectionsClass).toEqual('mySelections');
+                });
+                it('stores options.selectionItemClass as this.selectionItemClass',function(){
+                    expect(multiSelleckt.selectionItemClass).toEqual('mySelectionItem');
+                });
+                it('stores options.placeholderText as this.placeholderText',function(){
+                    expect(multiSelleckt.placeholderText).toEqual('click me!');
+                });
+                it('stores options.alternatePlaceholder as this.alternatePlaceholder',function(){
+                    expect(multiSelleckt.alternatePlaceholder).toEqual('click me again!');
+                });
+                it('stores options.removeItemClass as this.removeItemClass',function(){
+                    expect(multiSelleckt.removeItemClass).toEqual('removeItem');
+                });
+                it('stores options.removeItemClass as this.removeItemClass',function(){
+                    expect(multiSelleckt.removeItemClass).toEqual('removeItem');
+                });
+            });
+
+            describe('defaults', function(){
+                beforeEach(function(){
+                    multiSelleckt = Selleckt.create({
+                        multiple: true,
+                        mainTemplate : mainTemplate,
+                        selectionTemplate: multiselectItemTemplate,
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClassName: 'isHighlighted'
+                    });
+                });
+
+                it('defaults this selectionsClass to "selections"',function(){
+                    expect(multiSelleckt.selectionsClass).toEqual('selections');
+                });
+                it('defaults this.selectionItemClass to "selectionItem"',function(){
+                    expect(multiSelleckt.selectionItemClass).toEqual('selectionItem');
+                });
+                it('defaults this.removeItemClass to "remove"',function(){
+                    expect(multiSelleckt.removeItemClass).toEqual('remove');
+                });
+                it('defaults this.placeholderText to "Please select..."',function(){
+                    expect(multiSelleckt.placeholderText).toEqual('Please select...');
+                });
+                it('defaults this.alternatePlaceholder to "Select another..."',function(){
+                    expect(multiSelleckt.alternatePlaceholder).toEqual('Select another...');
+                });
+            });
         });
 
         describe('rendering', function(){
             beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : mainTemplate,
+                    selectionTemplate: multiselectItemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
+
                 multiSelleckt.render();
             });
 
-            it('renders the selected items in the multiselectItemTemplate');
+            it('renders the selected items in the multiselectItemTemplate', function(){
+                expect(multiSelleckt.getSelection()).toEqual([{
+                        value: '1',
+                        label: 'foo',
+                        data: {}
+                    }, {
+                        value: '3',
+                        label: 'foo',
+                        data: {}
+                    }]);
+
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
+            });
             it('renders the placeholder text in the selectedText area');
         });
 
         describe('item selection', function(){
-            it('allows multiple items to be selected', function(){
-                var item1 = 'foo',
-                    item2 = 'bar';
+            beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : mainTemplate,
+                    selectionTemplate: multiselectItemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
+
+                multiSelleckt.render();
+            });
+
+            xit('allows multiple items to be selected', function(){
+                multiSelleckt.render();
+                multiSelleckt.selectedItems = [];
+
+                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+
+                expect(multiSelleckt.getSelection()).toEqual([{
+                    value: '2',
+                    label: 'bar',
+                    data: {
+                        meh: 'whee',
+                        bah: 'oink'
+                    }
+                }]);
+
+                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseover').trigger('mousedown');
+
+                expect(multiSelleckt.getSelection()).toEqual([
+                    {
+                        value: '2',
+                        label: 'bar',
+                        data: {
+                            meh: 'whee',
+                            bah: 'oink'
+                        }
+                    }, {
+                        value: '1',
+                        label: 'foo',
+                        data: {}
+                    }
+                ]);
+            });
+
+            it('hides the selected item from the list', function(){
+                multiSelleckt.selectedItems = [];
+                multiSelleckt.render();
+
+                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+
+                expect(multiSelleckt.getSelection()).toEqual([{
+                    value: '2',
+                    label: 'bar',
+                    data: {
+                        meh: 'whee',
+                        bah: 'oink'
+                    }
+                }]);
+
+                multiSelleckt._open();
+
+                expect(multiSelleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
+            });
+        });
+
+        describe('removing items', function(){
+            var $clickTarget,
+                itemToRemove,
+                $correspondingOption;
+
+            beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : mainTemplate,
+                    selectionTemplate: multiselectItemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
 
                 multiSelleckt.render();
 
-                multiSelleckt.selectItem(item1);
-                expect(multiSelleckt.getSelection()).toEqual([item1]);
+                expect(multiSelleckt.getSelection()).toEqual([{
+                    value: '1',
+                    label: 'foo',
+                    data: {}
+                }, {
+                    value: '3',
+                    label: 'foo',
+                    data: {}
+                }]);
 
-                multiSelleckt.selectItem(item2);
-                expect(multiSelleckt.getSelection()).toEqual([item1, item2]);
+                $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.removeItemClass).eq(0);
             });
+            it('removes the item from the selections when the remove link is clicked', function(){
+                var $selections = multiSelleckt.$selections;
+
+                expect($selections.children().length).toEqual(2);
+
+                $clickTarget.trigger('click');
+
+                expect($selections.children().length).toEqual(1);
+                expect($selections.children().first().data('item')).toEqual({
+                    value: '3',
+                    label: 'foo',
+                    data: {}
+                });
+            });
+            it('removes the item from the selectedItems array when the remove link is clicked', function(){
+               var $selections = multiSelleckt.$selections;
+
+                expect(multiSelleckt.getSelection()).toEqual([{
+                    value: '1',
+                    label: 'foo',
+                    data: {}
+                }, {
+                    value: '3',
+                    label: 'foo',
+                    data: {}
+                }]);
+
+                $clickTarget.trigger('click');
+
+                expect($selections.children().length).toEqual(1);
+
+                expect(multiSelleckt.getSelection()).toEqual([{
+                    value: '3',
+                    label: 'foo',
+                    data: {}
+                }]);
+            });
+            it('shows the item in the items when the remove link is clicked');
+        });
+
+        describe('events', function(){
+            it('does not open when it has a class of "disabled"');
         });
     });
 });
