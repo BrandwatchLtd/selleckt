@@ -20,7 +20,7 @@
         <div class="container">
             <h1>Selleckt demo</h1>
 
-            <div class="demo">
+            <div class="demo demo-1">
                 <h2>Single select</h2>
                 <p>Replaces a standard select element</p>
                 <select id="demo-1">
@@ -28,9 +28,9 @@
                     <option value="2">Bar</option>
                     <option value="3">Baz</option>
                 </select>
-            </demo>
+            </div>
 
-            <div class="demo">
+            <div class="demo demo-2">
                 <h2>Multi select</h2>
                 <p>Replaces select elements with the "multiple" attribute.</p>
                 <p>A list of selections is rendered separately and may be added to / removed from</p>
@@ -41,10 +41,10 @@
                 </select>
             </div>
 
-            <div class="demo">
+            <div class="demo demo-3">
                 <h2>Fancy select</h2>
-                <p>Multi select with a template with extra links in a "footer".</p>
-                <p>A custom handler is set up for the first link as follows:</p>
+                <p>Multi select with a template with extra links in a "footer", and links for selected items on mouseover.</p>
+                <p>A custom handler is set up for the first footer link as follows:</p>
 <pre>
 $select3.selleckt({
     mainTemplate : fancyTemplate,  //view source for this
@@ -55,13 +55,14 @@ $select3.selleckt({
     itemClass: 'item',
 });
 
-//get access to the sellect element and bind to the click event on the add link
+//get access to the selleckt element and bind to the click event on the add link
 $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
     e.preventDefault();
     e.stopPropagation();
     alert('Hey, you clicked the "add button"');
 });
 </pre>
+                <p>View source for the rest of the setup!</p>
                 <select id="demo-3" multiple="true">
                     <option value="1">Foo</option>
                     <option value="2">Bar</option>
@@ -127,8 +128,11 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
         </script>
         <script id="selectionTemplate" type="text/html">
             <li class="selectionItem" data-value="{{value}}">
-                {{text}}
-                <i class="icon-remove remove"></i>
+                <div>
+                    {{text}}
+                    <i class="icon-remove remove"></i>
+                </div>
+                <i class="icon-pencil edit hidden" data-item-value="{{value}}"></i>
             </li>
         </script>
         <script>
@@ -167,11 +171,20 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     selectionTemplate: selectionTemplate,
                 });
 
-                $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
-                    e.preventDefault();
-                    e.stopPropagation();
-                    alert('Hey, you clicked the "add button"');
-                });
+                $select3.data('selleckt').$sellecktEl
+                    .on('click', '.add', function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        alert('Hey, you clicked the "add button"');
+                    })
+                    .on('click', '.edit', function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var item = $(e.target).closest('.selectionItem').data('item');
+
+                        alert('Hey, you clicked the "edit button" for item: ' + JSON.stringify(item));
+                    });
             });
         </script>
     </body>
