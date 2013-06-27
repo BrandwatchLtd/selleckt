@@ -268,7 +268,7 @@ define(['lib/selleckt'],
                 it('shows the options on click on the selected item', function(){
                     var openStub = sinon.stub(selleckt, '_open');
 
-                    selleckt.$sellecktEl.find('.'+selleckt.selectedClass).trigger('mousedown');
+                    selleckt.$sellecktEl.find('.'+selleckt.selectedClass).trigger('click');
 
                     expect(openStub.calledOnce).toEqual(true);
                 });
@@ -276,7 +276,7 @@ define(['lib/selleckt'],
                     var openSpy = sinon.spy(selleckt, '_open'),
                         isStub;
 
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
                     expect(openSpy.calledOnce).toEqual(true);
 
                     isStub = sinon.stub($.fn, 'is', function(){
@@ -284,7 +284,7 @@ define(['lib/selleckt'],
                         return true;
                     });
 
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
 
                     expect(openSpy.calledOnce).toEqual(true);
 
@@ -298,27 +298,27 @@ define(['lib/selleckt'],
                     var openSpy = sinon.spy(selleckt, '_open'),
                         closeSpy = sinon.spy(selleckt, '_close');
 
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
 
                     expect(openSpy.calledOnce).toEqual(true);
                     expect(closeSpy.calledOnce).toEqual(false);
 
-                    $(document).trigger('mousedown');
+                    $(document).trigger('click');
 
                     expect(openSpy.calledOnce).toEqual(true);
                     expect(closeSpy.calledOnce).toEqual(true);
                 });
                 it('adds a class of "open" to this.$sellecktEl when the options are shown', function(){
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
                 });
                 it('removes the  "open" class from this.$sellecktEl when the options are hidden', function(){
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
 
-                    $(document).trigger('mousedown');
+                    $(document).trigger('click');
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
                 });
@@ -329,7 +329,7 @@ define(['lib/selleckt'],
 
                 beforeEach(function(){
                     $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
-                    $selectedItem.trigger('mousedown');
+                    $selectedItem.trigger('click');
                 });
 
                 it('does not allow multiple items to be selected', function(){
@@ -351,7 +351,7 @@ define(['lib/selleckt'],
                     });
 
                     selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                     expect(selleckt.selectedItem).toEqual({
                         value: '2',
@@ -366,7 +366,7 @@ define(['lib/selleckt'],
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
 
                     selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('bar');
                 });
@@ -375,7 +375,7 @@ define(['lib/selleckt'],
                     selleckt.bind('itemSelected', spy);
 
                     selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -394,7 +394,7 @@ define(['lib/selleckt'],
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
 
                     selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).not.toEqual('none');
                     expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
@@ -718,7 +718,7 @@ define(['lib/selleckt'],
                 multiSelleckt.selectedItems = [];
 
                 multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '2',
@@ -730,7 +730,7 @@ define(['lib/selleckt'],
                 }]);
 
                 multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseover').trigger('click');
 
                 expect(multiSelleckt.getSelection()).toEqual([
                     {
@@ -753,7 +753,7 @@ define(['lib/selleckt'],
                 multiSelleckt.render();
 
                 multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '2',
@@ -772,7 +772,7 @@ define(['lib/selleckt'],
             it('adds a class of "disabled" to the select if all options are selected', function(){
                 multiSelleckt.render();
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                 expect(multiSelleckt.getSelection().length).toEqual(3);
 
@@ -794,7 +794,7 @@ define(['lib/selleckt'],
                 it('removes the class of "disabled" from the select if all options were selected but one becomes available', function(){
                     multiSelleckt.render();
 
-                    multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                    multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                     expect(multiSelleckt.getSelection().length).toEqual(3);
                     expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
@@ -910,12 +910,12 @@ define(['lib/selleckt'],
             it('does not open when it has a class of "disabled"', function(){
                 multiSelleckt.render();
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
 
                 expect(multiSelleckt.getSelection().length).toEqual(3);
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
 
-                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
 
                 expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
             });
