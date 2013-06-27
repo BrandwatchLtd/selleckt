@@ -350,8 +350,8 @@ define(['lib/selleckt'],
                         data: {}
                     });
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect(selleckt.selectedItem).toEqual({
                         value: '2',
@@ -365,8 +365,8 @@ define(['lib/selleckt'],
                 it('updates the text of the selected item container with the selectedItem\'s label', function(){
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('bar');
                 });
@@ -374,8 +374,8 @@ define(['lib/selleckt'],
                     var spy = sinon.spy();
                     selleckt.bind('itemSelected', spy);
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -393,36 +393,36 @@ define(['lib/selleckt'],
                 it('shows the previously-selected item in the list', function(){
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).not.toEqual('none');
                     expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
                 });
                 it('highlights the current item on mouseover', function(){
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
 
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(true);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
                 });
                 it('removes the highlight from the current item on mouseout', function(){
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
 
-                    selleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
 
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(true);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
 
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
 
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
                 });
                 it('removes the highlight class from all items when it closes', function(){
-                    expect(selleckt.$sellecktEl.find('li').eq(1).hasClass('isHighlighted')).toEqual(false);
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
 
-                    selleckt.$sellecktEl.find('li').eq(1).trigger('mouseover');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
 
                     expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(1);
 
@@ -700,16 +700,14 @@ define(['lib/selleckt'],
                     selectedClassName: 'isSelected',
                     highlightClassName: 'isHighlighted'
                 });
-
-                multiSelleckt.render();
             });
 
-            xit('allows multiple items to be selected', function(){
+            it('allows multiple items to be selected', function(){
                 multiSelleckt.render();
                 multiSelleckt.selectedItems = [];
-
-                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+debugger;
+                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '2',
@@ -720,8 +718,8 @@ define(['lib/selleckt'],
                     }
                 }]);
 
-                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseover').trigger('mousedown');
 
                 expect(multiSelleckt.getSelection()).toEqual([
                     {
@@ -743,8 +741,8 @@ define(['lib/selleckt'],
                 multiSelleckt.selectedItems = [];
                 multiSelleckt.render();
 
-                multiSelleckt.$sellecktEl.find('li').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li').eq(1).trigger('mouseover').trigger('mousedown');
+                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '2',
