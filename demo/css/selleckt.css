@@ -54,7 +54,7 @@
     margin: 0;
     padding: 0;
 }
-.dropdown ul.items {
+.dropdown .items {
     display: none;
     position: absolute;
     left: 0;
@@ -74,7 +74,7 @@
     background-image: -o-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
 }
-.dropdown ul.items li {
+.dropdown .items li {
     position: relative;
     display: block;
     cursor: pointer;
@@ -82,6 +82,17 @@
     font-weight: 700;
     padding: 10px 12px;
 }
+    .dropdown .items footer {
+        padding: 10px;
+    }
+        .dropdown .items footer a {
+            cursor: pointer;
+        }
+        .dropdown .items footer hr {
+            padding: 0;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
 .dropdown ul.selections {
     list-style-type: none;
 }

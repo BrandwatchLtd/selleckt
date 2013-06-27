@@ -40,6 +40,34 @@
                     <option value="3">Baz</option>
                 </select>
             </div>
+
+            <div class="demo">
+                <h2>Fancy select</h2>
+                <p>Multi select with a template with extra links in a "footer".</p>
+                <p>A custom handler is set up for the first link as follows:</p>
+<pre>
+$select3.selleckt({
+    mainTemplate : fancyTemplate,  //view source for this
+    selectionTemplate: selectionTemplate, //and view source for this too
+    selectedClass: 'selected',
+    selectedTextClass: 'selectedText',
+    itemsClass: 'items',
+    itemClass: 'item',
+});
+
+//get access to the sellect element and bind to the click event on the add link
+$select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    alert('Hey, you clicked the "add button"');
+});
+</pre>
+                <select id="demo-3" multiple="true">
+                    <option value="1">Foo</option>
+                    <option value="2">Bar</option>
+                    <option value="3">Baz</option>
+                </select>
+            </div>
         </div>
         <script id="mainTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
@@ -73,6 +101,30 @@
                 </ul>
             </div>
         </script>
+        <script id="fancyTemplate" type="text/html">
+            <div class="{{className}}" tabindex=1>
+                <ul class="selections">
+                {{#selections}}
+                {{/selections}}
+                </ul>
+                <div class="selected">
+                    <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
+                </div>
+                <div class="items">
+                    <ul>
+                        {{#items}}
+                        <li class="item" data-text="{{label}}" data-value="{{value}}">
+                            {{label}}
+                        </li>
+                        {{/items}}
+                    </ul>
+                    <footer>
+                    <hr/>
+                    <a class="add">Add something</a> | <a target="_blank" href="http://google.com">Google</a>
+                    </footer>
+                </div>
+            </div>
+        </script>
         <script id="selectionTemplate" type="text/html">
             <li class="selectionItem" data-value="{{value}}">
                 {{text}}
@@ -83,9 +135,11 @@
             $(function(){
                 var $select1 = $('#demo-1'),
                     $select2 = $('#demo-2'),
+                    $select3 = $('#demo-3'),
                     mainTemplate = document.getElementById('mainTemplate').innerHTML,
                     multiTemplate = document.getElementById('multiTemplate').innerHTML,
-                    selectionTemplate = document.getElementById('selectionTemplate').innerHTML;
+                    selectionTemplate = document.getElementById('selectionTemplate').innerHTML,
+                    fancyTemplate = document.getElementById('fancyTemplate').innerHTML;
 
                 $select1.selleckt({
                     mainTemplate : mainTemplate,
@@ -102,6 +156,21 @@
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectionTemplate: selectionTemplate,
+                });
+
+                $select3.selleckt({
+                    mainTemplate : fancyTemplate,
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectionTemplate: selectionTemplate,
+                });
+
+                $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Hey, you clicked the "add button"');
                 });
             });
         </script>
