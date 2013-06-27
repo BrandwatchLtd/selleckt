@@ -705,7 +705,7 @@ define(['lib/selleckt'],
             it('allows multiple items to be selected', function(){
                 multiSelleckt.render();
                 multiSelleckt.selectedItems = [];
-debugger;
+
                 multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
                 multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
 
