@@ -128,6 +128,11 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
         </script>
         <script id="selectionTemplate" type="text/html">
             <li class="selectionItem" data-value="{{value}}">
+                {{text}}<i class="icon-remove remove"></i>
+            </li>
+        </script>
+        <script id="fancySelectionTemplate" type="text/html">
+            <li class="selectionItem" data-value="{{value}}">
                 <div>
                     {{text}}
                     <i class="icon-remove remove"></i>
@@ -143,7 +148,8 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     mainTemplate = document.getElementById('mainTemplate').innerHTML,
                     multiTemplate = document.getElementById('multiTemplate').innerHTML,
                     selectionTemplate = document.getElementById('selectionTemplate').innerHTML,
-                    fancyTemplate = document.getElementById('fancyTemplate').innerHTML;
+                    fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
+                    fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
                 $select1.selleckt({
                     mainTemplate : mainTemplate,
@@ -168,7 +174,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     selectedTextClass: 'selectedText',
                     itemsClass: 'items',
                     itemClass: 'item',
-                    selectionTemplate: selectionTemplate,
+                    selectionTemplate: fancySelectionTemplate,
                 });
 
                 $select3.data('selleckt').$sellecktEl
