@@ -430,12 +430,6 @@ define(['lib/selleckt'],
 
                     expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(0);
                 });
-                it('adds a class of "disabled" to the select if all options are selected');
-
-                describe('item deselection', function(){
-                    it('removes an item when the "remove" link is clicked');
-                    it('removes the class of "disabled" from the select if all options were selected but one becomes available');
-                });
             });
 
             describe('Keyboard input', function(){
@@ -545,14 +539,14 @@ define(['lib/selleckt'],
                 '</div>',
             multiselectItemTemplate =
                 '<li class="selection selectionItem" data-value="{{value}}">' +
-                    '{{text}}' +
+                    '<span class="selectedText">{{text}}</span>' +
                     '<i class="icon-remove remove"></i>' +
                 '</li>',
             selectHtml  =
                 '<select multiple>' +
                     '<option value="1" selected>foo</option>' +
                     '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
-                    '<option value="3" selected>foo</option>' +
+                    '<option value="3" selected>baz</option>' +
                 '</select>',
             $el;
 
@@ -676,13 +670,30 @@ define(['lib/selleckt'],
                         data: {}
                     }, {
                         value: '3',
-                        label: 'foo',
+                        label: 'baz',
                         data: {}
                     }]);
 
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
             });
-            it('renders the placeholder text in the selectedText area');
+            it('attaches the item to the selectedItem dom element', function(){
+                var selectedItems = multiSelleckt.getSelection();
+
+                expect(selectedItems).toEqual([{
+                        value: '1',
+                        label: 'foo',
+                        data: {}
+                    }, {
+                        value: '3',
+                        label: 'baz',
+                        data: {}
+                    }]);
+
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(0).data('item')).toEqual(selectedItems[0]);
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(1).data('item')).toEqual(selectedItems[1]);
+            });
         });
 
         describe('item selection', function(){
@@ -757,6 +768,43 @@ define(['lib/selleckt'],
 
                 expect(multiSelleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
             });
+
+            it('adds a class of "disabled" to the select if all options are selected', function(){
+                multiSelleckt.render();
+
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+
+                expect(multiSelleckt.getSelection().length).toEqual(3);
+
+                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
+            });
+
+            describe('item deselection', function(){
+                it('removes an item when the "remove" link is clicked', function(){
+                    multiSelleckt.render();
+
+                    expect(multiSelleckt.getSelection().length).toEqual(2);
+
+                    expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
+
+                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
+
+                    expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(1);
+                });
+                it('removes the class of "disabled" from the select if all options were selected but one becomes available', function(){
+                    multiSelleckt.render();
+
+                    multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+
+                    expect(multiSelleckt.getSelection().length).toEqual(3);
+                    expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
+
+                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
+
+                    expect(multiSelleckt.getSelection().length).toEqual(2);
+                    expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
+                });
+            });
         });
 
         describe('removing items', function(){
@@ -787,7 +835,7 @@ define(['lib/selleckt'],
                     data: {}
                 }, {
                     value: '3',
-                    label: 'foo',
+                    label: 'baz',
                     data: {}
                 }]);
 
@@ -803,7 +851,7 @@ define(['lib/selleckt'],
                 expect($selections.children().length).toEqual(1);
                 expect($selections.children().first().data('item')).toEqual({
                     value: '3',
-                    label: 'foo',
+                    label: 'baz',
                     data: {}
                 });
             });
@@ -816,7 +864,7 @@ define(['lib/selleckt'],
                     data: {}
                 }, {
                     value: '3',
-                    label: 'foo',
+                    label: 'baz',
                     data: {}
                 }]);
 
@@ -826,15 +874,51 @@ define(['lib/selleckt'],
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '3',
-                    label: 'foo',
+                    label: 'baz',
                     data: {}
                 }]);
             });
-            it('shows the item in the items when the remove link is clicked');
+            it('shows the item in the items when the remove link is clicked', function(){
+                var $selections = multiSelleckt.$selections;
+
+                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                $clickTarget.trigger('click');
+
+                expect($selections.children().length).toEqual(1);
+                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).not.toEqual('none');
+            });
         });
 
         describe('events', function(){
-            it('does not open when it has a class of "disabled"');
+            beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : mainTemplate,
+                    selectionTemplate: multiselectItemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
+            });
+
+            it('does not open when it has a class of "disabled"', function(){
+                multiSelleckt.render();
+
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('mousedown');
+
+                expect(multiSelleckt.getSelection().length).toEqual(3);
+                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
+
+                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('mousedown');
+
+                expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
+            });
         });
     });
 });
