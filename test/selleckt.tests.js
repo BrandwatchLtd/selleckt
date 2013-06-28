@@ -20,10 +20,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
             $el;
 
         beforeEach(function(){
-            $el = $('<select><option selected value="1">foo</option><option value="2" data-meh="whee" data-bah="oink">bar</option></select>');
+            $el = $('<select><option selected value="1">foo</option><option value="2" data-meh="whee" data-bah="oink">bar</option></select>').appendTo('body');
         });
 
         afterEach(function(){
+            $el.remove();
             $el = undefined;
 
             if(selleckt){
@@ -46,7 +47,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             itemsClass: 'items',
                             itemClass: 'item',
                             selectedClassName: 'isSelected',
-                            highlightClassName: 'isHighlighted'
+                            highlightClass: 'isHighlighted'
                         });
                     } catch(e){
                         err = e;
@@ -68,7 +69,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             itemsClass: 'items',
                             itemClass: 'item',
                             selectedClassName: 'isSelected',
-                            highlightClassName: 'isHighlighted'
+                            highlightClass: 'isHighlighted'
                         });
                     } catch(e){
                         err = e;
@@ -90,7 +91,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             selectedTextClass: 'selectedText',
                             itemClass: 'item',
                             selectedClassName: 'isSelected',
-                            highlightClassName: 'isHighlighted'
+                            highlightClass: 'isHighlighted'
                         });
                     } catch(e){
                         err = e;
@@ -112,7 +113,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             selectedTextClass: 'selectedText',
                             itemsClass: 'items',
                             selectedClassName: 'isSelected',
-                            highlightClassName: 'isHighlighted'
+                            highlightClass: 'isHighlighted'
                         });
                     } catch(e){
                         err = e;
@@ -159,7 +160,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         itemsClass: 'items',
                         itemClass: 'item',
                         selectedClassName: 'isSelected',
-                        highlightClassName: 'isHighlighted'
+                        highlightClass: 'isHighlighted'
                     });
                 });
 
@@ -191,8 +192,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.className).toEqual('selleckt');
                 });
 
-                it('stores options.highlightClassName as this.highlightClassName', function(){
-                    expect(selleckt.highlightClassName).toEqual('isHighlighted');
+                it('stores options.highlightClass as this.highlightClass', function(){
+                    expect(selleckt.highlightClass).toEqual('isHighlighted');
                 });
 
                 describe('items', function(){
@@ -277,7 +278,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
 
                 selleckt.render();
@@ -309,7 +310,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
 
                 selleckt.render();
@@ -327,31 +328,21 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('shows the options on click on the selected item', function(){
-                    var openStub = sinon.stub(selleckt, '_open');
+                    var openStub = sinon.stub(selleckt, '_open'),
+                        isStub = sinon.stub($.fn, 'is').returns(false);
 
                     selleckt.$sellecktEl.find('.'+selleckt.selectedClass).trigger('click');
 
                     expect(openStub.calledOnce).toEqual(true);
+
+                    isStub.restore();
                 });
                 it('does not call _open when the options are already showing', function(){
                     var openSpy = sinon.spy(selleckt, '_open'),
-                        isStub;
+                        isStub = sinon.stub($.fn, 'is').returns(true);
 
                     $selectedItem.trigger('click');
-                    expect(openSpy.calledOnce).toEqual(true);
-
-                    isStub = sinon.stub($.fn, 'is', function(){
-                        //stubs out the ':visible' check on
-                        return true;
-                    });
-
-                    $selectedItem.trigger('click');
-
-                    expect(openSpy.calledOnce).toEqual(true);
-
-                    //sanity check
-                    expect(isStub.calledOnce).toEqual(true);
-                    expect(isStub.args[0][0]).toEqual(':visible');
+                    expect(openSpy.calledOnce).toEqual(false);
 
                     isStub.restore();
                 });
@@ -359,27 +350,24 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     var openSpy = sinon.spy(selleckt, '_open'),
                         closeSpy = sinon.spy(selleckt, '_close');
 
-                    $selectedItem.trigger('click');
-
-                    expect(openSpy.calledOnce).toEqual(true);
-                    expect(closeSpy.calledOnce).toEqual(false);
+                    selleckt._open();
 
                     $(document).trigger('click');
 
                     expect(openSpy.calledOnce).toEqual(true);
                     expect(closeSpy.calledOnce).toEqual(true);
                 });
-                it('adds a class of "open" to this.$sellecktEl when the options are shown', function(){
-                    $selectedItem.trigger('click');
+                it('adds a class of "open" to this.$sellecktEl when the selleckt is opened', function(){
+                    selleckt._open();
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
                 });
-                it('removes the  "open" class from this.$sellecktEl when the options are hidden', function(){
-                    $selectedItem.trigger('click');
+                it('removes the  "open" class from this.$sellecktEl when the selleckt is closed', function(){
+                    selleckt._open();
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
 
-                    $(document).trigger('click');
+                    selleckt._close();
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
                 });
@@ -503,6 +491,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 beforeEach(function(){
                     $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
                     selleckt.$sellecktEl.focus();
                 });
 
@@ -511,11 +500,19 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('opens the items list when enter is pressed on a closed selleckt', function(){
+                    var isStub = sinon.stub($.fn, 'is').returns(false);
+
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
 
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
+
+                    expect(isStub.calledOnce).toEqual(true);
+                    expect(isStub.calledOn(selleckt.$items)).toEqual(true);
+                    expect(isStub.calledWith(':visible')).toEqual(true);
+
+                    isStub.restore();
                 });
 
                 it('selects the current item when enter is pressed on an open selleckt', function(){
@@ -524,23 +521,12 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     selleckt.bind('itemSelected', spy);
 
-                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+                    selleckt._open();
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
-
-                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
-
-                    isStub = sinon.stub($.fn, 'is', function(){
-                        //stubs out the ':visible' check on
-                        return true;
-                    });
+                    isStub = sinon.stub($.fn, 'is').returns(true);
 
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
-
-                    //sanity check
-                    expect(isStub.calledOnce).toEqual(true);
-                    expect(isStub.args[0][0]).toEqual(':visible');
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -556,24 +542,193 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('Highlights the next item when down is pressed', function(){
-                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+                    selleckt._open();
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
 
-                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClassName)).toEqual(false);
-                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClassName)).toEqual(true);
+                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(false);
+                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(true);
                 });
 
                 it('Highlights the previous item when up is pressed', function(){
-                    expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+                    //FIXME: This is horrible.
+                    var prevAllStub = sinon.stub($.fn, 'prevAll').returns( { first: function(){ return selleckt.$items.find('.item').eq(0); }} );
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    selleckt._open();
+
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+
+                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(false);
+                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(true);
+
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
 
-                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClassName)).toEqual(true);
-                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClassName)).toEqual(false);
+                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(true);
+                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(false);
+
+                    prevAllStub.restore();
+                });
+            });
+        });
+
+        describe('search', function(){
+            var selectHtml = '<select>' +
+                    '<option value="foo">foo</option>' +
+                    '<option value="bar">bar</option>' +
+                    '<option value="baz">baz</option>' +
+                    '<option value="foofoo">foofoo</option>' +
+                    '<option value="foobaz">foobaz</option>' +
+                    '</select>',
+                template =
+                '<div class="{{className}}" tabindex=1>' +
+                    '<div class="selected">' +
+                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                    '</div>' +
+                    '<ul class="items">' +
+                        '{{#showSearch}}' +
+                        '<li class="searchContainer">' +
+                            '<input class="search"></input>' +
+                        '</li>' +
+                        '{{/showSearch}}' +
+                        '{{#items}}' +
+                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
+                            '<span class="itemText">{{label}}</span>' +
+                        '</li>' +
+                        '{{/items}}' +
+                    '</ul>' +
+                '</div>',
+                $searchInput;
+
+            describe('initialization', function(){
+                it('displays a searchbox if settings.showSearch is true and there are more items than options.searchThreshold', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(1);
+                });
+                it('does not display a searchbox if settings.showSearch is true and there are fewer items than options.searchThreshold', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: true,
+                        searchThreshold: 100
+                    });
+
+                    selleckt.render();
+
+                    expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(0);
+                });
+                it('does not display a searchbox if settings.showSearch is false', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: false
+                    });
+
+                    selleckt.render();
+
+                    expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(0);
+                });
+            });
+
+            describe('functionality', function(){
+
+                beforeEach(function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    $searchInput = selleckt.$sellecktEl.find('.search');
+                });
+
+                afterEach(function(){
+                    $searchInput = undefined;
+                });
+
+                describe('filtering', function(){
+                    it('can annotate the items with matchIndexes', function(){
+                        var output = selleckt._findMatchingOptions(selleckt.items, 'ba');
+
+                        expect(output).toEqual([
+                            { label: 'foo', value: 'foo', data:{} },
+                            { label: 'bar', value: 'bar', data:{}, matchStart: 0, matchEnd: 1 },
+                            { label: 'baz', value: 'baz', data:{}, matchStart: 0, matchEnd: 1 },
+                            { label: 'foofoo', value: 'foofoo', data:{} },
+                            { label: 'foobaz', value: 'foobaz', data:{}, matchStart: 3, matchEnd: 4 }
+                        ]);
+                    });
+
+                    it('filters the available options as the user types in the searchbox', function(){
+                        var _findMatchingOptionsSpy = sinon.spy(selleckt, '_findMatchingOptions'),
+                            clock = sinon.useFakeTimers();
+
+                        selleckt._open();
+                        $searchInput.val('baz').trigger('keyup');
+
+                        //handler is _.debounced
+                        clock.tick(1000);
+
+                        expect(selleckt.$items.find('.item').eq(0).css('display')).toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(1).css('display')).toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(2).css('display')).not.toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(3).css('display')).toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(4).css('display')).not.toEqual('none');
+
+                        clock.restore();
+                    });
+                    it('wraps matched text in the matching options with a "mark" tag', function(){
+                        var _findMatchingOptionsSpy = sinon.spy(selleckt, '_findMatchingOptions'),
+                            clock = sinon.useFakeTimers();
+
+                        selleckt._open();
+                        $searchInput.val('baz').trigger('keyup');
+
+                        //handler is _.debounced
+                        clock.tick(1000);
+
+                        expect(selleckt.$items.find('.item mark').length).toEqual(2);
+                        expect(selleckt.$items.find('.item mark').parent('.itemText').eq(0).text()).toEqual('baz');
+                        expect(selleckt.$items.find('.item mark').parent('.itemText').eq(1).text()).toEqual('foobaz');
+
+                        clock.restore();
+                    });
                 });
             });
         });
@@ -643,7 +798,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         itemClass: 'item',
                         removeItemClass: 'removeItem',
                         selectedClassName: 'isSelected',
-                        highlightClassName: 'isHighlighted'
+                        highlightClass: 'isHighlighted'
                     });
                 });
 
@@ -683,7 +838,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         itemsClass: 'items',
                         itemClass: 'item',
                         selectedClassName: 'isSelected',
-                        highlightClassName: 'isHighlighted'
+                        highlightClass: 'isHighlighted'
                     });
                 });
 
@@ -760,7 +915,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
 
                 multiSelleckt.render();
@@ -812,7 +967,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
             });
 
@@ -927,7 +1082,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
 
                 multiSelleckt.render();
@@ -1006,7 +1161,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     itemsClass: 'items',
                     itemClass: 'item',
                     selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    highlightClass: 'isHighlighted'
                 });
             });
 

@@ -31,17 +31,34 @@
             </div>
 
             <div class="demo demo-2">
+                <h2>Single select with search</h2>
+                <p>Replaces a standard select element. Adds filtering functionality.</p>
+                <select id="demo-2">
+                    <option value="1">Foo</option>
+                    <option value="2">Bar</option>
+                    <option value="3">Baz</option>
+                    <option value="4">Bez</option>
+                    <option value="5">Foobar</option>
+                    <option value="6">Ackbar</option>
+                    <option value="7">Nom</option>
+                    <option value="8">NomNom</option>
+                    <option value="9">Bazooka</option>
+                    <option value="10">FooBarz</option>
+                </select>
+            </div>
+
+            <div class="demo demo-3">
                 <h2>Multi select</h2>
                 <p>Replaces select elements with the "multiple" attribute.</p>
                 <p>A list of selections is rendered separately and may be added to / removed from</p>
-                <select id="demo-2" multiple="true">
+                <select id="demo-3" multiple="true">
                     <option value="1">Foo</option>
                     <option value="2">Bar</option>
                     <option value="3">Baz</option>
                 </select>
             </div>
 
-            <div class="demo demo-3">
+            <div class="demo demo-4">
                 <h2>Fancy select</h2>
                 <p>Multi select with a template with extra links in a "footer", and links for selected items on mouseover.</p>
                 <p>A custom handler is set up for the first footer link as follows:</p>
@@ -63,7 +80,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 });
 </pre>
                 <p>View source for the rest of the setup!</p>
-                <select id="demo-3" multiple="true">
+                <select id="demo-4" multiple="true">
                     <option value="1">Foo</option>
                     <option value="2">Bar</option>
                     <option value="3">Baz</option>
@@ -76,9 +93,14 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
                 </div>
                 <ul class="items">
+                    {{#showSearch}}
+                    <li class="searchContainer">
+                        <input class="search"></input>
+                    </li>
+                    {{/showSearch}}
                     {{#items}}
                     <li class="item" data-text="{{label}}" data-value="{{value}}">
-                        {{label}}
+                        <span class="itemText">{{label}}</span>
                     </li>
                     {{/items}}
                 </ul>
@@ -145,6 +167,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 var $select1 = $('#demo-1'),
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),
+                    $select4 = $('#demo-4'),
                     mainTemplate = document.getElementById('mainTemplate').innerHTML,
                     multiTemplate = document.getElementById('multiTemplate').innerHTML,
                     selectionTemplate = document.getElementById('selectionTemplate').innerHTML,
@@ -160,6 +183,15 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 });
 
                 $select2.selleckt({
+                    mainTemplate : mainTemplate,
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    enableSearch: true
+                });
+
+                $select3.selleckt({
                     mainTemplate : multiTemplate,
                     selectedClass: 'selected',
                     selectedTextClass: 'selectedText',
@@ -168,7 +200,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     selectionTemplate: selectionTemplate,
                 });
 
-                $select3.selleckt({
+                $select4.selleckt({
                     mainTemplate : fancyTemplate,
                     selectedClass: 'selected',
                     selectedTextClass: 'selectedText',
@@ -177,7 +209,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     selectionTemplate: fancySelectionTemplate,
                 });
 
-                $select3.data('selleckt').$sellecktEl
+                $select4.data('selleckt').$sellecktEl
                     .on('click', '.add', function(e){
                         e.preventDefault();
                         e.stopPropagation();

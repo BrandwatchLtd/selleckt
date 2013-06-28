@@ -100,12 +100,16 @@
     .dropdown .selectionItem:hover i.edit {
         visibility: visible;
     }
+.dropdown .items mark {
+    color: red;
+}
 .dropdown ul.selections {
     list-style-type: none;
 }
 
 .demo-2 .dropdown ul.selections li,
-.demo-3 .dropdown ul.selections li > div{
+.demo-3 .dropdown ul.selections li,
+.demo-4 .dropdown ul.selections li > div {
     position: relative;
     padding: 5px 12px;
     font-weight: 700;
@@ -118,10 +122,14 @@
     background-image: -o-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
 }
-.demo-2 .dropdown ul.selections li {
+.demo-2 .dropdown ul.selections li,
+.demo-3 .dropdown ul.selections li {
     margin: 0 0 2px 0;
 }
-.demo-3 .dropdown ul.selections li > div {
+.demo-4 .dropdown ul.selections li {
+    position: relative;
+}
+.demo-4 .dropdown ul.selections li > div {
     margin: 0 30px 2px 0;
 }
 .dropdown .selections i {
