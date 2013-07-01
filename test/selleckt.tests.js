@@ -1,5 +1,5 @@
-define(['lib/selleckt'],
-    function(Selleckt){
+define(['lib/selleckt', 'lib/mustache.js'],
+    function(Selleckt, Mustache){
     'use strict';
 
     describe('selleckt', function(){
@@ -121,6 +121,30 @@ define(['lib/selleckt'],
                     expect(err).toBeDefined();
                     expect(err.message).toEqual('selleckt must be instantiated with an "itemClass" option');
                 });
+
+                it('pukes if instantiated with an invalid template format', function(){
+                    var err;
+
+                    try{
+                        selleckt = Selleckt.create({
+                            mainTemplate : {template: mainTemplate},
+                            $selectEl : $el,
+                            className: 'selleckt',
+                            selectedClass: 'selected',
+                            selectedTextClass: 'selectedText',
+                            itemsClass: 'items',
+                            itemClass: 'item',
+                            selectedClassName: 'isSelected',
+                            highlightClassName: 'isHighlighted'
+                        });
+                    } catch(e){
+                        err = e;
+                    }
+
+                    expect(err).toBeDefined();
+                    expect(err.message).toEqual('Please provide a valid mustache template.');
+                });
+
             });
 
             describe('valid instantation', function(){
@@ -156,7 +180,7 @@ define(['lib/selleckt'],
                 });
 
                 it('stores options.mainTemplate as this.template', function(){
-                    expect(selleckt.template).toEqual(mainTemplate);
+                    expect(selleckt.template({})).toEqual(Mustache.compile(mainTemplate)({}));
                 });
 
                 it('stores options.selectEl as this.originalSelectEl', function(){
@@ -204,6 +228,42 @@ define(['lib/selleckt'],
                     });
                 });
             });
+
+            describe('template formats', function(){
+                it('accepts template strings', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : mainTemplate,
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClassName: 'isHighlighted'
+                    });
+                    selleckt.render();
+                    expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
+                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
+                });
+
+                it('accepts compiled templates', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : Mustache.compile(mainTemplate),
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClassName: 'isHighlighted'
+                    });
+                    selleckt.render();
+                    expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
+                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
+                });
+            });
         });
 
         describe('rendering', function(){
@@ -227,7 +287,8 @@ define(['lib/selleckt'],
             });
             it('renders the selected text element based on this.template', function(){
                 expect(selleckt.$sellecktEl.find('.selectedText').length).toEqual(1);
-                expect(selleckt.$sellecktEl.find('.selectedText').text()).toEqual(selleckt.selectedItem.label);            });
+                expect(selleckt.$sellecktEl.find('.selectedText').text()).toEqual(selleckt.selectedItem.label);
+            });
             it('renders the items correctly', function(){
                 expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
                 expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
@@ -587,7 +648,7 @@ define(['lib/selleckt'],
                 });
 
                 it('stores options.selectionTemplate as this.selectionTemplate',function(){
-                    expect(multiSelleckt.selectionTemplate).toEqual(multiselectItemTemplate);
+                    expect(multiSelleckt.selectionTemplate({})).toEqual(Mustache.compile(multiselectItemTemplate)({}));
                 });
                 it('stores options.selectionsClass as this.selectionsClass',function(){
                     expect(multiSelleckt.selectionsClass).toEqual('mySelections');
@@ -641,6 +702,48 @@ define(['lib/selleckt'],
                 it('defaults this.alternatePlaceholder to "Select another..."',function(){
                     expect(multiSelleckt.alternatePlaceholder).toEqual('Select another...');
                 });
+            });
+        });
+
+        describe('template formats', function(){
+            it('accepts template strings', function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : mainTemplate,
+                    selectionTemplate: multiselectItemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
+                multiSelleckt.render();
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
+            });
+
+            it('accepts compiled templates', function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    mainTemplate : Mustache.compile(mainTemplate),
+                    selectionTemplate: Mustache.compile(multiselectItemTemplate),
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClassName: 'isHighlighted'
+                });
+                multiSelleckt.render();
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
             });
         });
 
