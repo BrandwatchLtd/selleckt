@@ -297,6 +297,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
             it('hides the original Select element', function(){
                 expect(selleckt.$originalSelectEl.css('display')).toEqual('none');
             });
+            it('adds a class of "closed" to the element', function(){
+                expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
+            });
         });
 
         describe('Events', function(){
@@ -362,6 +365,13 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
                 });
+                it('removes the class of "closed" from this.$sellecktEl when the selleckt is closed', function(){
+                    expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
+
+                    selleckt._open();
+
+                    expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(false);
+                });
                 it('removes the  "open" class from this.$sellecktEl when the selleckt is closed', function(){
                     selleckt._open();
 
@@ -370,6 +380,15 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt._close();
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
+                });
+                it('adds a class of "closed" to this.$sellecktEl when the selleckt is closed', function(){
+                    selleckt._open();
+
+                    expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(false);
+
+                    selleckt._close();
+
+                    expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
                 });
             });
 
