@@ -467,25 +467,18 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).not.toEqual('none');
                     expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
                 });
-                it('highlights the current item on mouseover', function(){
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
+                it('highlights the current item and de-highlights all other items on mouseover', function(){
+                    var liOne = selleckt.$sellecktEl.find('li.item').eq(0), liTwo = selleckt.$sellecktEl.find('li.item').eq(1);
+                    expect(liTwo.hasClass('isHighlighted')).toEqual(false);
 
-                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
+                    liOne.trigger('mouseover');
+                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
+                    liOne.trigger('mouseout');
+                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
+                    liTwo.trigger('mouseover')
+                    expect(liOne.hasClass('isHighlighted')).toEqual(false);
+                    expect(liTwo.hasClass('isHighlighted')).toEqual(true);
 
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
-                });
-                it('removes the highlight from the current item on mouseout', function(){
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
-
-                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
-
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
-
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
-
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
                 });
                 it('removes the highlight class from all items when it closes', function(){
                     expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
