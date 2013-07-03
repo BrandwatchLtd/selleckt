@@ -17,14 +17,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     '{{/items}}' +
                 '</ul>' +
                 '</div>',
+            elHtml =
+                '<select>' +
+                    '<option selected value="1">foo</option>' +
+                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                    '<option value="3">baz</option>' +
+                '</select>',
             $el;
 
         beforeEach(function(){
-            $el = $('<select>\
-                        <option selected value="1">foo</option>\
-                        <option value="2" data-meh="whee" data-bah="oink">bar</option>\
-                        <option value="3">baz</option>\
-                    </select>').appendTo('body');
+            $el = $(elHtml).appendTo('body');
         });
 
         afterEach(function(){
@@ -664,6 +666,59 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt.render();
 
                     expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(0);
+                });
+
+                it('empties the search input when _close() is called', function(){
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
+
+                    $searchInput.val('foo');
+
+                    selleckt._close();
+
+                    expect($searchInput.val()).toEqual('');
+                });
+
+                it('unfilters the selections list when _close() is called', function(){
+                    var filterOptionsStub;
+
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    filterOptionsStub = sinon.stub(selleckt, 'filterOptions');
+
+                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
+
+                    selleckt._close();
+
+                    expect(filterOptionsStub.calledOnce).toEqual(true);
+                    expect(filterOptionsStub.calledWith('')).toEqual(true);
                 });
             });
 
