@@ -502,7 +502,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     KEY_CODES = {
                         DOWN: 40,
                         UP: 38,
-                        ENTER: 13
+                        ENTER: 13,
+                        ESC: 27
                     };
 
                 beforeEach(function(){
@@ -577,6 +578,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
                     expect(liThree.hasClass(selleckt.highlightClass)).toEqual(false);
+                });
+
+                it('closes the selleckt when escape is pressed', function(){
+                    var closeStub = sinon.stub(selleckt, '_close');
+
+                    selleckt._open();
+
+                    selleckt.$sellecktEl.trigger(jQuery.Event('keyup', { keyCode : KEY_CODES.ESC }));
+
+                    expect(closeStub.calledOnce).toEqual(true);
                 });
             });
         });
