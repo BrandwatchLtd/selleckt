@@ -20,7 +20,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
             $el;
 
         beforeEach(function(){
-            $el = $('<select><option selected value="1">foo</option><option value="2" data-meh="whee" data-bah="oink">bar</option></select>').appendTo('body');
+            $el = $('<select>\
+                        <option selected value="1">foo</option>\
+                        <option value="2" data-meh="whee" data-bah="oink">bar</option>\
+                        <option value="3">baz</option>\
+                    </select>').appendTo('body');
         });
 
         afterEach(function(){
@@ -198,7 +202,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 describe('items', function(){
                     it('instantiates this.items as an based on the options in the original select', function(){
-                        expect(selleckt.items.length).toEqual(2);
+                        expect(selleckt.items.length).toEqual(3);
                     });
                     it('stores the option text as "label"', function(){
                         expect(selleckt.items[0].label).toEqual('foo');
@@ -245,7 +249,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     });
                     selleckt.render();
                     expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
+                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
                 });
 
                 it('accepts compiled templates', function(){
@@ -262,7 +266,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     });
                     selleckt.render();
                     expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
+                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
                 });
             });
         });
@@ -292,7 +296,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
             it('renders the items correctly', function(){
                 expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(2);
+                expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
             });
             it('hides the original Select element', function(){
                 expect(selleckt.$originalSelectEl.css('display')).toEqual('none');
@@ -467,25 +471,18 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).not.toEqual('none');
                     expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
                 });
-                it('highlights the current item on mouseover', function(){
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
+                it('highlights the current item and de-highlights all other items on mouseover', function(){
+                    var liOne = selleckt.$sellecktEl.find('li.item').eq(0), liTwo = selleckt.$sellecktEl.find('li.item').eq(1);
+                    expect(liTwo.hasClass('isHighlighted')).toEqual(false);
 
-                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
+                    liOne.trigger('mouseover');
+                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
+                    liOne.trigger('mouseout');
+                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
+                    liTwo.trigger('mouseover')
+                    expect(liOne.hasClass('isHighlighted')).toEqual(false);
+                    expect(liTwo.hasClass('isHighlighted')).toEqual(true);
 
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
-                });
-                it('removes the highlight from the current item on mouseout', function(){
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
-
-                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
-
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(true);
-
-                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
-
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
                 });
                 it('removes the highlight class from all items when it closes', function(){
                     expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
@@ -560,32 +557,26 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     isStub.restore();
                 });
 
-                it('Highlights the next item when down is pressed', function(){
-                    selleckt._open();
-
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
-
-                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(false);
-                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(true);
-                });
-
-                it('Highlights the previous item when up is pressed', function(){
-                    //FIXME: This is horrible.
-                    var prevAllStub = sinon.stub($.fn, 'prevAll').returns( { first: function(){ return selleckt.$items.find('.item').eq(0); }} );
+                it('Highlights the next item when DOWN is pressed, the previous when UP is pressed', function(){
+                    var liOne = selleckt.$items.find('.item').eq(0),
+                        liTwo = selleckt.$items.find('.item').eq(1),
+                        liThree = selleckt.$items.find('.item').eq(2);
 
                     selleckt._open();
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    expect(liOne.is(':visible')).toEqual(false);
 
-                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(false);
-                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(true);
+                    expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
+
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
+                    expect(liThree.hasClass(selleckt.highlightClass)).toEqual(true);
 
                     $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
-
-                    expect(selleckt.$items.find('.item').eq(0).hasClass(selleckt.highlightClass)).toEqual(true);
-                    expect(selleckt.$items.find('.item').eq(1).hasClass(selleckt.highlightClass)).toEqual(false);
-
-                    prevAllStub.restore();
+                    expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
+                    expect(liThree.hasClass(selleckt.highlightClass)).toEqual(false);
                 });
             });
         });
