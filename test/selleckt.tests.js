@@ -40,101 +40,32 @@ define(['lib/selleckt', 'lib/mustache.js'],
         });
 
         describe('Instantiation', function(){
+            var template =
+                '<div class="{{className}}" tabindex=1>' +
+                    '<div class="selected">' +
+                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                    '</div>' +
+                    '<ul class="items">' +
+                        '{{#showSearch}}' +
+                        '<li class="searchContainer">' +
+                            '<input class="search"></input>' +
+                        '</li>' +
+                        '{{/showSearch}}' +
+                        '{{#items}}' +
+                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
+                            '<span class="itemText">{{label}}</span>' +
+                        '</li>' +
+                        '{{/items}}' +
+                    '</ul>' +
+                '</div>';
+
             describe('invalid instantiation', function(){
-                it('pukes if instantiated without a "selectedClass" selector', function(){
-                    var err;
-
-                    try{
-                        selleckt = Selleckt.create({
-                            mainTemplate : mainTemplate,
-                            $selectEl : $el,
-                            className: 'selleckt',
-                            selectedTextClass: 'selectedText',
-                            itemsClass: 'items',
-                            itemClass: 'item',
-                            selectedClassName: 'isSelected',
-                            highlightClass: 'isHighlighted'
-                        });
-                    } catch(e){
-                        err = e;
-                    }
-
-                    expect(err).toBeDefined();
-                    expect(err.message).toEqual('selleckt must be instantiated with a "selectedClass" option');
-                });
-
-                it('pukes if instantiated without a "selectedTextClass" selector', function(){
-                    var err;
-
-                    try{
-                        selleckt = Selleckt.create({
-                            mainTemplate : mainTemplate,
-                            $selectEl : $el,
-                            className: 'selleckt',
-                            selectedClass: 'selected',
-                            itemsClass: 'items',
-                            itemClass: 'item',
-                            selectedClassName: 'isSelected',
-                            highlightClass: 'isHighlighted'
-                        });
-                    } catch(e){
-                        err = e;
-                    }
-
-                    expect(err).toBeDefined();
-                    expect(err.message).toEqual('selleckt must be instantiated with a "selectedTextClass" option');
-                });
-
-                it('pukes if instantiated without a "itemsClass" selector', function(){
-                    var err;
-
-                    try{
-                        selleckt = Selleckt.create({
-                            mainTemplate : mainTemplate,
-                            $selectEl : $el,
-                            className: 'selleckt',
-                            selectedClass: 'selected',
-                            selectedTextClass: 'selectedText',
-                            itemClass: 'item',
-                            selectedClassName: 'isSelected',
-                            highlightClass: 'isHighlighted'
-                        });
-                    } catch(e){
-                        err = e;
-                    }
-
-                    expect(err).toBeDefined();
-                    expect(err.message).toEqual('selleckt must be instantiated with an "itemsClass" option');
-                });
-
-                it('pukes if instantiated without a "itemClass" selector', function(){
-                    var err;
-
-                    try{
-                        selleckt = Selleckt.create({
-                            mainTemplate : mainTemplate,
-                            $selectEl : $el,
-                            className: 'selleckt',
-                            selectedClass: 'selected',
-                            selectedTextClass: 'selectedText',
-                            itemsClass: 'items',
-                            selectedClassName: 'isSelected',
-                            highlightClass: 'isHighlighted'
-                        });
-                    } catch(e){
-                        err = e;
-                    }
-
-                    expect(err).toBeDefined();
-                    expect(err.message).toEqual('selleckt must be instantiated with an "itemClass" option');
-                });
-
                 it('pukes if instantiated with an invalid template format', function(){
                     var err;
 
                     try{
                         selleckt = Selleckt.create({
-                            mainTemplate : {template: mainTemplate},
+                            mainTemplate : {template: template},
                             $selectEl : $el,
                             className: 'selleckt',
                             selectedClass: 'selected',
@@ -158,7 +89,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 beforeEach(function(){
                     selleckt = Selleckt.create({
-                        mainTemplate : mainTemplate,
+                        mainTemplate: template,
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -187,7 +118,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('stores options.mainTemplate as this.template', function(){
-                    expect(selleckt.template({})).toEqual(Mustache.compile(mainTemplate)({}));
+                    expect(selleckt.mainTemplate({})).toEqual(Mustache.compile(template)({}));
                 });
 
                 it('stores options.selectEl as this.originalSelectEl', function(){
@@ -239,7 +170,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             describe('template formats', function(){
                 it('accepts template strings', function(){
                     selleckt = Selleckt.create({
-                        mainTemplate : mainTemplate,
+                        mainTemplate : template,
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -256,7 +187,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 it('accepts compiled templates', function(){
                     selleckt = Selleckt.create({
-                        mainTemplate : Mustache.compile(mainTemplate),
+                        mainTemplate : Mustache.compile(template),
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -276,15 +207,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
         describe('rendering', function(){
             beforeEach(function(){
                 selleckt = Selleckt.create({
-                    mainTemplate : mainTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
 
                 selleckt.render();
@@ -311,15 +234,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
         describe('Events', function(){
             beforeEach(function(){
                 selleckt = Selleckt.create({
-                    mainTemplate : mainTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
 
                 selleckt.render();
@@ -474,28 +389,34 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
                 });
                 it('highlights the current item and de-highlights all other items on mouseover', function(){
-                    var liOne = selleckt.$sellecktEl.find('li.item').eq(0), liTwo = selleckt.$sellecktEl.find('li.item').eq(1);
-                    expect(liTwo.hasClass('isHighlighted')).toEqual(false);
+                    var highlightClass = selleckt.highlightClass,
+                        liOne = selleckt.$sellecktEl.find('li.item').eq(0), liTwo = selleckt.$sellecktEl.find('li.item').eq(1);
+
+                    expect(liTwo.hasClass(highlightClass)).toEqual(false);
 
                     liOne.trigger('mouseover');
-                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
+                    expect(liOne.hasClass(highlightClass)).toEqual(true);
+
                     liOne.trigger('mouseout');
-                    expect(liOne.hasClass('isHighlighted')).toEqual(true);
-                    liTwo.trigger('mouseover')
-                    expect(liOne.hasClass('isHighlighted')).toEqual(false);
-                    expect(liTwo.hasClass('isHighlighted')).toEqual(true);
+                    expect(liOne.hasClass(highlightClass)).toEqual(true);
+
+                    liTwo.trigger('mouseover');
+                    expect(liOne.hasClass(highlightClass)).toEqual(false);
+                    expect(liTwo.hasClass(highlightClass)).toEqual(true);
 
                 });
                 it('removes the highlight class from all items when it closes', function(){
-                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass('isHighlighted')).toEqual(false);
+                    var highlightClass = selleckt.highlightClass;
+
+                    expect(selleckt.$sellecktEl.find('li.item').eq(1).hasClass(highlightClass)).toEqual(false);
 
                     selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover');
 
-                    expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(1);
+                    expect(selleckt.$sellecktEl.find('li.' + highlightClass).length).toEqual(1);
 
                     selleckt._close();
 
-                    expect(selleckt.$sellecktEl.find('li.isHighlighted').length).toEqual(0);
+                    expect(selleckt.$sellecktEl.find('li.' + highlightClass).length).toEqual(0);
                 });
             });
 
@@ -623,35 +544,22 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 $searchInput;
 
             describe('initialization', function(){
-                it('displays a searchbox if settings.showSearch is true and there are more items than options.searchThreshold', function(){
+                it('displays a searchbox if settings.enableSearch is true and there are more items than options.searchThreshold', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
-                        enableSearch: true
+                        enableSearch: true,
+                        searchThreshold: 0
                     });
 
                     selleckt.render();
 
                     expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(1);
                 });
-                it('does not display a searchbox if settings.showSearch is true and there are fewer items than options.searchThreshold', function(){
+                it('does not display a searchbox if settings.enableSearch is true and there are fewer items than options.searchThreshold', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
                         enableSearch: true,
                         searchThreshold: 100
                     });
@@ -660,17 +568,10 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(0);
                 });
-                it('does not display a searchbox if settings.showSearch is false', function(){
+                it('does not display a searchbox if settings.enableSearch is false', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
                         enableSearch: false
                     });
 
@@ -683,13 +584,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
                         enableSearch: true
                     });
 
@@ -710,13 +604,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
                         enableSearch: true
                     });
 
@@ -739,13 +626,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted',
                         enableSearch: true
                     });
 
@@ -812,9 +692,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
     describe('multiselleckt', function(){
         var multiSelleckt,
+            $el,
+            selectHtml  =
+                '<select multiple>' +
+                    '<option value="1" selected>foo</option>' +
+                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                    '<option value="3" selected>baz</option>' +
+                '</select>',
             mainTemplate =
-                '<div class="{{className}}">' +
-                    '<ul class="selections">' +
+                '<div class="{{className}} custom" tabindex=1>' +
+                    '<ul class="mySelections">' +
                     '{{#selections}}' +
                     '{{/selections}}' +
                     '</ul>' +
@@ -823,24 +710,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     '</div>' +
                     '<ul class="items">' +
                         '{{#items}}' +
-                        '<li class="item{{#selected}} selected{{/selected}}" data-value="{{value}}">' +
+                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
                             '{{label}}' +
                         '</li>' +
                         '{{/items}}' +
                     '</ul>' +
                 '</div>',
-            multiselectItemTemplate =
-                '<li class="selection selectionItem" data-value="{{value}}">' +
-                    '<span class="selectedText">{{text}}</span>' +
-                    '<i class="icon-remove remove"></i>' +
-                '</li>',
-            selectHtml  =
-                '<select multiple>' +
-                    '<option value="1" selected>foo</option>' +
-                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
-                    '<option value="3" selected>baz</option>' +
-                '</select>',
-            $el;
+            selectionTemplate =
+                '<li class="mySelectionItem custom-item" data-value="{{value}}">' +
+                    '{{text}}<i class="icon-remove remove"></i>' +
+                '</li>';
 
         beforeEach(function(){
             $el = $(selectHtml);
@@ -859,12 +738,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
             describe('custom options', function(){
                 beforeEach(function(){
                     multiSelleckt = Selleckt.create({
+                        mainTemplate: mainTemplate,
+                        selectionTemplate: selectionTemplate,
                         multiple: true,
-                        mainTemplate : mainTemplate,
-                        selectionTemplate: multiselectItemTemplate,
                         $selectEl : $el,
                         className: 'selleckt',
-                        selectedClass: 'selected',
                         selectedTextClass: 'selectedText',
                         selectionsClass: 'mySelections',
                         selectionItemClass: 'mySelectionItem',
@@ -873,13 +751,13 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         itemsClass: 'items',
                         itemClass: 'item',
                         removeItemClass: 'removeItem',
-                        selectedClassName: 'isSelected',
+                        selectedClass: 'isSelected',
                         highlightClass: 'isHighlighted'
                     });
                 });
 
                 it('stores options.selectionTemplate as this.selectionTemplate',function(){
-                    expect(multiSelleckt.selectionTemplate({})).toEqual(Mustache.compile(multiselectItemTemplate)({}));
+                    expect(multiSelleckt.selectionTemplate({})).toEqual(Mustache.compile(selectionTemplate)({}));
                 });
                 it('stores options.selectionsClass as this.selectionsClass',function(){
                     expect(multiSelleckt.selectionsClass).toEqual('mySelections');
@@ -896,8 +774,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('stores options.removeItemClass as this.removeItemClass',function(){
                     expect(multiSelleckt.removeItemClass).toEqual('removeItem');
                 });
-                it('stores options.removeItemClass as this.removeItemClass',function(){
-                    expect(multiSelleckt.removeItemClass).toEqual('removeItem');
+                it('stores options.selectedClassName as this.selectedClass',function(){
+                    expect(multiSelleckt.selectedClass).toEqual('isSelected');
+                });
+                it('stores options.highlightClass as this.highlightClass',function(){
+                    expect(multiSelleckt.highlightClass).toEqual('isHighlighted');
                 });
             });
 
@@ -905,16 +786,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 beforeEach(function(){
                     multiSelleckt = Selleckt.create({
                         multiple: true,
-                        mainTemplate : mainTemplate,
-                        selectionTemplate: multiselectItemTemplate,
-                        $selectEl : $el,
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClass: 'isHighlighted'
+                        $selectEl : $el
                     });
                 });
 
@@ -940,41 +812,33 @@ define(['lib/selleckt', 'lib/mustache.js'],
             it('accepts template strings', function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : mainTemplate,
-                    selectionTemplate: multiselectItemTemplate,
                     $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    selectionsClass: 'mySelections',
+                    selectionItemClass: 'mySelectionItem',
+                    mainTemplate : mainTemplate,
+                    selectionTemplate : selectionTemplate
                 });
+
                 multiSelleckt.render();
-                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
+
+                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
 
             it('accepts compiled templates', function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : Mustache.compile(mainTemplate),
-                    selectionTemplate: Mustache.compile(multiselectItemTemplate),
                     $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClassName: 'isHighlighted'
+                    selectionsClass: 'mySelections',
+                    selectionItemClass: 'mySelectionItem',
+                    mainTemplate : Mustache.compile(mainTemplate),
+                    selectionTemplate: Mustache.compile(selectionTemplate)
                 });
                 multiSelleckt.render();
-                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
+                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
         });
 
@@ -982,16 +846,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             beforeEach(function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : mainTemplate,
-                    selectionTemplate: multiselectItemTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
 
                 multiSelleckt.render();
@@ -1009,8 +864,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     }]);
 
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).eq(1).text()).toEqual('baz');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
             it('attaches the item to the selectedItem dom element', function(){
                 var selectedItems = multiSelleckt.getSelection();
@@ -1034,16 +889,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             beforeEach(function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : mainTemplate,
-                    selectionTemplate: multiselectItemTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
             });
 
@@ -1149,16 +995,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             beforeEach(function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : mainTemplate,
-                    selectionTemplate: multiselectItemTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
 
                 multiSelleckt.render();
@@ -1228,16 +1065,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             beforeEach(function(){
                 multiSelleckt = Selleckt.create({
                     multiple: true,
-                    mainTemplate : mainTemplate,
-                    selectionTemplate: multiselectItemTemplate,
-                    $selectEl : $el,
-                    className: 'selleckt',
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectedClassName: 'isSelected',
-                    highlightClass: 'isHighlighted'
+                    $selectEl : $el
                 });
             });
 
