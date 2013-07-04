@@ -93,43 +93,6 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 </select>
             </div>
         </div>
-        <script id="mainTemplate" type="text/html">
-            <div class="{{className}}" tabindex=1>
-                <div class="selected">
-                    <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
-                </div>
-                <ul class="items">
-                    {{#showSearch}}
-                    <li class="searchContainer">
-                        <input class="search"></input>
-                    </li>
-                    {{/showSearch}}
-                    {{#items}}
-                    <li class="item" data-text="{{label}}" data-value="{{value}}">
-                        <span class="itemText">{{label}}</span>
-                    </li>
-                    {{/items}}
-                </ul>
-            </div>
-        </script>
-        <script id="multiTemplate" type="text/html">
-            <div class="{{className}}" tabindex=1>
-                <ul class="selections">
-                {{#selections}}
-                {{/selections}}
-                </ul>
-                <div class="selected">
-                    <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
-                </div>
-                <ul class="items">
-                    {{#items}}
-                    <li class="item" data-text="{{label}}" data-value="{{value}}">
-                        {{label}}
-                    </li>
-                    {{/items}}
-                </ul>
-            </div>
-        </script>
         <script id="fancyTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
                 <ul class="selections">
@@ -154,11 +117,6 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 </div>
             </div>
         </script>
-        <script id="selectionTemplate" type="text/html">
-            <li class="selectionItem" data-value="{{value}}">
-                {{text}}<i class="icon-remove remove"></i>
-            </li>
-        </script>
         <script id="fancySelectionTemplate" type="text/html">
             <li class="selectionItem" data-value="{{value}}">
                 <div>
@@ -174,44 +132,19 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),
                     $select4 = $('#demo-4'),
-                    mainTemplate = document.getElementById('mainTemplate').innerHTML,
-                    multiTemplate = document.getElementById('multiTemplate').innerHTML,
-                    selectionTemplate = document.getElementById('selectionTemplate').innerHTML,
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
                     fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
-                $select1.selleckt({
-                    mainTemplate : mainTemplate,
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item'
-                });
+                $select1.selleckt();
 
                 $select2.selleckt({
-                    mainTemplate : mainTemplate,
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
                     enableSearch: true
                 });
 
-                $select3.selleckt({
-                    mainTemplate : multiTemplate,
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
-                    selectionTemplate: selectionTemplate,
-                });
+                $select3.selleckt();
 
                 $select4.selleckt({
                     mainTemplate : fancyTemplate,
-                    selectedClass: 'selected',
-                    selectedTextClass: 'selectedText',
-                    itemsClass: 'items',
-                    itemClass: 'item',
                     selectionTemplate: fancySelectionTemplate,
                 });
 
