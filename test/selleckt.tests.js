@@ -418,6 +418,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$sellecktEl.find('li.' + highlightClass).length).toEqual(0);
                 });
+                it('updates the original select element with the new value', function(){
+                    selleckt.selectItem(selleckt.items[1]);
+
+                    expect(selleckt.$originalSelectEl.val()).toEqual(selleckt.items[1].value);
+                });
             });
 
             describe('Keyboard input', function(){
@@ -959,6 +964,18 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
             });
 
+            it('updates the original select element with the new value', function(){
+                multiSelleckt.selectedItems = [];
+                multiSelleckt.render();
+
+                multiSelleckt.selectItem(multiSelleckt.items[1]);
+
+                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
+
+                multiSelleckt.selectItem(multiSelleckt.items[2]);
+                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
+            });
+
             describe('item deselection', function(){
                 it('removes an item when the "remove" link is clicked', function(){
                     multiSelleckt.render();
@@ -983,6 +1000,21 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(multiSelleckt.getSelection().length).toEqual(2);
                     expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
+                });
+                it('updates the original select element with the removed value', function(){
+                    multiSelleckt.selectedItems = [];
+                    multiSelleckt.render();
+
+                    multiSelleckt.selectItem(multiSelleckt.items[1]);
+
+                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
+
+                    multiSelleckt.selectItem(multiSelleckt.items[2]);
+                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
+
+                    multiSelleckt.removeItem(multiSelleckt.items[2]);
+
+                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
                 });
             });
         });
