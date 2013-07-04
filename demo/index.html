@@ -8,6 +8,23 @@
         <script src="lib/jquery-1.10.1.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/mustache.js"></script>
+        <script>
+        //object create shim for IE8 etc.
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+        if (!Object.create) {
+            Object.create = (function(){
+                function F(){}
+
+                return function(o){
+                    if (arguments.length != 1) {
+                        throw new Error('Object.create implementation only accepts one parameter.');
+                    }
+                    F.prototype = o
+                    return new F()
+                }
+            })()
+        }
+        </script>
         <script src="../lib/selleckt.js"></script>
 
         <style>
@@ -25,6 +42,13 @@
         <div class="container">
             <img src="img/tom.png" class="tom img-rounded">
             <h1>Selleckt demo</h1>
+
+            <p class="lead">Selleckt is a select replacement plugin that progressively enhances the underlying select.</p>
+
+            <p>It's compatible with modern browsers,
+            and IE8 compatibility is possible with an Object.create shim (there's one included in the source of this page.)</p>
+
+            <p>Source and documentation is at <a href="https://github.com/BrandwatchLtd/selleckt">https://github.com/BrandwatchLtd/selleckt</a>
 
             <div class="demo demo-1">
                 <h2>Single select</h2>
