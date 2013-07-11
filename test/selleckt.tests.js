@@ -423,6 +423,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$originalSelectEl.val()).toEqual(selleckt.items[1].value);
                 });
+                it('updates selleckt when change is triggered on original select', function(){
+                    selleckt.$originalSelectEl.val('2').change();
+
+                    expect(selleckt.getSelection().value).toEqual('2');
+                });
             });
 
             describe('Keyboard input', function(){
@@ -1112,6 +1117,15 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
 
                 expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
+            });
+            it('updates multiSelleckt when change is triggered on original select', function(){
+                multiSelleckt.render();
+
+                multiSelleckt.$originalSelectEl.val(['1', '2']).change();
+
+                expect(multiSelleckt.getSelection().length).toEqual(2);
+                expect(multiSelleckt.getSelection()[0].value).toEqual('1');
+                expect(multiSelleckt.getSelection()[1].value).toEqual('2');
             });
         });
     });
