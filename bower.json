@@ -1,0 +1,10 @@
+{
+  "name": "selleckt",
+  "version": "0.1.0",
+  "main": "lib/selleckt.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}
