@@ -404,6 +404,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(liOne.hasClass(highlightClass)).toEqual(false);
                     expect(liTwo.hasClass(highlightClass)).toEqual(true);
 
+                    liTwo.children(':first').trigger('mouseover');
+                    expect(liTwo.children(':first').hasClass(highlightClass)).toEqual(false);
+                    expect(liTwo.hasClass(highlightClass)).toEqual(true);
                 });
                 it('removes the highlight class from all items when it closes', function(){
                     var highlightClass = selleckt.highlightClass;
