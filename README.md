@@ -74,6 +74,14 @@ The following options can be passed to selleckt:
             </td>
         </tr>
         <tr>
+            <td>mainTemplateData</td>
+            <td>object</td>
+            <td>-</td>
+            <td>
+                Custom data to be passed to the main template. The property names must be added as tags to the template for this to take effect.
+            </td>
+        </tr>
+        <tr>
             <td>selectedClass</td>
             <td>string</td>
             <td>selected</td>

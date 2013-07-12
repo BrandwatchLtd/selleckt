@@ -121,6 +121,10 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.mainTemplate({})).toEqual(Mustache.compile(template)({}));
                 });
 
+                it('stores options.mainTemplateData as this.mainTemplateData', function(){
+                    expect(selleckt.mainTemplateData).toEqual({});
+                });
+
                 it('stores options.selectEl as this.originalSelectEl', function(){
                     expect(selleckt.$originalSelectEl).toEqual($el);
                 });
@@ -202,6 +206,54 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
                 });
             });
+
+            describe('template data', function(){
+                it('can build template data object from custom data and plugin data', function(){
+                    var templateData;
+
+                    selleckt = Selleckt.create({
+                        $selectEl : $el,
+                        enableSearch: true,
+                        className: 'selleckt',
+                        mainTemplateData: {
+                            selectLabel: 'Please selleckt',
+                            required: false
+                        }
+                    });
+
+                    templateData = selleckt.getTemplateData();
+
+                    expect(templateData.showSearch).toEqual(true);
+                    expect(templateData.selectedItemText).toEqual('foo');
+                    expect(templateData.className).toEqual('selleckt');
+                    expect(templateData.items).toBeDefined();
+                    expect(templateData.items.length).toEqual(3);
+                    expect(templateData.selectLabel).toEqual('Please selleckt');
+                    expect(templateData.required).toEqual(false);
+                });
+
+                it('prevents custom data from overriding plugin data', function(){
+                    var templateData;
+
+                    selleckt = Selleckt.create({
+                        $selectEl : $el,
+                        mainTemplateData: {
+                            selectLabel: 'Please selleckt',
+                            required: false,
+                            showSearch: 'yes',
+                            items: []
+                        }
+                    });
+
+                    templateData = selleckt.getTemplateData();
+
+                    expect(templateData.selectLabel).toEqual('Please selleckt');
+                    expect(templateData.required).toEqual(false);
+                    expect(templateData.showSearch).toEqual(false);
+                    expect(templateData.items).toBeDefined();
+                    expect(templateData.items.length).toEqual(3);
+                });
+            });
         });
 
         describe('rendering', function(){
@@ -228,6 +280,38 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
             it('adds a class of "closed" to the element', function(){
                 expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
+            });
+            it('replaces custom template tags with template data', function(){
+                var customTemplate =
+                    '<div class="{{className}}">' +
+                        '{{#selectLabel}}<label>{{selectLabel}}</label>{{/selectLabel}}' +
+                        '{{#required}}<span class="required">*</span>{{/required}}' +
+                        '<div class="selected">' +
+                            '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                        '</div>' +
+                        '<ul class="items">' +
+                            '{{#items}}' +
+                            '<li class="item{{#selected}} selected{{/selected}}" data-value="{{value}}">' +
+                                '{{label}}' +
+                            '</li>' +
+                            '{{/items}}' +
+                        '</ul>' +
+                    '</div>';
+
+                selleckt.destroy();
+                selleckt = Selleckt.create({
+                    $selectEl : $el,
+                    mainTemplate: customTemplate,
+                    mainTemplateData: {
+                        selectLabel: 'Please selleckt',
+                        required: false
+                    }
+                });
+                selleckt.render();
+
+                expect(selleckt.$sellecktEl.find('label').length).toEqual(1);
+                expect(selleckt.$sellecktEl.find('label').text()).toEqual('Please selleckt');
+                expect(selleckt.$sellecktEl.find('.required').length).toEqual(0);
             });
         });
 
