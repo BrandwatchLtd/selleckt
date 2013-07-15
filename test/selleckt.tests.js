@@ -785,6 +785,47 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
             });
         });
+
+        describe('removal', function(){
+            beforeEach(function(){
+                selleckt = Selleckt.create({
+                    mainTemplate : mainTemplate,
+                    $selectEl : $el
+                });
+                selleckt.render();
+            });
+            afterEach(function(){
+                selleckt = undefined;
+            });
+
+            it('removes change event from original select element', function(){
+                var eventsData = $._data(selleckt.$originalSelectEl[0], 'events');
+
+                expect(eventsData.change).toBeDefined();
+                expect(eventsData.change.length).toEqual(1);
+                expect(eventsData.change[0].namespace).toEqual('selleckt');
+
+                selleckt.destroy();
+
+                expect(eventsData.change).toEqual(undefined);
+            });
+
+            it('removes selleckt data from original select element', function(){
+                $el.data('selleckt', selleckt);
+
+                selleckt.destroy();
+
+                expect($el.data('selleckt')).toEqual(undefined);
+            });
+
+            it('shows original select element', function(){
+                expect($el.css('display')).toEqual('none');
+
+                selleckt.destroy();
+
+                expect($el.css('display')).toEqual('inline-block');
+            });
+        });
     });
 
     describe('multiselleckt', function(){
