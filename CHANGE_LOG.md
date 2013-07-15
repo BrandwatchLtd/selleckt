@@ -1,4 +1,5 @@
 0.1.2 - 15 July 2013
+===============
 
 - Made selleckt trigger change event on original select when selection is modified
 - Improved cleanup on destroy()
