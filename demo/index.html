@@ -116,6 +116,16 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     <option value="3">Baz</option>
                 </select>
             </div>
+
+            <div class="demo demo-5">
+                <h2>Refreshing</h2>
+                <select id="demo-5">
+                    <option value="1">Foo</option>
+                    <option value="2">Bar</option>
+                    <option value="3">Baz</option>
+                </select>
+                <button class="refresh">Refresh</button>
+            </div>
         </div>
         <script id="fancyTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
@@ -156,6 +166,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),
                     $select4 = $('#demo-4'),
+                    $select5 = $('#demo-5'),
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
                     fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
@@ -186,6 +197,20 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 
                         alert('Hey, you clicked the "edit button" for item: ' + JSON.stringify(item));
                     });
+
+                $select5.selleckt();
+
+                $('button.refresh').on('click', function(e){
+                    e.preventDefault();
+
+                    var selleckt = $select5.data('selleckt'),
+                        items = selleckt.getItems(),
+                        newItems;
+
+                    newItems = [{ label: 'this is new!', value: 'foo' }];
+
+                    selleckt.setItems(newItems.concat(items));
+                });
             });
         </script>
     </body>
