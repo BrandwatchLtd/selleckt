@@ -515,6 +515,23 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.getSelection().value).toEqual('2');
                 });
+                it('does not update selleckt when change on original select is triggered by selleckt itself', function(){
+                    selleckt.$originalSelectEl.val('2').trigger('change', {origin: 'selleckt'});
+
+                    expect(selleckt.getSelection().value).toEqual('1');
+                });
+                it('triggers a change event on original select when item is selected', function(){
+                    var changeHandler = sinon.spy();
+
+                    selleckt.$originalSelectEl.on('change', changeHandler);
+                    selleckt.selectItem('foo');
+
+                    expect(changeHandler.calledOnce).toEqual(true);
+                    expect(changeHandler.args[0].length).toEqual(2);
+                    expect(changeHandler.args[0][1].origin).toEqual('selleckt');
+
+                    selleckt.$originalSelectEl.off('change', changeHandler);
+                });
             });
 
             describe('Keyboard input', function(){
@@ -1223,6 +1240,18 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 expect($selections.children().length).toEqual(1);
                 expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).not.toEqual('none');
+            });
+            it('triggers a change event on original select when item is removed', function(){
+                var changeHandler = sinon.spy();
+
+                multiSelleckt.$originalSelectEl.on('change', changeHandler);
+                $clickTarget.trigger('click');
+
+                expect(changeHandler.calledOnce).toEqual(true);
+                expect(changeHandler.args[0].length).toEqual(2);
+                expect(changeHandler.args[0][1].origin).toEqual('selleckt');
+
+                multiSelleckt.$originalSelectEl.off('change', changeHandler);
             });
         });
 
