@@ -2,6 +2,13 @@
     position: relative;
     width: 300px;
     outline: none;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: moz-none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .dropdown.disabled .selected{
     opacity: 0.6;
