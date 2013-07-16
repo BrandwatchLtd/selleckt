@@ -73,7 +73,8 @@
 }
 
 .dropdown .item.highlighted{
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: #3875d7;
+    color: #fff;
 }
 
 .dropdown > .selected:hover,
