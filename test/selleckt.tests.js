@@ -275,6 +275,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
                 expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
             });
+            it('sets fixed positioning on the items container', function(){
+                expect(selleckt.$sellecktEl.find('.items').css('position')).toEqual('fixed');
+            });
             it('hides the original Select element', function(){
                 expect(selleckt.$originalSelectEl.css('display')).toEqual('none');
             });
@@ -312,6 +315,26 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(selleckt.$sellecktEl.find('label').length).toEqual(1);
                 expect(selleckt.$sellecktEl.find('label').text()).toEqual('Please selleckt');
                 expect(selleckt.$sellecktEl.find('.required').length).toEqual(0);
+            });
+            it('can determine closest scrolling parent in DOM', function(){
+                selleckt.destroy();
+
+                $('body').css('overflow-y', 'scroll');
+
+                selleckt = Selleckt.create({
+                    mainTemplate : mainTemplate,
+                    $selectEl : $el
+                });
+                selleckt.render();
+
+                expect(selleckt.$scrollingParent.length).toEqual(1);
+                expect(selleckt.$scrollingParent.is('body')).toEqual(true);
+
+                $('body').css('overflow-y', 'visible');
+            });
+            it('falls back to window as $scrollingParent if no other scrolling parents are in DOM', function(){
+                expect(selleckt.$scrollingParent.length).toEqual(1);
+                expect(selleckt.$scrollingParent).toEqual($(window));
             });
         });
 
@@ -364,6 +387,38 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(openSpy.calledOnce).toEqual(true);
                     expect(closeSpy.calledOnce).toEqual(true);
+                });
+                it('binds to scroll event on $scrollingParent when options are shown', function(){
+                    var eventsData;
+
+                    selleckt._open();
+
+                    eventsData = $._data(selleckt.$scrollingParent[0], 'events');
+
+                    expect(eventsData.scroll).toBeDefined();
+                    expect(eventsData.scroll.length).toEqual(1);
+                    expect(eventsData.scroll[0].namespace).toEqual('selleckt');
+                });
+                it('calls "_close" when $scrollingParent is scrolled', function(){
+                    var openSpy = sinon.spy(selleckt, '_open'),
+                        closeSpy = sinon.spy(selleckt, '_close');
+
+                    selleckt._open();
+
+                    $(window).trigger('scroll');
+
+                    expect(openSpy.calledOnce).toEqual(true);
+                    expect(closeSpy.calledOnce).toEqual(true);
+                });
+                it('unbinds from scroll event on $scrollingParent when options are hidden', function(){
+                    var eventsData;
+
+                    selleckt._open();
+                    selleckt._close();
+
+                    eventsData = $._data(selleckt.$scrollingParent[0], 'events');
+
+                    expect(eventsData).toBeUndefined();
                 });
                 it('adds a class of "open" to this.$sellecktEl when the selleckt is opened', function(){
                     selleckt._open();
