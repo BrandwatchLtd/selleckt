@@ -1166,6 +1166,20 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
                 });
+                it('restores the placeholder text when the selection is cleared', function(){
+                    multiSelleckt.render();
+                    multiSelleckt.selectItem(multiSelleckt.items[1]);
+
+                    expect(multiSelleckt.selectedItems.length).toEqual(3);
+                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text()).toEqual(multiSelleckt.alternatePlaceholder);
+
+                    multiSelleckt.removeItem(multiSelleckt.items[0]);
+                    multiSelleckt.removeItem(multiSelleckt.items[1]);
+                    multiSelleckt.removeItem(multiSelleckt.items[2]);
+
+                    expect(multiSelleckt.selectedItems.length).toEqual(0);
+                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text()).toEqual(multiSelleckt.placeholderText);
+                });
             });
         });
 
