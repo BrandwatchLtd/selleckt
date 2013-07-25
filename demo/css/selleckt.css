@@ -61,8 +61,6 @@
     width: 100%;
     z-index: 10;
     line-height: 1;
-    max-height: 300px;
-    overflow: auto;
     border: 1px solid #BBB;
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
@@ -73,6 +71,19 @@
     background-image: -o-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
 }
+    .dropdown .items .itemslist {
+        max-height: 300px;
+        overflow: auto;
+    }
+    .dropdown .items .searchContainer {
+        position: relative;
+        padding: 12px 36px 12px 12px;
+        left: 0;
+        right: 0;
+    }
+    .dropdown .items .searchContainer .search {
+        width: 100%;
+    }
 .dropdown .items li {
     position: relative;
     display: block;
