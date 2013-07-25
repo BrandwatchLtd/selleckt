@@ -272,8 +272,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(selleckt.$sellecktEl.find('.selectedText').text()).toEqual(selleckt.selectedItem.label);
             });
             it('renders the items correctly', function(){
-                expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
+                expect(selleckt.$sellecktEl.find('.itemslist').length).toEqual(1);
+                expect(selleckt.$sellecktEl.find('.itemslist > .item').length).toEqual(3);
             });
             it('hides the original Select element', function(){
                 expect(selleckt.$originalSelectEl.css('display')).toEqual('none');
@@ -313,6 +313,51 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(selleckt.$sellecktEl.find('label').text()).toEqual('Please selleckt');
                 expect(selleckt.$sellecktEl.find('.required').length).toEqual(0);
             });
+            it('can determine closest $scrollingParent in DOM', function(){
+                selleckt.destroy();
+
+                $('body').css('overflow-y', 'scroll');
+
+                selleckt = Selleckt.create({
+                    mainTemplate : mainTemplate,
+                    $selectEl : $el
+                });
+                selleckt.render();
+
+                expect(selleckt.$scrollingParent.length).toEqual(1);
+                expect(selleckt.$scrollingParent.is('body')).toEqual(true);
+
+                $('body').css('overflow-y', 'visible');
+            });
+            it('returns window as $scrollingParent if no other scrolling parent is in DOM', function(){
+                expect(selleckt.$scrollingParent.length).toEqual(1);
+                expect(selleckt.$scrollingParent).toEqual($(window));
+            });
+            it('can determine closest $overflowHiddenParent in DOM', function(){
+                selleckt.destroy();
+
+                $('body').css({
+                    'overflow-y': 'hidden',
+                    'max-height': '1000px'
+                });
+
+                selleckt = Selleckt.create({
+                    mainTemplate : mainTemplate,
+                    $selectEl : $el
+                });
+                selleckt.render();
+
+                expect(selleckt.$overflowHiddenParent.length).toEqual(1);
+                expect(selleckt.$overflowHiddenParent.is('body')).toEqual(true);
+
+                $('body').css({
+                    'overflow-y': 'visible',
+                    'max-height': 'auto'
+                });
+            });
+            it('returns "undefined" if no other $overflowHiddenParent is in DOM', function(){
+                expect(selleckt.$overflowHiddenParent).toBeUndefined();
+            });
         });
 
         describe('Events', function(){
@@ -344,6 +389,19 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(openStub.calledOnce).toEqual(true);
 
                     isStub.restore();
+                });
+                it('sets absolute positioning on the items container', function(){
+                    var setItemsAbsoluteSpy = sinon.spy(selleckt, '_setItemsAbsolute'),
+                        setItemsFixedSpy = sinon.spy(selleckt, '_setItemsFixed');
+
+                    selleckt._open();
+
+                    expect(setItemsAbsoluteSpy.calledOnce).toEqual(true);
+                    expect(setItemsFixedSpy.called).toEqual(false);
+                    expect(selleckt.$sellecktEl.find('.items').css('position')).toEqual('absolute');
+
+                    setItemsFixedSpy.restore();
+                    setItemsAbsoluteSpy.restore();
                 });
                 it('does not call _open when the options are already showing', function(){
                     var openSpy = sinon.spy(selleckt, '_open'),
@@ -394,6 +452,65 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt._close();
 
                     expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
+                });
+
+                describe('overflowing options container', function() {
+                    var isOverflowingStub;
+
+                    beforeEach(function(){
+                        isOverflowingStub = sinon.stub(selleckt, '_isOverflowing', function() {
+                            return true;
+                        });
+                    });
+                    afterEach(function(){
+                        isOverflowingStub.restore();
+                    });
+
+                    it('sets fixed positioning on the items container', function(){
+                        var setItemsFixedSpy = sinon.spy(selleckt, '_setItemsFixed'),
+                            setItemsAbsoluteSpy = sinon.spy(selleckt, '_setItemsAbsolute');
+
+                        selleckt._open();
+
+                        expect(setItemsFixedSpy.calledOnce).toEqual(true);
+                        expect(setItemsAbsoluteSpy.called).toEqual(false);
+                        expect(selleckt.$sellecktEl.find('.items').css('position')).toEqual('fixed');
+
+                        setItemsAbsoluteSpy.restore();
+                        setItemsFixedSpy.restore();
+                    });
+                    it('binds to scroll event on $scrollingParent when options are shown', function(){
+                        var eventsData;
+
+                        selleckt._open();
+
+                        eventsData = $._data(selleckt.$scrollingParent[0], 'events');
+
+                        expect(eventsData.scroll).toBeDefined();
+                        expect(eventsData.scroll.length).toEqual(1);
+                        expect(eventsData.scroll[0].namespace).toEqual('selleckt');
+                    });
+                    it('calls "_close" when $scrollingParent is scrolled', function(){
+                        var openSpy = sinon.spy(selleckt, '_open'),
+                            closeSpy = sinon.spy(selleckt, '_close');
+
+                        selleckt._open();
+
+                        $(window).trigger('scroll');
+
+                        expect(openSpy.calledOnce).toEqual(true);
+                        expect(closeSpy.calledOnce).toEqual(true);
+                    });
+                    it('unbinds from scroll event on $scrollingParent when options are hidden', function(){
+                        var eventsData;
+
+                        selleckt._open();
+                        selleckt._close();
+
+                        eventsData = $._data(selleckt.$scrollingParent[0], 'events');
+
+                        expect(eventsData).toBeUndefined();
+                    });
                 });
             });
 
