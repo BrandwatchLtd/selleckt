@@ -253,6 +253,32 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(templateData.items).toBeDefined();
                     expect(templateData.items.length).toEqual(3);
                 });
+                it('includes user configurable class names template data', function(){
+                    var templateData;
+
+                    selleckt = Selleckt.create({
+                        $selectEl: $el,
+                        className: 'selleckt',
+                        selectedClass: 'trigger',
+                        selectedTextClass: 'triggerText',
+                        itemsClass: 'dropdown',
+                        itemslistClass: 'options',
+                        itemClass: 'option',
+                        itemTextClass: 'optionText',
+                        searchInputClass: 'searchBox'
+                    });
+
+                    templateData = selleckt.getTemplateData();
+
+                    expect(templateData.className).toEqual('selleckt');
+                    expect(templateData.selectedClass).toEqual('trigger');
+                    expect(templateData.selectedTextClass).toEqual('triggerText');
+                    expect(templateData.itemsClass).toEqual('dropdown');
+                    expect(templateData.itemslistClass).toEqual('options');
+                    expect(templateData.itemClass).toEqual('option');
+                    expect(templateData.itemTextClass).toEqual('optionText');
+                    expect(templateData.searchInputClass).toEqual('searchBox');
+                });
             });
         });
 
