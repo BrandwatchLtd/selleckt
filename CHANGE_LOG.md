@@ -1,3 +1,10 @@
+0.1.3 - 26 July 2013
+===============
+
+- Custom CSS class names were not being correctly set in the default templates
+- When a multi-select has all selected items removed, the placeholder text is now correctly restored
+- Selleckt now behaves more nicely inside containers with overflow:hidden
+
 0.1.2 - 15 July 2013
 ===============
 
