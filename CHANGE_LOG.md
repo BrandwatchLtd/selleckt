@@ -1,3 +1,10 @@
+0.1.4 - 26 July 2013
+
+- Click event to open Selleckt now propagates, causing other selleckts to close.
+- Search input focuses when Selleckt opens
+- scroll state restores to the top when Selleckt closes
+
+
 0.1.3 - 26 July 2013
 ===============
 
