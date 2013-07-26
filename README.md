@@ -241,6 +241,16 @@ For multiselleckts, in addition to the above:
                 Css class of the element used to trigger removal of a selectionItemClass element from the selectionsClass container.
             </td>
         </tr>
+        <tr>
+            <td>showEmptyList</td>
+            <td>bool</td>
+            <td>
+                false
+            </td>
+            <td>
+                If true, the multiselect won't be disabled once all options were selected. This is useful when you have a footer in your dropdown and you want it to be accessible at all times.
+            </td>
+        </tr>
     <tbody>
     </tbody>
 </table>

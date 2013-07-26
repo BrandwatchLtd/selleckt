@@ -157,3 +157,12 @@
     line-height: 40px;
     cursor: pointer;
 }
+.dropdown .noitemsText {
+    display: none;
+    font-weight: 700;
+    padding: 10px 12px;
+    font-style: italic;
+}
+.dropdown.noitems .noitemsText {
+    display: block;
+}

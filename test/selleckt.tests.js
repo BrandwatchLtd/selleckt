@@ -1050,7 +1050,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         itemClass: 'item',
                         removeItemClass: 'removeItem',
                         selectedClass: 'isSelected',
-                        highlightClass: 'isHighlighted'
+                        highlightClass: 'isHighlighted',
+                        showEmptyList: true
                     });
                 });
 
@@ -1078,6 +1079,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('stores options.highlightClass as this.highlightClass',function(){
                     expect(multiSelleckt.highlightClass).toEqual('isHighlighted');
                 });
+                it('stores options.showEmptyList as this.showEmptyList',function(){
+                    expect(multiSelleckt.showEmptyList).toEqual(true);
+                });
             });
 
             describe('defaults', function(){
@@ -1102,6 +1106,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
                 it('defaults this.alternatePlaceholder to "Select another..."',function(){
                     expect(multiSelleckt.alternatePlaceholder).toEqual('Select another...');
+                });
+                it('defaults this.showEmptyList to false',function(){
+                    expect(multiSelleckt.showEmptyList).toEqual(false);
                 });
             });
         });
@@ -1255,6 +1262,22 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(multiSelleckt.getSelection().length).toEqual(3);
 
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
+            });
+
+            it('does not add a class of "disabled" to the select if all options are selected but options.showEmptyList is true', function(){
+                multiSelleckt.destroy();
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl : $el,
+                    showEmptyList: true
+                });
+                multiSelleckt.render();
+
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+
+                expect(multiSelleckt.getSelection().length).toEqual(3);
+
+                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
             });
 
             it('updates the original select element with the new value', function(){
