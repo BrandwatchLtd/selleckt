@@ -91,7 +91,7 @@ The following options can be passed to selleckt:
         <tr>
             <td>selectedTextClass</td>
             <td>string</td>
-            <td>-</td>
+            <td>selectedText</td>
             <td>
                 An element to show text (the placeholder, or the text of the current selection. This should be a child of the element defined in `selectedClass`.
             </td>
@@ -99,17 +99,25 @@ The following options can be passed to selleckt:
         <tr>
             <td>itemsClass</td>
             <td>string</td>
-            <td>-</td>
+            <td>items</td>
             <td>
                 The css class name for the container in which the available selections are shown.
             </td>
         </tr>
         <tr>
+            <td>itemslistClass</td>
+            <td>string</td>
+            <td>itemslist</td>
+            <td>
+                The css class name for the list of individual items.
+            </td>
+        </tr>
+        <tr>
             <td>itemClass</td>
             <td>string</td>
-            <td>-</td>
+            <td>item</td>
             <td>
-                The css class name for the container for an individual item. This should be a descendent of the `itemsClass` element.
+                The css class name for the container for an individual item. This should be a descendent of the `itemslistClass` element.
             </td>
         </tr>
         <tr>
