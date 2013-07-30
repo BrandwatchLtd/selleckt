@@ -514,7 +514,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         expect(eventsData.scroll).toBeDefined();
                         expect(eventsData.scroll.length).toEqual(1);
-                        expect(eventsData.scroll[0].namespace).toEqual('selleckt');
+                        expect(eventsData.scroll[0].namespace).toEqual('selleckt.' + selleckt.id);
                     });
                     it('calls "_close" when $scrollingParent is scrolled', function(){
                         var openSpy = sinon.spy(selleckt, '_open'),
