@@ -282,7 +282,7 @@ An example basic template:
 An example template for multiselleckt:
 ````html
 <div class="{{className}}" tabindex=1>
-    <ul class="selections">
+    <ul class="{{selectionsClass}}">
     {{#selections}}
     {{/selections}}
     </ul>
@@ -300,7 +300,7 @@ An example template for multiselleckt:
 ````
 An example template for a multiselleckt item:
 ````html
-<li class="selectionItem" data-value="{{value}}">
-    {{text}}<i class="icon-remove remove"></i>
+<li class="{{selectionItemClass}}" data-value="{{value}}">
+    {{text}}<i class="icon-remove {{removeItemClass}}"></i>
 </li>
 ````

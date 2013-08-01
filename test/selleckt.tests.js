@@ -253,7 +253,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(templateData.items).toBeDefined();
                     expect(templateData.items.length).toEqual(3);
                 });
-                it('includes user configurable class names template data', function(){
+                it('includes user configurable class names in template data', function(){
                     var templateData;
 
                     selleckt = Selleckt.create({
@@ -1092,7 +1092,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     });
                 });
 
-                it('defaults this selectionsClass to "selections"',function(){
+                it('defaults this.selectionsClass to "selections"',function(){
                     expect(multiSelleckt.selectionsClass).toEqual('selections');
                 });
                 it('defaults this.selectionItemClass to "selectionItem"',function(){
@@ -1144,6 +1144,38 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
+            });
+        });
+
+        describe('template data', function(){
+            it('includes user configurable class name in main template data', function(){
+                var templateData;
+
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl: $el,
+                    selectionsClass: 'selected-list'
+                });
+
+                templateData = multiSelleckt.getTemplateData();
+
+                expect(templateData.selectionsClass).toEqual('selected-list');
+            });
+
+            it('includes user configurable class names in item template data', function(){
+                var itemData;
+
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl: $el,
+                    selectionItemClass: 'selected-item',
+                    removeItemClass: 'remove-selected'
+                });
+
+                itemData = multiSelleckt.getItemTemplateData(multiSelleckt.items[0]);
+
+                expect(itemData.selectionItemClass).toEqual('selected-item');
+                expect(itemData.removeItemClass).toEqual('remove-selected');
             });
         });
 
