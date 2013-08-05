@@ -663,6 +663,13 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.getSelection().value).toEqual('1');
                 });
+                it('fires change() event listeners only once when change event is triggered on original select', function(){
+                    var changeStub = sinon.stub();
+                    selleckt.$originalSelectEl.on('change', changeStub);
+                    selleckt.$originalSelectEl.change();
+                    expect(changeStub.callCount).toEqual(1);
+                });
+
                 it('triggers a change event on original select when item is selected', function(){
                     var changeHandler = sinon.spy();
 
