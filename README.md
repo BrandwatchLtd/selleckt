@@ -3,7 +3,7 @@ Selleckt
 
 A select replacement, using mustache.js for templating.
 
-[![Build Status](https://travis-ci.org/BrandwatchLtd/selleckt.png)](https://travis-ci.org/BrandwatchLtd/selleckt)
+[![Build Status](https://travis-ci.org/BrandwatchLtd/selleckt.png?branch=master)](https://travis-ci.org/BrandwatchLtd/selleckt)
 
 Running the demos
 =================
