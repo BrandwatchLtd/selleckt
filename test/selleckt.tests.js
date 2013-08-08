@@ -169,6 +169,27 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         });
                     });
                 });
+                describe('events', function(){
+                    it('does not trigger change event when instantiated on select with selected option', function(){
+                        var onChangeStub = sinon.stub();
+                        $el.on('change', onChangeStub);
+
+                        selleckt = Selleckt.create({
+                            mainTemplate: template,
+                            $selectEl : $el,
+                            className: 'selleckt',
+                            selectedClass: 'selected',
+                            selectedTextClass: 'selectedText',
+                            itemsClass: 'items',
+                            itemClass: 'item',
+                            selectedClassName: 'isSelected',
+                            highlightClass: 'isHighlighted'
+                        });
+
+                        expect(onChangeStub.called).toEqual(false);
+                        $el.off('change', onChangeStub);
+                    });
+                });
             });
 
             describe('template formats', function(){
