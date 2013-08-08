@@ -1184,6 +1184,21 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 expect(itemData.selectionItemClass).toEqual('selected-item');
                 expect(itemData.removeItemClass).toEqual('remove-selected');
             });
+
+            it('includes option data attributes as property of item template data', function(){
+                var itemData;
+
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl: $el
+                });
+
+                itemData = multiSelleckt.getItemTemplateData(multiSelleckt.items[1]);
+
+                expect(itemData.data).toBeDefined();
+                expect(itemData.data.meh).toEqual('whee');
+                expect(itemData.data.bah).toEqual('oink');
+            });
         });
 
         describe('rendering', function(){
