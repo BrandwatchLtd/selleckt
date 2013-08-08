@@ -1,3 +1,8 @@
+0.1.6 - 8 August 2013
+===============
+
+- Fixed issue where data attributes on the original selleckt's options were not passed to the item template
+
 0.1.5 - 7 August 2013
 ===============
 
