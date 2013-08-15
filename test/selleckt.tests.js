@@ -797,6 +797,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(closeStub.calledOnce).toEqual(true);
                 });
+
+                it('resets focus to selleckt after item is selected', function(){
+                    var onFocusStub = sinon.stub();
+
+                    selleckt.$sellecktEl.focus(onFocusStub);
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+
+                    expect(onFocusStub.calledOnce).toEqual(true);
+                });
             });
         });
 
