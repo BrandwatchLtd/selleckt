@@ -894,6 +894,27 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect($searchInput.val()).toEqual('');
                 });
 
+                it('clears search when _open() is called', function(){
+                    var filterOptionsStub;
+
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    filterOptionsStub = sinon.stub(selleckt, 'filterOptions');
+
+                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
+
+                    selleckt._open();
+
+                    expect(filterOptionsStub.calledOnce).toEqual(true);
+                    expect(filterOptionsStub.calledWith('')).toEqual(true);
+                });
+
                 it('unfilters the selections list when _close() is called', function(){
                     var filterOptionsStub;
 
