@@ -1,3 +1,12 @@
+0.2 - 16 August 2013
+===============
+
+- The search input gets cleared when Selleckt is opened
+- Hide options with empty values in search results
+- Selleckt now stays focused after item is selected
+- Fixed minor positioning bug
+- Selleckt no longer fires a change event on original select on instantiation
+
 0.1.6 - 8 August 2013
 ===============
 
