@@ -812,6 +812,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
         describe('search', function(){
             var selectHtml = '<select>' +
+                    '<option value>Empty</option>' +
                     '<option value="foo">foo</option>' +
                     '<option value="bar">bar</option>' +
                     '<option value="baz">baz</option>' +
@@ -893,6 +894,27 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect($searchInput.val()).toEqual('');
                 });
 
+                it('clears search when _open() is called', function(){
+                    var filterOptionsStub;
+
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml),
+                        enableSearch: true
+                    });
+
+                    selleckt.render();
+
+                    filterOptionsStub = sinon.stub(selleckt, 'filterOptions');
+
+                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
+
+                    selleckt._open();
+
+                    expect(filterOptionsStub.calledOnce).toEqual(true);
+                    expect(filterOptionsStub.calledWith('')).toEqual(true);
+                });
+
                 it('unfilters the selections list when _close() is called', function(){
                     var filterOptionsStub;
 
@@ -934,10 +956,19 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 describe('filtering', function(){
+
+                    it('filter out options with empty values', function(){
+                        var output = selleckt._findMatchingOptions(selleckt.items, '');
+
+                        expect(output.length).toEqual(6);
+                        expect(output[0]).toEqual({ label: 'Empty', value: '', data:{} });
+                    });
+
                     it('can annotate the items with matchIndexes', function(){
                         var output = selleckt._findMatchingOptions(selleckt.items, 'ba');
 
                         expect(output).toEqual([
+                            { label: 'Empty', value: '', data:{} },
                             { label: 'foo', value: 'foo', data:{} },
                             { label: 'bar', value: 'bar', data:{}, matchStart: 0, matchEnd: 1 },
                             { label: 'baz', value: 'baz', data:{}, matchStart: 0, matchEnd: 1 },
@@ -958,9 +989,10 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         expect(selleckt.$items.find('.item').eq(0).css('display')).toEqual('none');
                         expect(selleckt.$items.find('.item').eq(1).css('display')).toEqual('none');
-                        expect(selleckt.$items.find('.item').eq(2).css('display')).not.toEqual('none');
-                        expect(selleckt.$items.find('.item').eq(3).css('display')).toEqual('none');
-                        expect(selleckt.$items.find('.item').eq(4).css('display')).not.toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(2).css('display')).toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(3).css('display')).not.toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(4).css('display')).toEqual('none');
+                        expect(selleckt.$items.find('.item').eq(5).css('display')).not.toEqual('none');
 
                         clock.restore();
                     });
