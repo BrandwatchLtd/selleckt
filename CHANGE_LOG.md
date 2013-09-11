@@ -1,3 +1,8 @@
+0.2.1 - 11 September 2013
+===============
+
+- Fixed exception in IE8 when using the searchbox
+
 0.2 - 16 August 2013
 ===============
 
