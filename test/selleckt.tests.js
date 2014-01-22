@@ -703,6 +703,24 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     selleckt.$originalSelectEl.off('change', changeHandler);
                 });
+
+                describe('with an empty option', function(){
+                    beforeEach(function(){
+                        $el = $(elHtml).append('<option></option>').appendTo('body');
+                        selleckt = Selleckt.create({
+                            $selectEl : $el
+                        });
+
+                        selleckt.render();
+                    });
+
+                    it('displays the placeholder when the change event is triggered on the original select and its value is the empty string', function(){
+                        selleckt.$originalSelectEl.val('').trigger('change');
+                        var emptyOptionDisplayedText = selleckt.$sellecktEl.find('.selectedText').text();
+                        expect(emptyOptionDisplayedText).toEqual(selleckt.placeholderText);
+                    });
+                });
+
             });
 
             describe('Keyboard input', function(){
