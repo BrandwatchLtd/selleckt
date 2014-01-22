@@ -1,7 +1,7 @@
 {
   "name": "selleckt",
   "description": "Another select replacement. This one loves mustache",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/BrandwatchLtd/selleckt.git"

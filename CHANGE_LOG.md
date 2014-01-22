@@ -1,3 +1,7 @@
+0.2.2 - 22 January 2014
+
+- Fixed parsing issue for option elements with empty values
+
 0.2.1 - 11 September 2013
 ===============
 
