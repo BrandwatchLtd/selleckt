@@ -1,4 +1,10 @@
+0.2.3 - 24 January 2014
+===============
+
+- Selleckt now renders the dropdown above the trigger element when there is not enough space below it.
+
 0.2.2 - 22 January 2014
+===============
 
 - Fixed parsing issue for option elements with empty values
 
