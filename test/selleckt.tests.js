@@ -558,6 +558,51 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         expect(eventsData).toBeUndefined();
                     });
+                    it('displays fixed items container below the trigger', function(){
+                        // move selleckt to top so there's enough room for the dropdown
+                        selleckt.$sellecktEl.css({
+                            position:'absolute', top:0
+                        });
+
+                        selleckt._open();
+
+                        expect(selleckt.$items.offset().top).toEqual(selleckt.$sellecktEl.find('.selected').offset().top + selleckt.$sellecktEl.find('.selected').outerHeight());
+                        expect(selleckt.$items.hasClass('flipped')).toEqual(false);
+                    });
+                    it('displays fixed items container on top if there\'s not enough space below the trigger', function(){
+                        // create testarea that stretches to the bottom of the screen
+                        var $testArea = $('<div class="testarea">').css({
+                            position:'fixed', top:0, left:0, width:'100%', height:'100%'
+                        }).appendTo('body');
+
+                        // position selleckt in testarea to force the dropdown to go off screen
+                        selleckt.$sellecktEl.css({
+                            position:'absolute', bottom:0, height: '20px', overflow:'hidden'
+                        }).appendTo($testArea);
+
+                        selleckt._open();
+
+                        expect(selleckt.$items.offset().top + selleckt.$items.outerHeight()).toEqual(selleckt.$sellecktEl.find('.selected').offset().top);
+                        expect(selleckt.$items.hasClass('flipped')).toEqual(true);
+
+                        // clean up
+                        $testArea.remove();
+                    });
+                    it('removes "flipped" class from this.$items on _close when the dropdown was displayed on top', function(){
+                        var flipStub = sinon.stub(selleckt, '_flipIfNeeded', function() {
+                            selleckt.$items.addClass('flipped');
+                        });
+
+                        selleckt._open();
+
+                        expect(selleckt.$items.hasClass('flipped')).toEqual(true);
+
+                        selleckt._close();
+
+                        expect(selleckt.$items.hasClass('flipped')).toEqual(false);
+
+                        flipStub.restore();
+                    });
                 });
             });
 
