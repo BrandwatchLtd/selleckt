@@ -1646,4 +1646,138 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
         });
     });
+
+    // tests for issue #38
+    describe('grouped items', function(){
+        var multiSelleckt,
+            $el,
+            selectHtml  =
+                '<select multiple>' +
+                    '<optgroup label="group 1">' +
+                        '<option value="1" selected>foo</option>' +
+                    '</optgroup>' +
+                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                    '<option value="3" selected>baz</option>' +
+                '</select>',
+            mainTemplate =
+                '<div class="{{className}} custom" tabindex=1>' +
+                    '<ul class="mySelections">' +
+                    '{{#selections}}' +
+                    '{{/selections}}' +
+                    '</ul>' +
+                    '<div class="selected">' +
+                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                    '</div>' +
+                    '<ul class="items">' +
+                        '{{#items}}' +
+                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
+                            '{{label}}' +
+                        '</li>' +
+                        '{{/items}}' +
+                    '</ul>' +
+                '</div>',
+            selectionTemplate =
+                '<li class="mySelectionItem custom-item" data-value="{{value}}">' +
+                    '{{text}}<i class="icon-remove remove"></i>' +
+                '</li>';
+
+        beforeEach(function(){
+            $el = $(selectHtml);
+        });
+
+        afterEach(function(){
+            $el = undefined;
+
+            if(multiSelleckt){
+                multiSelleckt.destroy();
+                multiSelleckt = undefined;
+            }
+        });
+
+        describe('initialization', function(){
+            describe('custom options', function(){
+                beforeEach(function(){
+                    multiSelleckt = Selleckt.create({
+                        mainTemplate: mainTemplate,
+                        selectionTemplate: selectionTemplate,
+                        multiple: true,
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedTextClass: 'selectedText',
+                        selectionsClass: 'mySelections',
+                        selectionItemClass: 'mySelectionItem',
+                        placeholderText: 'click me!',
+                        alternatePlaceholder: 'click me again!',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        groupClass: 'my-group-item',
+                        removeItemClass: 'removeItem',
+                        selectedClass: 'isSelected',
+                        highlightClass: 'isHighlighted',
+                        showEmptyList: true
+                    });
+                });
+
+                it('stores the groupClass as this.groupClass', function(){
+                    expect(multiSelleckt.groupClass).toEqual('my-group-item');
+                });
+            });
+
+            describe('defaults', function(){
+                beforeEach(function(){
+                    multiSelleckt = Selleckt.create({
+                        multiple: true,
+                        $selectEl : $el
+                    });
+                });
+
+                it('defaults this.groupClass to "group-item"',function(){
+                    expect(multiSelleckt.groupClass).toEqual('group-item');
+                });
+            });
+        });
+
+        describe('items', function(){
+            beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl : $el
+                });
+            });
+
+            it('instantiates this.items as an UL based on the options in the original select, plus group items that define groups', function(){
+                expect(multiSelleckt.items.length).toEqual(5);
+            });
+            it('creates option groups for grouped and ungrouped items', function(){
+                expect(multiSelleckt.items.filter(function(el) {
+                    return el.itemClass === 'group-item';
+                }).length).toEqual(2);
+            });
+            it('stores the option group labeled as "group 1"', function(){
+                expect(multiSelleckt.items[0].label).toEqual('group 1');
+            });
+            it('creates an option group for ungrouped items with label "ungrouped"', function(){
+                expect(multiSelleckt.items[2].label).toEqual('ungrouped');
+            });
+        });
+
+        describe('events', function(){
+            beforeEach(function(){
+                multiSelleckt = Selleckt.create({
+                    multiple: true,
+                    $selectEl : $el
+                });
+            });
+
+            it('does not close when it has a class of "group-item"', function(){
+                multiSelleckt.render();
+                multiSelleckt._open();
+
+                multiSelleckt.$sellecktEl.find('li.group-item').eq(0).trigger('mouseover').trigger('click');
+
+                expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(true);
+            });
+        });
+    });
+
 });

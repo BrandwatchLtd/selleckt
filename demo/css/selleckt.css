@@ -116,6 +116,13 @@
     .dropdown .selectionItem:hover i.edit {
         visibility: visible;
     }
+.dropdown .items .group-item {
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    color: black;
+    text-transform: uppercase;
+    cursor: text;
+}
+
 .dropdown .items mark {
     color: red;
 }
