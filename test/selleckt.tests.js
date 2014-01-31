@@ -1647,7 +1647,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
         });
     });
 
-    // tests for issue #38
     describe('grouped items', function(){
         var multiSelleckt,
             $el,
@@ -1746,7 +1745,10 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
 
             it('instantiates this.items as an UL based on the options in the original select, plus group items that define groups', function(){
-                expect(multiSelleckt.items.length).toEqual(5);
+                multiSelleckt.render();
+
+                expect(multiSelleckt.$sellecktEl.find('li.group-item').length).toEqual(2);
+                expect(multiSelleckt.$sellecktEl.find('li.item').length).toEqual(3);
             });
             it('creates option groups for grouped and ungrouped items', function(){
                 expect(multiSelleckt.items.filter(function(el) {
@@ -1756,8 +1758,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
             it('stores the option group labeled as "group 1"', function(){
                 expect(multiSelleckt.items[0].label).toEqual('group 1');
             });
-            it('creates an option group for ungrouped items with label "ungrouped"', function(){
-                expect(multiSelleckt.items[2].label).toEqual('ungrouped');
+            it('creates an option group for ungrouped items with label "Ungrouped"', function(){
+                expect(multiSelleckt.items[2].label).toEqual('Ungrouped');
             });
         });
 
@@ -1769,7 +1771,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
             });
 
-            it('does not close when it has a class of "group-item"', function(){
+            it('does not close when it has a data-type of "selleckt-group"', function(){
                 multiSelleckt.render();
                 multiSelleckt._open();
 
