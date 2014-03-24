@@ -1086,6 +1086,20 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         clock.restore();
                     });
+
+                    it('escapes the options when filtering and opening', function(){
+                        selleckt.destroy();
+                        selleckt = Selleckt.create({
+                            mainTemplate : template,
+                            $selectEl : $(selectHtml.replace(/bar/g, '<b>some HTML</b>')),
+                            enableSearch: true
+                        });
+
+                        selleckt.render();
+                        selleckt._open();
+
+                        expect(selleckt.$sellecktEl.find('li.item:eq(2)').html()).toEqual('<span class="itemText"><mark></mark>some HTML</span>');
+                    });
                 });
             });
         });
