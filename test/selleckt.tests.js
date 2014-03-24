@@ -526,6 +526,17 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setItemsAbsoluteSpy.restore();
                         setItemsFixedSpy.restore();
                     });
+                    it('binds to click event on document when options are shown', function(){
+                        var eventsData;
+
+                        selleckt._open();
+
+                        eventsData = $._data(document, 'events');
+
+                        expect(eventsData.click).toBeDefined();
+                        expect(eventsData.click.length).toEqual(1);
+                        expect(eventsData.click[0].namespace).toEqual('selleckt-' + selleckt.id);
+                    });
                     it('binds to scroll event on $scrollingParent when options are shown', function(){
                         var eventsData;
 
@@ -535,7 +546,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         expect(eventsData.scroll).toBeDefined();
                         expect(eventsData.scroll.length).toEqual(1);
-                        expect(eventsData.scroll[0].namespace).toEqual('selleckt.' + selleckt.id);
+                        expect(eventsData.scroll[0].namespace).toEqual('selleckt-' + selleckt.id);
                     });
                     it('calls "_close" when $scrollingParent is scrolled', function(){
                         var openSpy = sinon.spy(selleckt, '_open'),
