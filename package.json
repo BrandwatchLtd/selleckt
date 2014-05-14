@@ -16,9 +16,9 @@
   "devDependencies": {
     "serve": "*",
     "mocha": "~1",
-    "gulp": "^3.6.2",
-    "gulp-uglify": "^0.3.0",
-    "gulp-rename": "^1.2.0"
+    "gulp": "~3.6.2",
+    "gulp-uglify": "~0.3.0",
+    "gulp-rename": "~1.2.0"
   },
   "optionalDependencies": {},
   "volo": {
