@@ -153,6 +153,26 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
         </script>
         <script>
             $(function(){
+                $('select')
+                    .on('onRendered', onRendered)
+                    .on('onOpened', onOpened)
+                    .on('onClosed', onClosed);
+
+                function onRendered(e, data) {
+                    console.log('rendered selleckt: ', data.$sellecktEl);
+                }
+
+                function onOpened(e, data) {
+                    console.log('opened selleckt: ', data.$sellecktEl);
+                }
+
+                function onClosed(e, data) {
+                    console.log('closed selleckt: ', data.$sellecktEl);
+                }
+            });
+        </script>
+        <script>
+            $(function(){
                 var $select1 = $('#demo-1'),
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),

@@ -405,6 +405,26 @@ define(['lib/selleckt', 'lib/mustache.js'],
             it('returns "undefined" if no other $overflowHiddenParent is in DOM', function(){
                 expect(selleckt.$overflowHiddenParent).toBeUndefined();
             });
+            it('triggers "onRendered" event on original element', function(){
+                var spy = sinon.spy(),
+                    $elHelper = $(elHtml).appendTo('body'),
+                    sellecktHelper;
+
+                $elHelper.on('onRendered', spy);
+
+                sellecktHelper = Selleckt.create({
+                    $selectEl : $elHelper
+                });
+
+                sellecktHelper.render();
+
+                expect(spy.calledOnce).toEqual(true);
+
+                sellecktHelper.destroy();
+                sellecktHelper = undefined;
+                $elHelper.remove();
+                $elHelper = undefined;
+            });
         });
 
         describe('Events', function(){
@@ -499,6 +519,42 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt._close();
 
                     expect(selleckt.$sellecktEl.hasClass('closed')).toEqual(true);
+                });
+
+                it('triggers "onOpened" and does not trigger "onClosed" events on original selleckt when the selleckt is opened', function(){
+                    var openedSpy = sinon.spy(),
+                        closedSpy = sinon.spy();
+
+                    selleckt._close();
+                    selleckt.$originalSelectEl.on('onOpened', openedSpy);
+                    selleckt.$originalSelectEl.on('onClosed', closedSpy);
+                    $selectedItem.trigger('click');
+
+                    expect(openedSpy.calledOnce).toEqual(true);
+                    expect(closedSpy.calledOnce).toEqual(false);
+                });
+
+                it('triggers "onClosed" and does not trigger "onOpened" events on original selleckt when the selleckt is clicked when its open', function(){
+                    var openedSpy = sinon.spy(),
+                        closedSpy = sinon.spy();
+
+                    selleckt._open();
+                    selleckt.$originalSelectEl.on('onOpened', openedSpy);
+                    selleckt.$originalSelectEl.on('onClosed', closedSpy);
+                    $selectedItem.trigger('click');
+
+                    expect(openedSpy.calledOnce).toEqual(false);
+                    expect(closedSpy.calledOnce).toEqual(true);
+                });
+
+                it('triggers "onClosed" event when there was a "click" event triggered outside of opened selleckt', function(){
+                    var spy = sinon.spy();
+
+                    selleckt._open();
+                    selleckt.$originalSelectEl.on('onClosed', spy);
+                    $(document).trigger('click');
+
+                    expect(spy.calledOnce).toEqual(true);
                 });
 
                 describe('overflowing options container', function() {
@@ -758,6 +814,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(changeHandler.args[0][1].origin).toEqual('selleckt');
 
                     selleckt.$originalSelectEl.off('change', changeHandler);
+                });
+
+                it('triggers "onClosed" event on original select when item is selected', function(){
+                    var spy = sinon.spy();
+
+                    selleckt.$originalSelectEl.on('onClosed', spy);
+                    selleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
+                    selleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+
+                    expect(spy.calledOnce).toEqual(true);
                 });
 
                 describe('with an empty option', function(){
@@ -1495,6 +1561,20 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 multiSelleckt.selectItem(multiSelleckt.items[2]);
                 expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
+            });
+
+            it('does not trigger "onOpened" event on original select when all options are selected', function(){
+                var spy = sinon.spy();
+                multiSelleckt.render();
+
+                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+
+                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
+
+                multiSelleckt.$originalSelectEl.on('onOpened', spy);
+                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
+
+                expect(spy.calledOnce).toEqual(false);
             });
 
             describe('item deselection', function(){
