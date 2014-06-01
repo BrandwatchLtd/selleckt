@@ -159,15 +159,21 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     .on('onClosed', onClosed);
 
                 function onRendered(e, data) {
-                    console.log('rendered selleckt: ', data.$sellecktEl);
+                    if(typeof console == 'object'){
+                        console.log('rendered selleckt: ', data.$sellecktEl);
+                    }
                 }
 
                 function onOpened(e, data) {
-                    console.log('opened selleckt: ', data.$sellecktEl);
+                    if(typeof console == 'object'){
+                        console.log('opened selleckt: ', data.$sellecktEl);
+                    }
                 }
 
                 function onClosed(e, data) {
-                    console.log('closed selleckt: ', data.$sellecktEl);
+                    if(typeof console == 'object'){
+                        console.log('closed selleckt: ', data.$sellecktEl);
+                    }
                 }
             });
         </script>
