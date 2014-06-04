@@ -1100,6 +1100,24 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         expect(selleckt.$sellecktEl.find('li.item:eq(2)').html()).toEqual('<span class="itemText"><mark></mark>some HTML</span>');
                     });
+
+                    it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(){
+                        var listener = sinon.stub(),
+                            clock = sinon.useFakeTimers();
+
+                        selleckt._open();
+
+                        selleckt.bind('optionsFiltered', listener);
+                        $searchInput.val('aBc').trigger('keyup');
+
+                        //handler is _.debounced
+                        clock.tick(1000);
+
+                        expect(listener.calledOnce).toEqual(true);
+                        expect(listener.args[0][0]).toEqual('aBc');
+
+                        clock.restore();
+                    });
                 });
             });
         });
