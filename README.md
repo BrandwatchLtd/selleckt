@@ -304,3 +304,36 @@ An example template for a multiselleckt item:
     {{text}}<i class="icon-remove {{removeItemClass}}"></i>
 </li>
 ````
+
+<a name="events"></a>
+Events
+=================
+
+The following events are raised by an instance of selleckt:
+
+<table>
+    <thead>
+        <tr>
+            <th>event name</th>
+            <th>arguments</th>
+            <th>description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>itemSelected</td>
+            <td>The item that the user has selected</td>
+            <td>Triggered each time an option is selected by the user. An item is an object representing an option in the selleckt, consisting of value, label and data properties.</td>
+        </tr>
+    </tbody>
+</table>
+
+An example of using an event, where there is a select with id 'foo' to which selleckt has been applied:
+
+```javascript
+var sellecktInstance = $('#foo').data('selleckt');
+
+sellecktInstance.bind('itemSelected', function onItemSelected(item){
+    console.log('Item selected: ', item);
+});
+```
