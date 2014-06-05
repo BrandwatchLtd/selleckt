@@ -325,6 +325,11 @@ The following events are raised by an instance of selleckt:
             <td>The item that the user has selected</td>
             <td>Triggered each time an option is selected by the user. An item is an object representing an option in the selleckt, consisting of value, label and data properties.</td>
         </tr>
+        <tr>
+            <td>optionsFiltered</td>
+            <td>The user's search term</td>
+            <td>Triggered after the list of options has been filtered by the user's search term. The provided search term is an unmodified version of the user's search term. Please note that the option filtering will have been case insensitive.</td>
+        </tr>
     </tbody>
 </table>
 
