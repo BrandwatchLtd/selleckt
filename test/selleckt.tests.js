@@ -470,6 +470,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(openSpy.calledOnce).toEqual(true);
                     expect(closeSpy.calledOnce).toEqual(true);
                 });
+                it('triggers a "close" event when _close is called', function(){
+                    var listener = sinon.stub();
+
+                    selleckt.bind('close', listener);
+                    selleckt._close();
+
+                    expect(listener.calledOnce).toEqual(true);
+
+                    selleckt.unbind('close', listener);
+                });
                 it('adds a class of "open" to this.$sellecktEl when the selleckt is opened', function(){
                     selleckt._open();
 
