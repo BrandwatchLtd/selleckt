@@ -321,6 +321,11 @@ The following events are raised by an instance of selleckt:
     </thead>
     <tbody>
         <tr>
+            <td>close</td>
+            <td>-</td>
+            <td>Triggered when selleckt's dropdown closes</td>
+        </tr>
+        <tr>
             <td>itemSelected</td>
             <td>The item that the user has selected</td>
             <td>Triggered each time an option is selected by the user. An item is an object representing an option in the selleckt, consisting of value, label and data properties.</td>
