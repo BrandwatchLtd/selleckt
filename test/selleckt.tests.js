@@ -693,6 +693,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('hides the selected item from the list', function(){
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
                 });
+                it('does not trigger an event when the selected item is clicked, were it to be unhidden', function(){
+                    var spy = sinon.spy(),
+                        $selectedItem = selleckt.$items.find('.item[data-value="1"]');
+
+                    selleckt.bind('itemSelected', spy);
+
+                    $selectedItem.css('display', 'block').trigger('mouseover').trigger('click');
+
+                    expect(spy.called).toEqual(false);
+                });
                 it('shows the previously-selected item in the list', function(){
                     expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
 
