@@ -587,7 +587,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         selleckt._open();
 
-                        expect(selleckt.$items.offset().top).toEqual(selleckt.$sellecktEl.find('.selected').offset().top + selleckt.$sellecktEl.find('.selected').outerHeight());
+                        expect(selleckt.$items.offset().top)
+                            .toEqual(selleckt.$sellecktEl.find('.selected').offset().top + 
+                                selleckt.$sellecktEl.find('.selected').outerHeight());
                         expect(selleckt.$items.hasClass('flipped')).toEqual(false);
                     });
                     it('displays fixed items container on top if there\'s not enough space below the trigger', function(){
@@ -603,7 +605,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         selleckt._open();
 
-                        expect(selleckt.$items.offset().top + selleckt.$items.outerHeight()).toEqual(selleckt.$sellecktEl.find('.selected').offset().top);
+                        expect(selleckt.$items.offset().top + selleckt.$items.outerHeight())
+                            .toEqual(selleckt.$sellecktEl.find('.selected').offset().top);
                         expect(selleckt.$items.hasClass('flipped')).toEqual(true);
 
                         // clean up
@@ -790,7 +793,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         selleckt.render();
                     });
 
-                    it('displays the placeholder when the change event is triggered on the original select and its value is the empty string', function(){
+                    it('displays the placeholder when the change event is triggered on ' +
+                            'the original select and its value is the empty string', function(){
                         selleckt.$originalSelectEl.val('').trigger('change');
                         var emptyOptionDisplayedText = selleckt.$sellecktEl.find('.selectedText').text();
                         expect(emptyOptionDisplayedText).toEqual(selleckt.placeholderText);
@@ -934,7 +938,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 $searchInput;
 
             describe('initialization', function(){
-                it('displays a searchbox if settings.enableSearch is true and there are more items than options.searchThreshold', function(){
+                it('displays a searchbox if settings.enableSearch is true and ' +
+                        'there are more items than options.searchThreshold', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
@@ -946,7 +951,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(1);
                 });
-                it('does not display a searchbox if settings.enableSearch is true and there are fewer items than options.searchThreshold', function(){
+                it('does not display a searchbox if settings.enableSearch is true and ' +
+                        'there are fewer items than options.searchThreshold', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
@@ -1001,8 +1007,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     filterOptionsStub = sinon.stub(selleckt, 'filterOptions');
 
-                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
-
                     selleckt._open();
 
                     expect(filterOptionsStub.calledOnce).toEqual(true);
@@ -1021,8 +1025,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt.render();
 
                     filterOptionsStub = sinon.stub(selleckt, 'filterOptions');
-
-                    var $searchInput = selleckt.$sellecktEl.find('.' + selleckt.searchInputClass);
 
                     selleckt._close();
 
@@ -1088,6 +1090,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         expect(selleckt.$items.find('.item').eq(4).css('display')).toEqual('none');
                         expect(selleckt.$items.find('.item').eq(5).css('display')).not.toEqual('none');
 
+                        _findMatchingOptionsSpy.restore();
                         clock.restore();
                     });
                     it('wraps matched text in the matching options with a "mark" tag', function(){
@@ -1104,6 +1107,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         expect(selleckt.$items.find('.item mark').parent('.itemText').eq(0).text()).toEqual('baz');
                         expect(selleckt.$items.find('.item mark').parent('.itemText').eq(1).text()).toEqual('foobaz');
 
+                        _findMatchingOptionsSpy.restore();
                         clock.restore();
                     });
 
@@ -1118,7 +1122,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         selleckt.render();
                         selleckt._open();
 
-                        expect(selleckt.$sellecktEl.find('li.item:eq(2)').html()).toEqual('<span class="itemText"><mark></mark>some HTML</span>');
+                        expect(selleckt.$sellecktEl.find('li.item:eq(2)').html())
+                            .toEqual('<span class="itemText"><mark></mark>some HTML</span>');
                     });
 
                     it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(){
@@ -1580,22 +1585,22 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     multiSelleckt.selectItem(multiSelleckt.items[1]);
 
                     expect(multiSelleckt.selectedItems.length).toEqual(3);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text()).toEqual(multiSelleckt.alternatePlaceholder);
+                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
+                        .toEqual(multiSelleckt.alternatePlaceholder);
 
                     multiSelleckt.removeItem(multiSelleckt.items[0]);
                     multiSelleckt.removeItem(multiSelleckt.items[1]);
                     multiSelleckt.removeItem(multiSelleckt.items[2]);
 
                     expect(multiSelleckt.selectedItems.length).toEqual(0);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text()).toEqual(multiSelleckt.placeholderText);
+                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
+                        .toEqual(multiSelleckt.placeholderText);
                 });
             });
         });
 
         describe('removing items', function(){
-            var $clickTarget,
-                itemToRemove,
-                $correspondingOption;
+            var $clickTarget;
 
             beforeEach(function(){
                 multiSelleckt = Selleckt.create({
