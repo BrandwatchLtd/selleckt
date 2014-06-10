@@ -12,10 +12,14 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
+  "scripts": {
+    "test": "./testem"
+  },
   "dependencies": {},
   "devDependencies": {
     "serve": "*",
-    "mocha": "~1"
+    "testem": "^0.6.16",
+    "jshint": "^2.5.1"
   },
   "optionalDependencies": {},
   "volo": {
