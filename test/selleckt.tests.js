@@ -588,7 +588,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         selleckt._open();
 
                         expect(selleckt.$items.offset().top)
-                            .toEqual(selleckt.$sellecktEl.find('.selected').offset().top + 
+                            .toEqual(selleckt.$sellecktEl.find('.selected').offset().top +
                                 selleckt.$sellecktEl.find('.selected').outerHeight());
                         expect(selleckt.$items.hasClass('flipped')).toEqual(false);
                     });
@@ -757,6 +757,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     selleckt.$originalSelectEl.val('2').change();
 
                     expect(selleckt.getSelection().value).toEqual('2');
+                });
+                it('updates selleckt when change is triggered on original select with no value', function(){
+                    selleckt.$originalSelectEl.val('').change();
+
+                    expect(selleckt.getSelection().value).toBeUndefined();
                 });
                 it('does not update selleckt when change on original select is triggered by selleckt itself', function(){
                     selleckt.$originalSelectEl.val('2').trigger('change', {origin: 'selleckt'});
