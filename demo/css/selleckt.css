@@ -1,18 +1,18 @@
-.dropdown * {
+.selleckt * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
-.dropdown {
+.selleckt {
     position: relative;
     width: 300px;
     outline: none;
 }
-.dropdown.disabled .selected{
+.selleckt.disabled .selected{
     opacity: 0.6;
 }
-.dropdown > .selected {
+.selleckt > .selected {
     position: relative;
     font-weight: 700;
     border: 1px solid #BBB;
@@ -25,20 +25,20 @@
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     padding: 10px 12px;
 }
-.dropdown.focus > .selected,
-.dropdown:focus > .selected {
+.selleckt.focus > .selected,
+.selleckt:focus > .selected {
     outline: none;
 }
 
-.dropdown .item.highlighted{
+.selleckt .item.highlighted{
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-.dropdown > .selected:hover,
-.dropdown > .selected:focus {
+.selleckt > .selected:hover,
+.selleckt > .selected:focus {
     cursor: pointer;
 }
-.dropdown > .selected i {
+.selleckt > .selected i {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -46,19 +46,19 @@
     width: 16px;
     line-height: 40px;
 }
-.dropdown.open > .selected {
+.selleckt.open > .selected {
     border-top-right-radius: 4px;
     border-top-left-radius: 4px;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
-.dropdown ul {
+.selleckt ul {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-.dropdown .items {
+.selleckt .items {
     display: none;
     position: absolute;
     left: 0;
@@ -77,20 +77,20 @@
     background-image: -o-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
 }
-    .dropdown .items .itemslist {
+    .selleckt .items .itemslist {
         max-height: 300px;
         overflow: auto;
     }
-    .dropdown .items .searchContainer {
+    .selleckt .items .searchContainer {
         position: relative;
         padding: 12px 36px 12px 12px;
         left: 0;
         right: 0;
     }
-    .dropdown .items .searchContainer .search {
+    .selleckt .items .searchContainer .search {
         width: 100%;
     }
-.dropdown .items li {
+.selleckt .items li {
     position: relative;
     display: block;
     cursor: pointer;
@@ -98,34 +98,34 @@
     font-weight: 700;
     padding: 10px 12px;
 }
-    .dropdown .items footer {
+    .selleckt .items footer {
         padding: 10px;
     }
-        .dropdown .items footer a {
+        .selleckt .items footer a {
             cursor: pointer;
         }
-        .dropdown .items footer hr {
+        .selleckt .items footer hr {
             padding: 0;
             margin-top: 0;
             margin-bottom: 10px;
         }
-    .dropdown .selections i.edit {
+    .selleckt .selections i.edit {
         right: 8px;
         visibility: hidden;
     }
-    .dropdown .selectionItem:hover i.edit {
+    .selleckt .selectionItem:hover i.edit {
         visibility: visible;
     }
-.dropdown .items mark {
+.selleckt .items mark {
     color: red;
 }
-.dropdown ul.selections {
+.selleckt ul.selections {
     list-style-type: none;
 }
 
-.demo-2 .dropdown ul.selections li,
-.demo-3 .dropdown ul.selections li,
-.demo-4 .dropdown ul.selections li > div {
+.demo-2 .selleckt ul.selections li,
+.demo-3 .selleckt ul.selections li,
+.demo-4 .selleckt ul.selections li > div {
     position: relative;
     padding: 5px 12px;
     font-weight: 700;
@@ -138,17 +138,17 @@
     background-image: -o-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
     background-image: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(248, 248, 248));
 }
-.demo-2 .dropdown ul.selections li,
-.demo-3 .dropdown ul.selections li {
+.demo-2 .selleckt ul.selections li,
+.demo-3 .selleckt ul.selections li {
     margin: 0 0 2px 0;
 }
-.demo-4 .dropdown ul.selections li {
+.demo-4 .selleckt ul.selections li {
     position: relative;
 }
-.demo-4 .dropdown ul.selections li > div {
+.demo-4 .selleckt ul.selections li > div {
     margin: 0 30px 2px 0;
 }
-.dropdown .selections i {
+.selleckt .selections i {
     position: absolute;
     top: 8px;
     right: 12px;
@@ -157,12 +157,12 @@
     line-height: 40px;
     cursor: pointer;
 }
-.dropdown .noitemsText {
+.selleckt .noitemsText {
     display: none;
     font-weight: 700;
     padding: 10px 12px;
     font-style: italic;
 }
-.dropdown.noitems .noitemsText {
+.selleckt.noitems .noitemsText {
     display: block;
 }

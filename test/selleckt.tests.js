@@ -279,7 +279,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     selleckt = Selleckt.create({
                         $selectEl: $el,
-                        className: 'selleckt',
+                        className: 'sellecktTest',
                         selectedClass: 'trigger',
                         selectedTextClass: 'triggerText',
                         itemsClass: 'dropdown',
@@ -291,7 +291,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     templateData = selleckt.getTemplateData();
 
-                    expect(templateData.className).toEqual('selleckt');
+                    expect(templateData.className).toEqual('sellecktTest');
                     expect(templateData.selectedClass).toEqual('trigger');
                     expect(templateData.selectedTextClass).toEqual('triggerText');
                     expect(templateData.itemsClass).toEqual('dropdown');
