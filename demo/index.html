@@ -116,6 +116,29 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     <option value="3">Baz</option>
                 </select>
             </div>
+
+
+            <div class="demo demo-5">
+                <h2>Multi select with groups</h2>
+                <p>Replaces a standard select element and handle groups.</p>
+                <select id="demo-5" multiple="true">
+                    <optgroup label="group 1">
+                        <option value="1">Foo</option>
+                        <option value="2">Bar</option>
+                        <option value="3" selected>Baz</option>
+                        <option value="4">Bez</option>
+                    </optgroup>
+                    <optgroup label="group 2">
+                        <option value="5">Foobar</option>
+                        <option value="6" selected>Ackbar</option>
+                        <option value="7">Nom</option>
+                    </optgroup>
+                    <option value="8">NomNom</option>
+                    <option value="9">Bazooka</option>
+                    <option value="10">FooBarz</option>
+                </select>
+            </div>
+
         </div>
         <script id="fancyTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
@@ -157,6 +180,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),
                     $select4 = $('#demo-4'),
+                    $select5 = $('#demo-5'),
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
                     fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
@@ -188,6 +212,9 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 
                         alert('Hey, you clicked the "edit button" for item: ' + JSON.stringify(item));
                     });
+
+                // grouped items demo (issue #38)
+                $select5.selleckt();
             });
         </script>
     </body>
