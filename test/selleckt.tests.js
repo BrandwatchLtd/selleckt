@@ -1686,6 +1686,19 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 multiSelleckt.$originalSelectEl.off('change', changeHandler);
             });
+            it('triggers an "itemRemoved" event with the removed item', function(){
+                var spy = sinon.spy();
+
+                multiSelleckt.bind('itemRemoved', spy);
+                $clickTarget.trigger('click');
+
+                expect(spy.calledOnce).toEqual(true);
+                expect(spy.args[0][0]).toEqual({
+                    value: '1',
+                    label: 'foo',
+                    data: {}
+                });
+            });
         });
 
         describe('events', function(){
