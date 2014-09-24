@@ -168,7 +168,45 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             data: {}
                         });
                     });
+
+                    describe('when there is no selected item already', function(){
+                        var $newEl;
+
+                        beforeEach(function(){
+                            var selectHtml = '<select>' +
+                            '<option value="1">foo</option>' +
+                            '<option value="2">bar</option>' +
+                            '<option value="3">baz</option>' +
+                            '</select>';
+
+                            selleckt.destroy();
+
+                            $newEl = $(selectHtml).appendTo('body');
+
+                            selleckt = Selleckt.create({
+                                mainTemplate: template,
+                                $selectEl : $newEl,
+                                className: 'selleckt',
+                                selectedClass: 'selected',
+                                selectedTextClass: 'selectedText',
+                                itemsClass: 'items',
+                                itemClass: 'item',
+                                selectedClassName: 'isSelected',
+                                highlightClass: 'isHighlighted'
+                            });
+                        });
+
+                        afterEach(function(){
+                            $newEl.remove();
+                            $newEl = undefined;
+                        });
+
+                        it('does not select an item', function(){
+                            expect(selleckt.selectedItem).toBeUndefined();
+                        });
+                    });
                 });
+
                 describe('events', function(){
                     it('does not trigger change event when instantiated on select with selected option', function(){
                         var onChangeStub = sinon.stub();
