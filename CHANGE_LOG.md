@@ -1,3 +1,8 @@
+0.3.1 - 8 January 2015
+
+- Selleckt now allows event propgation and default behaviour on mouse scrolling
+- EditorConfig added
+
 0.2.3 - 24 January 2014
 ===============
 
