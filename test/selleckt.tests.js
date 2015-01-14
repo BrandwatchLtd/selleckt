@@ -52,12 +52,13 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         '</li>' +
                         '{{/showSearch}}' +
                         '{{#items}}' +
-                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
-                            '<span class="itemText">{{label}}</span>' +
-                        '</li>' +
+                            '{{> item}}' +
                         '{{/items}}' +
                     '</ul>' +
-                '</div>';
+                '</div>',
+                itemTemplate = '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
+                    '<span class="{{itemTextClass}}">{{label}}</span>' +
+                '</li>';
 
             describe('invalid instantiation', function(){
                 it('pukes if instantiated with an invalid template format', function(){
@@ -90,6 +91,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 beforeEach(function(){
                     selleckt = Selleckt.create({
                         mainTemplate: template,
+                        itemTemplate: itemTemplate,
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -118,7 +120,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('stores options.mainTemplate as this.template', function(){
-                    expect(selleckt.mainTemplate({})).toEqual(Mustache.compile(template)({}));
+                    expect(Mustache.render(selleckt.mainTemplate, {})).toEqual(Mustache.render(template, {}));
+                });
+
+                it('stores options.itemTemplate as this.itemTemplate', function(){
+                    expect(Mustache.render(selleckt.itemTemplate, {})).toEqual(Mustache.render(itemTemplate, {}));
                 });
 
                 it('stores options.mainTemplateData as this.mainTemplateData', function(){
@@ -234,23 +240,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('accepts template strings', function(){
                     selleckt = Selleckt.create({
                         mainTemplate : template,
-                        $selectEl : $el,
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClassName: 'isHighlighted'
-                    });
-                    selleckt.render();
-                    expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
-                });
-
-                it('accepts compiled templates', function(){
-                    selleckt = Selleckt.create({
-                        mainTemplate : Mustache.compile(template),
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -1298,7 +1287,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('stores options.selectionTemplate as this.selectionTemplate',function(){
-                    expect(multiSelleckt.selectionTemplate({})).toEqual(Mustache.compile(selectionTemplate)({}));
+                    expect(Mustache.render(multiSelleckt.selectionTemplate, {})).toEqual(Mustache.render(selectionTemplate, {}));
                 });
                 it('stores options.selectionsClass as this.selectionsClass',function(){
                     expect(multiSelleckt.selectionsClass).toEqual('mySelections');
@@ -1368,21 +1357,6 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 multiSelleckt.render();
 
-                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
-            });
-
-            it('accepts compiled templates', function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el,
-                    selectionsClass: 'mySelections',
-                    selectionItemClass: 'mySelectionItem',
-                    mainTemplate : Mustache.compile(mainTemplate),
-                    selectionTemplate: Mustache.compile(selectionTemplate)
-                });
-                multiSelleckt.render();
                 expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
