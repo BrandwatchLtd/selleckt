@@ -1347,6 +1347,14 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 expect($el.css('display')).toEqual('inline-block');
             });
+
+            it('stops observing mutation events', function(){
+                var stopObservingMutationsSpy = sinon.spy(selleckt, '_stopObservingMutations');
+
+                selleckt.destroy();
+
+                expect(stopObservingMutationsSpy.calledOnce).toEqual(true);
+            });
         });
     });
 
