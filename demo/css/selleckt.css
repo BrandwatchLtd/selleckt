@@ -148,6 +148,9 @@
 .demo-4 .selleckt ul.selections li > div {
     margin: 0 30px 2px 0;
 }
+.demo-5 button {
+    margin-top: 10px;
+}
 .selleckt .selections i {
     position: absolute;
     top: 8px;

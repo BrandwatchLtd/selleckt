@@ -100,6 +100,17 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     <option value="3">Baz</option>
                 </select>
             </div>
+            <div class="demo demo-5">
+                <h2>Adding items</h2>
+                <p>Click the button to add a new item</p>
+                <select id="demo-5">
+                    <option value="1">Foo</option>
+                    <option value="2">Bar</option>
+                    <option value="3">Baz</option>
+                </select>
+                <button id="addButton">Click me!</button>
+                <input type="checkbox" id="select-immediately"></input><label for="select-immediately">Select the new item immediately</label>
+            </div>
         </div>
         <script id="fancyTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
@@ -141,6 +152,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select2 = $('#demo-2'),
                     $select3 = $('#demo-3'),
                     $select4 = $('#demo-4'),
+                    $select5 = $('#demo-5'),
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
                     fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
@@ -172,6 +184,17 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 
                         alert('Hey, you clicked the "edit button" for item: ' + JSON.stringify(item));
                     });
+
+                $select5.selleckt();
+                $('.demo-5 #addButton').click(function (e){
+                    var selectNewItem = $('.demo-5 #select-immediately').is(':checked');
+
+                    $select5.data('selleckt').addItem({
+                        label: 'New item!',
+                        value: 'wheee!',
+                        isSelected: selectNewItem
+                    });
+                });
             });
         </script>
     </body>
