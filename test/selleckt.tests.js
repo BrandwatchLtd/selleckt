@@ -450,113 +450,270 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 selleckt.render();
             });
 
-            it('adds an item to this.items', function(){
-                expect(selleckt.items.length).toEqual(3);
+            describe('using addItem to add a single item', function(){
+                it('adds an item to this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
 
-                selleckt.addItem(item);
+                    selleckt.addItem(item);
 
-                expect(selleckt.items.length).toEqual(4);
-                expect(selleckt.items[3]).toEqual(item);
+                    expect(selleckt.items.length).toEqual(4);
+                    expect(selleckt.items[3]).toEqual(item);
+                });
+
+                it('appends a new option to the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+
+                    selleckt.addItem(item);
+
+                    expect($originalSelectEl.children().length).toEqual(4);
+
+                    var newOption = $originalSelectEl.find('option').eq(3);
+
+                    expect(newOption.text()).toEqual('new');
+                    expect(newOption.val()).toEqual('new value');
+                });
+
+                it('appends a new item to the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.addItem(item);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect($sellecktEl.find(itemClass).length).toEqual(4);
+                        done();
+                    }, 0);
+                });
+
+                it('selects the new item when it is clicked', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+
+                    selleckt.addItem(item);
+
+                    setTimeout(function(){
+                        $sellecktEl.trigger('click');
+                        $sellecktEl.find('li.item').eq(3).trigger('mouseover').trigger('click');
+
+                        expect(selleckt.selectedItem.label).toEqual('new');
+                        expect(selleckt.selectedItem.value).toEqual('new value');
+
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
+
+                        done();
+                    }, 0);
+                });
+
+                describe('and the new item has selected:true', function(){
+                    var originalSelection;
+
+                    beforeEach(function(){
+                        originalSelection = selleckt.$originalSelectEl.find('option:selected');
+                        item.isSelected = true;
+                    });
+
+                    it('selects the new item in the original select', function(done){
+                        expect(originalSelection.val()).toEqual('1');
+
+                        selleckt.addItem(item);
+
+                        var newSelection = selleckt.$originalSelectEl.find('option:selected');
+
+                        setTimeout(function(){
+                            expect(newSelection.length).toEqual(1);
+                            expect(newSelection.val()).toEqual('new value');
+                            done();
+                        }, 0);
+                    });
+
+                    it('selects the new item in Selleckt', function(done){
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
+                            done();
+                        }, 0);
+                    });
+
+                    it('hides the new item from the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="new value"]').css('display')).toEqual('none');
+                            done();
+                        }, 0);
+                    });
+
+                    it('adds the previously selected item back to the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
+                            done();
+                        }, 0);
+                    });
+
+                    it('deselects the previously selected item in the Selleckt', function(done){
+                        expect(selleckt.selectedItem.value).toEqual('1');
+                        expect(selleckt.selectedItem.label).toEqual('foo');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.selectedItem.value).toEqual('new value');
+                            expect(selleckt.selectedItem.label).toEqual('new');
+                            done();
+                        }, 0);
+                    });
+                });
             });
 
-            it('appends a new option to the original select', function(){
-                var $originalSelectEl = selleckt.$originalSelectEl;
-
-                expect($originalSelectEl.children().length).toEqual(3);
-
-                selleckt.addItem(item);
-
-                expect($originalSelectEl.children().length).toEqual(4);
-
-                var newOption = $originalSelectEl.find('option').eq(3);
-
-                expect(newOption.text()).toEqual('new');
-                expect(newOption.val()).toEqual('new value');
-            });
-
-            it('appends a new item to the Selleckt element itself', function(done){
-                var $sellecktEl = selleckt.$sellecktEl;
-                var itemClass = '.' + selleckt.itemClass;
-
-                expect($sellecktEl.find(itemClass).length).toEqual(3);
-
-                selleckt.addItem(item);
-
-                //because of the dom event
-                setTimeout(function(){
-                    expect($sellecktEl.find(itemClass).length).toEqual(4);
-                    done();
-                }, 0);
-            });
-
-            describe('and the new item has selected:true', function(){
-                var originalSelection;
+            describe('using addItems to add an array of items', function(){
+                var items;
 
                 beforeEach(function(){
-                    originalSelection = selleckt.$originalSelectEl.find('option:selected');
-                    item.isSelected = true;
+                    items = [
+                        { label: 'new 1', value: 'new value 1' },
+                        { label: 'new 2', value: 'new value 2' },
+                        { label: 'new 3', value: 'new value 3' }
+                    ];
                 });
 
-                it('selects the new item in the original select', function(done){
-                    expect(originalSelection.val()).toEqual('1');
+                afterEach(function(){
+                    items = undefined;
+                });
 
-                    selleckt.addItem(item);
+                it('adds the items to this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
 
-                    var newSelection = selleckt.$originalSelectEl.find('option:selected');
+                    selleckt.addItems(items);
 
+                    expect(selleckt.items.length).toEqual(6);
+                    expect(selleckt.items[3]).toEqual(items[0]);
+                    expect(selleckt.items[4]).toEqual(items[1]);
+                    expect(selleckt.items[5]).toEqual(items[2]);
+                });
+
+                it('appends new options to the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+
+                    selleckt.addItems(items);
+
+                    expect($originalSelectEl.children().length).toEqual(6);
+
+                    var newOption1 = $originalSelectEl.find('option').eq(3);
+                    expect(newOption1.text()).toEqual('new 1');
+                    expect(newOption1.val()).toEqual('new value 1');
+
+                    var newOption2 = $originalSelectEl.find('option').eq(4);
+                    expect(newOption2.text()).toEqual('new 2');
+                    expect(newOption2.val()).toEqual('new value 2');
+
+                    var newOption3 = $originalSelectEl.find('option').eq(5);
+                    expect(newOption3.text()).toEqual('new 3');
+                    expect(newOption3.val()).toEqual('new value 3');
+                });
+
+                it('appends the new items to the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.addItems(items);
+
+                    //because of the dom event
                     setTimeout(function(){
-                        expect(newSelection.length).toEqual(1);
-                        expect(newSelection.val()).toEqual('new value');
+                        expect($sellecktEl.find(itemClass).length).toEqual(6);
                         done();
                     }, 0);
                 });
 
-                it('selects the new item in Selleckt', function(done){
-                    var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+                describe('and a new item has selected:true', function(){
+                    var originalSelection;
 
-                    expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
+                    beforeEach(function(){
+                        originalSelection = selleckt.$originalSelectEl.find('option:selected');
+                        items[0].isSelected = true;
+                    });
 
-                    selleckt.addItem(item);
+                    it('selects the new item in the original select', function(done){
+                        expect(originalSelection.val()).toEqual('1');
 
-                    setTimeout(function(){
-                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
-                        done();
-                    }, 0);
-                });
+                        selleckt.addItems(items);
 
-                it('hides the new item from the Selleckt list', function(done){
-                    expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+                        var newSelection = selleckt.$originalSelectEl.find('option:selected');
 
-                    selleckt.addItem(item);
+                        setTimeout(function(){
+                            expect(newSelection.length).toEqual(1);
+                            expect(newSelection.val()).toEqual('new value 1');
+                            done();
+                        }, 0);
+                    });
 
-                    setTimeout(function(){
-                        expect(selleckt.$items.find('.item[data-value="new value"]').css('display')).toEqual('none');
-                        done();
-                    }, 0);
-                });
+                    it('selects the new item in Selleckt', function(done){
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
 
-                it('adds the previously selected item back to the Selleckt list', function(done){
-                    expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
 
-                    selleckt.addItem(item);
+                        selleckt.addItems(items);
 
-                    setTimeout(function(){
-                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
-                        done();
-                    }, 0);
-                });
+                        setTimeout(function(){
+                            expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new 1');
+                            done();
+                        }, 0);
+                    });
 
-                it('deselects the previously selected item in the Selleckt', function(done){
-                    expect(selleckt.selectedItem.value).toEqual('1');
-                    expect(selleckt.selectedItem.label).toEqual('foo');
+                    it('hides the new item from the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
 
-                    selleckt.addItem(item);
+                        selleckt.addItems(items);
 
-                    setTimeout(function(){
-                        expect(selleckt.selectedItem.value).toEqual('new value');
-                        expect(selleckt.selectedItem.label).toEqual('new');
-                        done();
-                    }, 0);
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="new value 1"]').css('display')).toEqual('none');
+                            done();
+                        }, 0);
+                    });
+
+                    it('adds the previously selected item back to the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
+                            done();
+                        }, 0);
+                    });
+
+                    it('deselects the previously selected item in the Selleckt', function(done){
+                        expect(selleckt.selectedItem.value).toEqual('1');
+                        expect(selleckt.selectedItem.label).toEqual('foo');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect(selleckt.selectedItem.value).toEqual('new value 1');
+                            expect(selleckt.selectedItem.label).toEqual('new 1');
+                            done();
+                        }, 0);
+                    });
                 });
             });
         });
