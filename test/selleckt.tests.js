@@ -436,6 +436,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
         describe('Adding items', function(){
             var item;
+            var waitTime = 100;
 
             beforeEach(function(){
                 item = {
@@ -448,6 +449,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 selleckt.render();
+            });
+
+            afterEach(function(){
+                selleckt.destroy();
+                selleckt = undefined;
             });
 
             describe('using addItem to add a single item', function(){
@@ -487,7 +493,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     setTimeout(function(){
                         expect($sellecktEl.find(itemClass).length).toEqual(4);
                         done();
-                    }, 0);
+                    }, waitTime);
                 });
 
                 it('selects the new item when it is clicked', function(done){
@@ -507,7 +513,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
 
                         done();
-                    }, 0);
+                    }, waitTime);
                 });
 
                 describe('and the new item has selected:true', function(){
@@ -529,7 +535,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             expect(newSelection.length).toEqual(1);
                             expect(newSelection.val()).toEqual('new value');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('selects the new item in Selleckt', function(done){
@@ -542,7 +548,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('hides the new item from the Selleckt list', function(done){
@@ -553,7 +559,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect(selleckt.$items.find('.item[data-value="new value"]').css('display')).toEqual('none');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('adds the previously selected item back to the Selleckt list', function(done){
@@ -564,7 +570,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('deselects the previously selected item in the Selleckt', function(done){
@@ -577,7 +583,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             expect(selleckt.selectedItem.value).toEqual('new value');
                             expect(selleckt.selectedItem.label).toEqual('new');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
                 });
             });
@@ -642,7 +648,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     setTimeout(function(){
                         expect($sellecktEl.find(itemClass).length).toEqual(6);
                         done();
-                    }, 0);
+                    }, waitTime);
                 });
 
                 describe('and a new item has selected:true', function(){
@@ -664,7 +670,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             expect(newSelection.length).toEqual(1);
                             expect(newSelection.val()).toEqual('new value 1');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('selects the new item in Selleckt', function(done){
@@ -677,7 +683,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new 1');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('hides the new item from the Selleckt list', function(done){
@@ -688,7 +694,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect(selleckt.$items.find('.item[data-value="new value 1"]').css('display')).toEqual('none');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('adds the previously selected item back to the Selleckt list', function(done){
@@ -699,7 +705,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         setTimeout(function(){
                             expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
 
                     it('deselects the previously selected item in the Selleckt', function(done){
@@ -712,14 +718,113 @@ define(['lib/selleckt', 'lib/mustache.js'],
                             expect(selleckt.selectedItem.value).toEqual('new value 1');
                             expect(selleckt.selectedItem.label).toEqual('new 1');
                             done();
-                        }, 0);
+                        }, waitTime);
                     });
                 });
             });
         });
 
         describe('Removing items', function(){
-            it('observes removals from the original select');
+            var removeItemValue;
+            var waitTime = MutationObserver._period ? MutationObserver._period * 2 : 1;
+
+            beforeEach(function(){
+                selleckt = Selleckt.create({
+                    $selectEl : $el
+                });
+
+                selleckt.render();
+            });
+
+            afterEach(function(){
+                selleckt.destroy();
+                selleckt = undefined;
+            });
+
+            describe('and the removed item is not selected', function(){
+                beforeEach(function(){
+                    removeItemValue = selleckt.items[2].value;
+                });
+
+                it('removes the item from this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
+                    expect(selleckt.findItem(removeItemValue)).toBeDefined();
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.items.length).toEqual(2);
+                    expect(selleckt.findItem(removeItemValue)).toBeUndefined();
+                });
+
+                it('removes the option with the corresponding value from the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+                    expect($originalSelectEl.find('option[value="' + removeItemValue + '"]').length).toEqual(1);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect($originalSelectEl.children().length).toEqual(2);
+                    expect($originalSelectEl.find('option[value="' + removeItemValue + '"]').length).toEqual(0);
+                });
+
+                it('removes the corresponding item from the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect(selleckt.$originalSelectEl.children().length).toEqual(2);
+                        expect($sellecktEl.find(itemClass).length).toEqual(2);
+
+                        done();
+                    }, waitTime);
+                });
+            });
+
+            describe('and the removed item is selected', function(){
+                beforeEach(function(){
+                    removeItemValue = selleckt.selectedItem.value;
+                });
+
+                it('removes the corresponding item from the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect(selleckt.$originalSelectEl.children().length).toEqual(2);
+                        expect($sellecktEl.find(itemClass).length).toEqual(2);
+
+                        done();
+                    }, waitTime);
+                });
+
+                it('sets this.selectedItem to undefined if it has the value of the item being removed', function(){
+                    expect(selleckt.selectedItem).toBeDefined();
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.selectedItem).toBeUndefined();
+                });
+
+                it('sets the placeholder text back', function(){
+                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.selectedItem.label);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.placeholderText);
+                });
+            });
+
         });
 
         describe('Events', function(){

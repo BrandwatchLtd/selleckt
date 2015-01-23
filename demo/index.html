@@ -8,7 +8,14 @@
         <script src="lib/jquery-1.10.1.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/mustache.js"></script>
+
+         <!--[if IE 8 ]>
         <script src="../shims/object-create-shim.js"></script>
+        <script src="../shims/es5-shim.min.js"></script>
+        <![endif]-->
+
+        <script src="../shims/mutationobserver-shim.js"></script>
+
         <script src="../lib/selleckt.js"></script>
 
         <style>
@@ -111,6 +118,16 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 <button id="addButton">Click me!</button>
                 <input type="checkbox" id="select-immediately"></input><label for="select-immediately">Select the new item immediately</label>
             </div>
+            <div class="demo demo-6">
+                <h2>Removing items</h2>
+                <p>Click the button to remove the "Baz" item</p>
+                <select id="demo-6">
+                    <option value="1">Foo</option>
+                    <option value="2">Bar</option>
+                    <option value="3">Baz</option>
+                </select>
+                <button id="removeButton">Click me!</button>
+            </div>
         </div>
         <script id="fancyTemplate" type="text/html">
             <div class="{{className}}" tabindex=1>
@@ -155,6 +172,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select3 = $('#demo-3'),
                     $select4 = $('#demo-4'),
                     $select5 = $('#demo-5'),
+                    $select6 = $('#demo-6'),
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
                     fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
 
@@ -196,6 +214,11 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                         value: 'wheee!',
                         isSelected: selectNewItem
                     });
+                });
+
+                $select6.selleckt();
+                $('.demo-6 #removeButton').click(function (){
+                    $select6.data('selleckt').removeItem('3');
                 });
             });
         </script>
