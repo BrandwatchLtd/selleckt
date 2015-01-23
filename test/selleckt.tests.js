@@ -1543,7 +1543,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 '</div>',
             selectionTemplate =
                 '<li class="mySelectionItem custom-item" data-value="{{value}}">' +
-                    '{{text}}<i class="icon-remove remove"></i>' +
+                    '{{text}}<i class="icon-remove unselect"></i>' +
                 '</li>';
 
         beforeEach(function(){
@@ -1575,7 +1575,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         alternatePlaceholder: 'click me again!',
                         itemsClass: 'items',
                         itemClass: 'item',
-                        removeItemClass: 'removeItem',
+                        unselectItemClass: 'unselectItem',
                         selectedClass: 'isSelected',
                         highlightClass: 'isHighlighted',
                         showEmptyList: true
@@ -1597,8 +1597,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('stores options.alternatePlaceholder as this.alternatePlaceholder',function(){
                     expect(multiSelleckt.alternatePlaceholder).toEqual('click me again!');
                 });
-                it('stores options.removeItemClass as this.removeItemClass',function(){
-                    expect(multiSelleckt.removeItemClass).toEqual('removeItem');
+                it('stores options.unselectItemClass as this.unselectItemClass',function(){
+                    expect(multiSelleckt.unselectItemClass).toEqual('unselectItem');
                 });
                 it('stores options.selectedClassName as this.selectedClass',function(){
                     expect(multiSelleckt.selectedClass).toEqual('isSelected');
@@ -1625,8 +1625,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('defaults this.selectionItemClass to "selectionItem"',function(){
                     expect(multiSelleckt.selectionItemClass).toEqual('selectionItem');
                 });
-                it('defaults this.removeItemClass to "remove"',function(){
-                    expect(multiSelleckt.removeItemClass).toEqual('remove');
+                it('defaults this.unselectItemClass to "unselect"',function(){
+                    expect(multiSelleckt.unselectItemClass).toEqual('unselect');
                 });
                 it('defaults this.placeholderText to "Please select..."',function(){
                     expect(multiSelleckt.placeholderText).toEqual('Please select...');
@@ -1681,13 +1681,13 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     multiple: true,
                     $selectEl: $el,
                     selectionItemClass: 'selected-item',
-                    removeItemClass: 'remove-selected'
+                    unselectItemClass: 'unselect'
                 });
 
                 itemData = multiSelleckt.getItemTemplateData(multiSelleckt.items[0]);
 
                 expect(itemData.selectionItemClass).toEqual('selected-item');
-                expect(itemData.removeItemClass).toEqual('remove-selected');
+                expect(itemData.unselectItemClass).toEqual('unselect');
             });
 
             it('includes option data attributes as property of item template data', function(){
@@ -1852,14 +1852,14 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
 
             describe('item deselection', function(){
-                it('removes an item when the "remove" link is clicked', function(){
+                it('removes an item when the "unselect" link is clicked', function(){
                     multiSelleckt.render();
 
                     expect(multiSelleckt.getSelection().length).toEqual(2);
 
                     expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
 
-                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
+                    multiSelleckt.$sellecktEl.find('.selectionItem .unselect').first().trigger('click');
 
                     expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(1);
                 });
@@ -1871,7 +1871,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(multiSelleckt.getSelection().length).toEqual(3);
                     expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
 
-                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
+                    multiSelleckt.$sellecktEl.find('.selectionItem .unselect').first().trigger('click');
 
                     expect(multiSelleckt.getSelection().length).toEqual(2);
                     expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
@@ -1887,7 +1887,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     multiSelleckt.selectItem(multiSelleckt.items[2]);
                     expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
 
-                    multiSelleckt.removeItem(multiSelleckt.items[2]);
+                    multiSelleckt.unselectItem(multiSelleckt.items[2]);
 
                     expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
                 });
@@ -1899,9 +1899,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
                         .toEqual(multiSelleckt.alternatePlaceholder);
 
-                    multiSelleckt.removeItem(multiSelleckt.items[0]);
-                    multiSelleckt.removeItem(multiSelleckt.items[1]);
-                    multiSelleckt.removeItem(multiSelleckt.items[2]);
+                    multiSelleckt.unselectItem(multiSelleckt.items[0]);
+                    multiSelleckt.unselectItem(multiSelleckt.items[1]);
+                    multiSelleckt.unselectItem(multiSelleckt.items[2]);
 
                     expect(multiSelleckt.selectedItems.length).toEqual(0);
                     expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
@@ -1910,7 +1910,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
         });
 
-        describe('removing items', function(){
+        describe('unselecting items', function(){
             var $clickTarget;
 
             beforeEach(function(){
@@ -1931,9 +1931,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     data: {}
                 }]);
 
-                $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.removeItemClass).eq(0);
+                $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.unselectItemClass).eq(0);
             });
-            it('removes the item from the selections when the remove link is clicked', function(){
+            it('removes the item from the selections when the unselectItem link is clicked', function(){
                 var $selections = multiSelleckt.$selections;
 
                 expect($selections.children().length).toEqual(2);
@@ -1992,10 +1992,10 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 multiSelleckt.$originalSelectEl.off('change', changeHandler);
             });
-            it('triggers an "itemRemoved" event with the removed item', function(){
+            it('triggers an "itemUnselected" event with the removed item', function(){
                 var spy = sinon.spy();
 
-                multiSelleckt.bind('itemRemoved', spy);
+                multiSelleckt.bind('itemUnselected', spy);
                 $clickTarget.trigger('click');
 
                 expect(spy.calledOnce).toEqual(true);
