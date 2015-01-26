@@ -643,8 +643,11 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                         selleckt._open();
 
-                        expect(selleckt.$items.offset().top + selleckt.$items.outerHeight())
-                            .toEqual(selleckt.$sellecktEl.find('.selected').offset().top);
+                        //IE returns a decimal, so round both up
+                        var itemsOffset = Math.ceil(selleckt.$items.offset().top + selleckt.$items.outerHeight());
+                        var selectedOffset = Math.ceil(selleckt.$sellecktEl.find('.selected').offset().top);
+
+                        expect(itemsOffset).toEqual(selectedOffset);
                         expect(selleckt.$items.hasClass('flipped')).toEqual(true);
 
                         // clean up
