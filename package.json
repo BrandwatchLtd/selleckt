@@ -17,6 +17,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "mocha": "^2.1",
     "serve": "*",
     "testem": "^0.6.16",
     "jshint": "^2.5.1"
