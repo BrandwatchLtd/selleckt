@@ -8,23 +8,7 @@
         <script src="lib/jquery-1.10.1.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/mustache.js"></script>
-        <script>
-        //object create shim for IE8 etc.
-        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
-        if (!Object.create) {
-            Object.create = (function(){
-                function F(){}
-
-                return function(o){
-                    if (arguments.length != 1) {
-                        throw new Error('Object.create implementation only accepts one parameter.');
-                    }
-                    F.prototype = o
-                    return new F()
-                }
-            })()
-        }
-        </script>
+        <script src="../shims/object-create-shim.js"></script>
         <script src="../lib/selleckt.js"></script>
 
         <style>
