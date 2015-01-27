@@ -1,12 +1,21 @@
 'use strict';
+
 /*globals process:false,module:false*/
 module.exports = function(grunt) {
     grunt.initConfig({
+        jshint: {
+            all: ['lib/**/*.js', 'test/*.js']
+        },
         connect: {
             server: {
                 options: {
                     port: 9000
                 }
+            }
+        },
+        shell: {
+            runLocalTests: {
+                command: './testem -l Firefox,PhantomJS'
             }
         },
         'saucelabs-mocha': {
@@ -33,8 +42,16 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-saucelabs');
 
-    grunt.registerTask('test', ['connect', 'saucelabs-mocha']);
+    var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
+
+    if(isPr){
+        grunt.registerTask('test', ['jshint', 'shell:runLocalTests']);
+    } else {
+        grunt.registerTask('test', ['jshint', 'shell:runLocalTests', 'connect', 'saucelabs-mocha']);
+    }
 };
