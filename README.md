@@ -5,9 +5,9 @@ A select replacement, using mustache.js for templating.
 
 [![Build Status](https://travis-ci.org/BrandwatchLtd/selleckt.png?branch=master)](https://travis-ci.org/BrandwatchLtd/selleckt)
 
-[![Sauce Test Status](https://saucelabs.com/buildstatus/brandwatch)](https://saucelabs.com/u/brandwatch)
+[![Sauce Test Status](https://saucelabs.com/buildstatus/selleckt)](https://saucelabs.com/u/selleckt)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/brandwatch.svg)](https://saucelabs.com/u/brandwatch)
+[![Sauce Browser Matrix](https://saucelabs.com/browser-matrix/selleckt.svg)](https://saucelabs.com/u/selleckt)
 
 Running the demos
 =================
