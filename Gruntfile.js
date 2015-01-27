@@ -33,6 +33,9 @@ module.exports = function(grunt) {
                         ['Windows 7', 'internet explorer', 10],
                         ['Windows 7', 'internet explorer', 11]
                     ],
+                    sauceConfig: {
+                        'public': 'public' //make the logs publicly visible so README badges work
+                    },
                     tags: [
                         process.env.TRAVIS_PULL_REQUEST || 'no pr',
                         process.env.TRAVIS_BRANCH || 'no branch'
