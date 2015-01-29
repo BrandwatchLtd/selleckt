@@ -1079,7 +1079,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
             });
 
-            describe('functionality', function(){
+            describe('filtering', function(){
+                var clock;
 
                 beforeEach(function(){
                     selleckt = Selleckt.create({
@@ -1097,38 +1098,32 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     $searchInput = undefined;
                 });
 
-                describe('filtering', function(){
+                it('filters out options with empty values', function(){
+                    var output = selleckt._findMatchingOptions(selleckt.items, '');
 
-                    it('filter out options with empty values', function(){
-                        var output = selleckt._findMatchingOptions(selleckt.items, '');
+                    expect(output.length).toEqual(6);
+                    expect(output[0]).toEqual({ label: 'Empty', value: '', data:{} });
+                });
 
-                        expect(output.length).toEqual(6);
-                        expect(output[0]).toEqual({ label: 'Empty', value: '', data:{} });
-                    });
+                it('can annotate the items with matchIndexes', function(){
+                    var output = selleckt._findMatchingOptions(selleckt.items, 'ba');
 
-                    it('can annotate the items with matchIndexes', function(){
-                        var output = selleckt._findMatchingOptions(selleckt.items, 'ba');
+                    expect(output).toEqual([
+                        { label: 'Empty', value: '', data:{} },
+                        { label: 'foo', value: 'foo', data:{} },
+                        { label: 'bar', value: 'bar', data:{}, matchStart: 0, matchEnd: 1 },
+                        { label: 'baz', value: 'baz', data:{}, matchStart: 0, matchEnd: 1 },
+                        { label: 'foofoo', value: 'foofoo', data:{} },
+                        { label: 'foobaz', value: 'foobaz', data:{}, matchStart: 3, matchEnd: 4 }
+                    ]);
+                });
 
-                        expect(output).toEqual([
-                            { label: 'Empty', value: '', data:{} },
-                            { label: 'foo', value: 'foo', data:{} },
-                            { label: 'bar', value: 'bar', data:{}, matchStart: 0, matchEnd: 1 },
-                            { label: 'baz', value: 'baz', data:{}, matchStart: 0, matchEnd: 1 },
-                            { label: 'foofoo', value: 'foofoo', data:{} },
-                            { label: 'foobaz', value: 'foobaz', data:{}, matchStart: 3, matchEnd: 4 }
-                        ]);
-                    });
+                it('filters the available options as the user types in the searchbox', function(done){
+                    selleckt._open();
 
-                    it('filters the available options as the user types in the searchbox', function(){
-                        var _findMatchingOptionsSpy = sinon.spy(selleckt, '_findMatchingOptions'),
-                            clock = sinon.useFakeTimers();
+                    $searchInput.val('baz').trigger('keyup');
 
-                        selleckt._open();
-                        $searchInput.val('baz').trigger('keyup');
-
-                        //handler is _.debounced
-                        clock.tick(1000);
-
+                    setTimeout(function(){
                         expect(selleckt.$items.find('.item').eq(0).css('display')).toEqual('none');
                         expect(selleckt.$items.find('.item').eq(1).css('display')).toEqual('none');
                         expect(selleckt.$items.find('.item').eq(2).css('display')).toEqual('none');
@@ -1136,59 +1131,59 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         expect(selleckt.$items.find('.item').eq(4).css('display')).toEqual('none');
                         expect(selleckt.$items.find('.item').eq(5).css('display')).not.toEqual('none');
 
-                        _findMatchingOptionsSpy.restore();
-                        clock.restore();
-                    });
-                    it('wraps matched text in the matching options with a "mark" tag', function(){
-                        var _findMatchingOptionsSpy = sinon.spy(selleckt, '_findMatchingOptions'),
-                            clock = sinon.useFakeTimers();
+                        done();
+                    }, 1);
+                });
 
-                        selleckt._open();
-                        $searchInput.val('baz').trigger('keyup');
+                it('wraps matched text in the matching options with a "mark" tag', function(done){
+                    selleckt._open();
+                    $searchInput.val('baz').trigger('keyup');
 
-                        //handler is _.debounced
-                        clock.tick(1000);
-
+                    setTimeout(function(){
                         expect(selleckt.$items.find('.item mark').length).toEqual(2);
                         expect(selleckt.$items.find('.item mark').parent('.itemText').eq(0).text()).toEqual('baz');
                         expect(selleckt.$items.find('.item mark').parent('.itemText').eq(1).text()).toEqual('foobaz');
 
-                        _findMatchingOptionsSpy.restore();
-                        clock.restore();
+                        done();
+                    }, 1);
+                });
+
+                it('escapes the options when filtering and opening', function(){
+                    selleckt.destroy();
+                    selleckt = Selleckt.create({
+                        mainTemplate : template,
+                        $selectEl : $(selectHtml.replace(/bar/g, '<b>some HTML</b>')),
+                        enableSearch: true
                     });
 
-                    it('escapes the options when filtering and opening', function(){
-                        selleckt.destroy();
-                        selleckt = Selleckt.create({
-                            mainTemplate : template,
-                            $selectEl : $(selectHtml.replace(/bar/g, '<b>some HTML</b>')),
-                            enableSearch: true
-                        });
+                    selleckt.render();
+                    selleckt._open();
 
-                        selleckt.render();
-                        selleckt._open();
+                    var $li = selleckt.$sellecktEl.find('li.item:eq(2)');
 
-                        expect(selleckt.$sellecktEl.find('li.item:eq(2)').html())
-                            .toEqual('<span class="itemText"><mark></mark>some HTML</span>');
-                    });
+                    expect($li.children().length).toEqual(1);
+                    expect($li.children().eq(0).is('span.itemText')).toEqual(true);
 
-                    it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(){
-                        var listener = sinon.stub(),
-                            clock = sinon.useFakeTimers();
+                    expect($li.find('.itemText mark').length).toEqual(1);
+                    expect($li.find('.itemText mark').html()).toEqual('');
+                    expect($li.find('.itemText').text()).toEqual('some HTML');
+                });
 
-                        selleckt._open();
+                it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(done){
+                    var listener = sinon.stub();
 
-                        selleckt.bind('optionsFiltered', listener);
-                        $searchInput.val('aBc').trigger('keyup');
+                    selleckt._open();
 
-                        //handler is _.debounced
-                        clock.tick(1000);
+                    selleckt.bind('optionsFiltered', listener);
+                    $searchInput.val('aBc').trigger('keyup');
 
+
+                    setTimeout(function(){
                         expect(listener.calledOnce).toEqual(true);
                         expect(listener.args[0][0]).toEqual('aBc');
 
-                        clock.restore();
-                    });
+                        done();
+                    }, 1);
                 });
             });
         });
