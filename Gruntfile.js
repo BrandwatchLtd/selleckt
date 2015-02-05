@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         },
         shell: {
             runLocalTests: {
-                command: './testem -l Firefox,PhantomJS'
+                command: './testem -l Firefox'
             }
         },
         'saucelabs-mocha': {
