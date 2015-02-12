@@ -42,13 +42,49 @@ module.exports = function(grunt) {
                     ]
                 }
             }
+        },
+        clean: {
+          dist: ['./dist/**/*'],
+          tests: ['./test/browserified_tests.js'],
+        },
+        browserify: {
+            // These are the browserified tests. We need to browserify the tests to be
+            // able to run the mocha tests while writing the tests as clean, simple
+            // CommonJS mocha tests (that is, without cross-platform boilerplate
+            // code). This build will also include the testing libs chai, sinon and
+            // sinon-chai but must not include the module under test.
+            tests: {
+                src: [ './test/suite.js' ],
+                dest: './test/browserified_tests.js',
+                options: {
+                    external: [ './selleckt.js' ],
+                    // Embed source map for tests
+                    debug: true
+                }
+            }
+            // options: {
+            //     browserifyOptions: {
+            //         // debug: true,
+            //         standalone: 'selleckt',
+            //         'bundleExternal': false
+            //     }
+            // },
+            // dist: {
+            //     files: {
+            //         'dist/selleckt.js': [
+            //             'lib/selleckt.js'
+            //         ]
+            //     }
+            // }
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-saucelabs');
+    grunt.loadNpmTasks('grunt-browserify');
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
 
