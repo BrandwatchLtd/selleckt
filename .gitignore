@@ -1,3 +1,5 @@
 node_modules/
+npm-debug.log
 selleckt.min.js
 libpeerconnection.log
+test/browserified_tests.js

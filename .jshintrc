@@ -25,6 +25,6 @@
     "indent": 4,
 
     "predef": [
-        "define"
+        "require"
     ]
 }

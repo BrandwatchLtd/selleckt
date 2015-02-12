@@ -25,7 +25,6 @@
     "indent": 4,
 
     "predef": [
-        "define",
         "require",
         "describe",
         "beforeEach",
@@ -33,9 +32,6 @@
         "it",
         "expect",
         "sinon",
-        "_",
-        "$",
-        "jQuery",
         "mocha"
     ]
 }
