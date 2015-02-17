@@ -8,8 +8,6 @@
     "components",
     "demo",
     "test",
-    "testem",
-    "testem.json",
     "server.sh"
   ]
 }
