@@ -2,7 +2,7 @@
     "evil": true,
     "devel": false,
     "browser": true,
-
+    "browserify": true,
     "strict": true,
     "globalstrict": true,
     "forin": true,
