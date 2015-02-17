@@ -1258,7 +1258,7 @@ describe('SingleSelleckt', function(){
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
 
@@ -1279,8 +1279,8 @@ describe('SingleSelleckt', function(){
 
                     isStub = sinon.stub($.fn, 'is').returns(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -1305,14 +1305,14 @@ describe('SingleSelleckt', function(){
                     expect(liOne.is(':visible')).toEqual(false);
 
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
                     expect(liThree.hasClass(selleckt.highlightClass)).toEqual(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.UP }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
                     expect(liThree.hasClass(selleckt.highlightClass)).toEqual(false);
                 });
@@ -1322,7 +1322,7 @@ describe('SingleSelleckt', function(){
 
                     selleckt._open();
 
-                    selleckt.$sellecktEl.trigger(jQuery.Event('keyup', { keyCode : KEY_CODES.ESC }));
+                    selleckt.$sellecktEl.trigger($.Event('keyup', { keyCode : KEY_CODES.ESC }));
 
                     expect(closeStub.calledOnce).toEqual(true);
                 });
@@ -1331,8 +1331,8 @@ describe('SingleSelleckt', function(){
                     var onFocusStub = sinon.stub();
 
                     selleckt.$sellecktEl.focus(onFocusStub);
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(onFocusStub.calledOnce).toEqual(true);
                 });
