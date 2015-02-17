@@ -10,6 +10,3 @@ node_js:
 
 script:
   - npm run-script test-ci
-
-addons:
-  sauce_connect: true
