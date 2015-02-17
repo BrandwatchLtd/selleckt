@@ -1032,7 +1032,9 @@ describe('SingleSelleckt', function(){
                         var itemsOffset = Math.ceil(selleckt.$items.offset().top + selleckt.$items.outerHeight());
                         var selectedOffset = Math.ceil(selleckt.$sellecktEl.find('.selected').offset().top);
 
-                        expect(itemsOffset).toEqual(selectedOffset);
+                        //add some tolerance
+                        expect(Math.abs(itemsOffset-selectedOffset)).toBeLessThan(2);
+
                         expect(selleckt.$items.hasClass('flipped')).toEqual(true);
 
                         // clean up
