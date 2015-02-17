@@ -14,9 +14,13 @@
         <script src="../shims/es5-shim.min.js"></script>
         <![endif]-->
 
-        <script src="../shims/mutationobserver-shim.js"></script>
 
-        <script src="../dist/selleckt.js"></script>
+        <script src="../dist/selleckt-browserify.js"></script>
+
+        <!--[if lte IE 10]>
+        <script src="../shims/mutationobserver-shim.js"></script>
+        <script src="../dist/selleckt-legacy.js"></script>
+        <![endif]-->
 
         <style>
             .demo {
