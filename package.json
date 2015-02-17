@@ -13,7 +13,6 @@
     }
   ],
   "scripts": {
-    "test": "./testem"
   },
   "devDependencies": {
     "browserify": "^8.1.3",
@@ -29,7 +28,6 @@
     "jshint": "^2.6",
     "mocha": "^2.1",
     "serve": "*",
-    "testem": "^0.6.16"
   },
   "optionalDependencies": {},
   "volo": {
