@@ -236,10 +236,10 @@ For multiselleckts, in addition to the above:
             </td>
         </tr>
         <tr>
-            <td>removeItemClass</td>
+            <td>unselectItemClass</td>
             <td>string</td>
             <td>
-                remove
+                unselect
             </td>
             <td>
                 Css class of the element used to trigger removal of a selectionItemClass element from the selectionsClass container.
@@ -305,7 +305,7 @@ An example template for multiselleckt:
 An example template for a multiselleckt item:
 ````html
 <li class="{{selectionItemClass}}" data-value="{{value}}">
-    {{text}}<i class="icon-remove {{removeItemClass}}"></i>
+    {{text}}<i class="icon-remove {{unselectItemClass}}"></i>
 </li>
 ````
 

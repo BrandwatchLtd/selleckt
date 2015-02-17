@@ -1,94 +1,228 @@
-define(['lib/selleckt', 'lib/mustache.js'],
-    function(Selleckt, Mustache){
-    'use strict';
+'use strict';
 
-    describe('selleckt', function(){
-        var selleckt,
-            mainTemplate =
-                '<div class="{{className}}">' +
+var SingleSelleckt = require('../lib/SingleSelleckt');
+
+var $ = require('jquery');
+var _ = require('underscore');
+var Mustache = require('Mustache');
+
+describe('SingleSelleckt', function(){
+    var selleckt,
+        mainTemplate =
+            '<div class="{{className}}">' +
+            '<div class="selected">' +
+                '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+            '</div>' +
+            '<ul class="items">' +
+                '{{#items}}' +
+                '<li class="item{{#selected}} selected{{/selected}}" data-value="{{value}}">' +
+                    '{{label}}' +
+                '</li>' +
+                '{{/items}}' +
+            '</ul>' +
+            '</div>',
+        elHtml =
+            '<select>' +
+                '<option selected value="1">foo</option>' +
+                '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                '<option value="3">baz</option>' +
+            '</select>',
+        $el;
+
+    beforeEach(function(){
+        $el = $(elHtml).appendTo('body');
+    });
+
+    afterEach(function(){
+        $el.remove();
+        $el = undefined;
+
+        if(selleckt){
+            selleckt.destroy();
+            selleckt = undefined;
+        }
+    });
+
+    describe('Instantiation', function(){
+        var template =
+            '<div class="{{className}}" tabindex=1>' +
                 '<div class="selected">' +
                     '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
                 '</div>' +
                 '<ul class="items">' +
-                    '{{#items}}' +
-                    '<li class="item{{#selected}} selected{{/selected}}" data-value="{{value}}">' +
-                        '{{label}}' +
+                    '{{#showSearch}}' +
+                    '<li class="searchContainer">' +
+                        '<input class="search"></input>' +
                     '</li>' +
+                    '{{/showSearch}}' +
+                    '{{#items}}' +
+                        '{{> item}}' +
                     '{{/items}}' +
                 '</ul>' +
-                '</div>',
-            elHtml =
-                '<select>' +
-                    '<option selected value="1">foo</option>' +
-                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
-                    '<option value="3">baz</option>' +
-                '</select>',
-            $el;
+            '</div>',
+            itemTemplate = '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
+                '<span class="{{itemTextClass}}">{{label}}</span>' +
+            '</li>';
 
-        beforeEach(function(){
-            $el = $(elHtml).appendTo('body');
+        describe('invalid instantiation', function(){
+            it('pukes if instantiated with an invalid template format', function(){
+                var err;
+
+                try{
+                    selleckt = new SingleSelleckt({
+                        mainTemplate : {template: template},
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClassName: 'isHighlighted'
+                    });
+                } catch(e){
+                    err = e;
+                }
+
+                expect(err).toBeDefined();
+                expect(err.message).toEqual('Please provide a valid mustache template.');
+            });
+
         });
 
-        afterEach(function(){
-            $el.remove();
-            $el = undefined;
+        describe('valid instantation', function(){
 
-            if(selleckt){
-                selleckt.destroy();
-                selleckt = undefined;
-            }
-        });
+            beforeEach(function(){
+                selleckt = new SingleSelleckt({
+                    mainTemplate: template,
+                    itemTemplate: itemTemplate,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedClass: 'selected',
+                    selectedTextClass: 'selectedText',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    selectedClassName: 'isSelected',
+                    highlightClass: 'isHighlighted'
+                });
+            });
 
-        describe('Instantiation', function(){
-            var template =
-                '<div class="{{className}}" tabindex=1>' +
-                    '<div class="selected">' +
-                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
-                    '</div>' +
-                    '<ul class="items">' +
-                        '{{#showSearch}}' +
-                        '<li class="searchContainer">' +
-                            '<input class="search"></input>' +
-                        '</li>' +
-                        '{{/showSearch}}' +
-                        '{{#items}}' +
-                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
-                            '<span class="itemText">{{label}}</span>' +
-                        '</li>' +
-                        '{{/items}}' +
-                    '</ul>' +
-                '</div>';
+            it('stores the selectedClass as this.selectedClass', function(){
+                expect(selleckt.selectedClass).toEqual('selected');
+            });
 
-            describe('invalid instantiation', function(){
-                it('pukes if instantiated with an invalid template format', function(){
-                    var err;
+            it('stores the selectedTextClass as this.selectedClass', function(){
+                expect(selleckt.selectedTextClass).toEqual('selectedText');
+            });
 
-                    try{
-                        selleckt = Selleckt.create({
-                            mainTemplate : {template: template},
-                            $selectEl : $el,
+            it('stores the itemsClass as this.itemsClass', function(){
+                expect(selleckt.itemsClass).toEqual('items');
+            });
+
+            it('stores the itemClass as this.itemClass', function(){
+                expect(selleckt.itemClass).toEqual('item');
+            });
+
+            it('stores options.mainTemplate as this.template', function(){
+                expect(Mustache.render(selleckt.mainTemplate, {})).toEqual(Mustache.render(template, {}));
+            });
+
+            it('stores options.itemTemplate as this.itemTemplate', function(){
+                expect(Mustache.render(selleckt.itemTemplate, {})).toEqual(Mustache.render(itemTemplate, {}));
+            });
+
+            it('stores options.mainTemplateData as this.mainTemplateData', function(){
+                expect(selleckt.mainTemplateData).toEqual({});
+            });
+
+            it('stores options.selectEl as this.originalSelectEl', function(){
+                expect(selleckt.$originalSelectEl).toEqual($el);
+            });
+
+            it('stores options.className as this.className', function(){
+                expect(selleckt.className).toEqual('selleckt');
+            });
+
+            it('stores options.highlightClass as this.highlightClass', function(){
+                expect(selleckt.highlightClass).toEqual('isHighlighted');
+            });
+
+            describe('items', function(){
+                it('instantiates this.items as an based on the options in the original select', function(){
+                    expect(selleckt.items.length).toEqual(3);
+                });
+                it('stores the option text as "label"', function(){
+                    expect(selleckt.items[0].label).toEqual('foo');
+                    expect(selleckt.items[1].label).toEqual('bar');
+                });
+                it('stores the option value as "value"', function(){
+                    expect(selleckt.items[0].value).toEqual('1');
+                    expect(selleckt.items[1].value).toEqual('2');
+                });
+                it('stores all the option data attributes in "data"', function(){
+                    expect(selleckt.items[0].data).toBeDefined();
+                    expect(_.size(selleckt.items[0].data)).toEqual(0);
+
+                    expect(selleckt.items[1].data).toBeDefined();
+                    expect(_.size(selleckt.items[1].data)).toEqual(2);
+                    expect(selleckt.items[1].data).toEqual({
+                        meh: 'whee',
+                        bah: 'oink'
+                    });
+                });
+                it('stores the selected option as this.selectedItem', function(){
+                    expect(selleckt.selectedItem).toBeDefined();
+                    expect(selleckt.selectedItem).toEqual({
+                        value: '1',
+                        label: 'foo',
+                        data: {}
+                    });
+                });
+
+                describe('when there is no selected item already', function(){
+                    var $newEl;
+
+                    beforeEach(function(){
+                        var selectHtml = '<select>' +
+                        '<option value="1">foo</option>' +
+                        '<option value="2">bar</option>' +
+                        '<option value="3">baz</option>' +
+                        '</select>';
+
+                        selleckt.destroy();
+
+                        $newEl = $(selectHtml).appendTo('body');
+
+                        selleckt = new SingleSelleckt({
+                            mainTemplate: template,
+                            $selectEl : $newEl,
                             className: 'selleckt',
                             selectedClass: 'selected',
                             selectedTextClass: 'selectedText',
                             itemsClass: 'items',
                             itemClass: 'item',
                             selectedClassName: 'isSelected',
-                            highlightClassName: 'isHighlighted'
+                            highlightClass: 'isHighlighted'
                         });
-                    } catch(e){
-                        err = e;
-                    }
+                    });
 
-                    expect(err).toBeDefined();
-                    expect(err.message).toEqual('Please provide a valid mustache template.');
+                    afterEach(function(){
+                        $newEl.remove();
+                        $newEl = undefined;
+                    });
+
+                    it('does not select an item', function(){
+                        expect(selleckt.selectedItem).toBeUndefined();
+                    });
                 });
-
             });
 
-            describe('valid instantation', function(){
+            describe('events', function(){
+                it('does not trigger change event when instantiated on select with selected option', function(){
+                    var onChangeStub = sinon.stub();
+                    $el.on('change', onChangeStub);
 
-                beforeEach(function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate: template,
                         $selectEl : $el,
                         className: 'selleckt',
@@ -99,158 +233,16 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         selectedClassName: 'isSelected',
                         highlightClass: 'isHighlighted'
                     });
-                });
 
-                it('stores the selectedClass as this.selectedClass', function(){
-                    expect(selleckt.selectedClass).toEqual('selected');
-                });
-
-                it('stores the selectedTextClass as this.selectedClass', function(){
-                    expect(selleckt.selectedTextClass).toEqual('selectedText');
-                });
-
-                it('stores the itemsClass as this.itemsClass', function(){
-                    expect(selleckt.itemsClass).toEqual('items');
-                });
-
-                it('stores the itemClass as this.itemClass', function(){
-                    expect(selleckt.itemClass).toEqual('item');
-                });
-
-                it('stores options.mainTemplate as this.template', function(){
-                    expect(selleckt.mainTemplate({})).toEqual(Mustache.compile(template)({}));
-                });
-
-                it('stores options.mainTemplateData as this.mainTemplateData', function(){
-                    expect(selleckt.mainTemplateData).toEqual({});
-                });
-
-                it('stores options.selectEl as this.originalSelectEl', function(){
-                    expect(selleckt.$originalSelectEl).toEqual($el);
-                });
-
-                it('stores options.className as this.className', function(){
-                    expect(selleckt.className).toEqual('selleckt');
-                });
-
-                it('stores options.highlightClass as this.highlightClass', function(){
-                    expect(selleckt.highlightClass).toEqual('isHighlighted');
-                });
-
-                describe('items', function(){
-                    it('instantiates this.items as an based on the options in the original select', function(){
-                        expect(selleckt.items.length).toEqual(3);
-                    });
-                    it('stores the option text as "label"', function(){
-                        expect(selleckt.items[0].label).toEqual('foo');
-                        expect(selleckt.items[1].label).toEqual('bar');
-                    });
-                    it('stores the option value as "value"', function(){
-                        expect(selleckt.items[0].value).toEqual('1');
-                        expect(selleckt.items[1].value).toEqual('2');
-                    });
-                    it('stores all the option data attributes in "data"', function(){
-                        expect(selleckt.items[0].data).toBeDefined();
-                        expect(_.size(selleckt.items[0].data)).toEqual(0);
-
-                        expect(selleckt.items[1].data).toBeDefined();
-                        expect(_.size(selleckt.items[1].data)).toEqual(2);
-                        expect(selleckt.items[1].data).toEqual({
-                            meh: 'whee',
-                            bah: 'oink'
-                        });
-                    });
-                    it('stores the selected option as this.selectedItem', function(){
-                        expect(selleckt.selectedItem).toBeDefined();
-                        expect(selleckt.selectedItem).toEqual({
-                            value: '1',
-                            label: 'foo',
-                            data: {}
-                        });
-                    });
-
-                    describe('when there is no selected item already', function(){
-                        var $newEl;
-
-                        beforeEach(function(){
-                            var selectHtml = '<select>' +
-                            '<option value="1">foo</option>' +
-                            '<option value="2">bar</option>' +
-                            '<option value="3">baz</option>' +
-                            '</select>';
-
-                            selleckt.destroy();
-
-                            $newEl = $(selectHtml).appendTo('body');
-
-                            selleckt = Selleckt.create({
-                                mainTemplate: template,
-                                $selectEl : $newEl,
-                                className: 'selleckt',
-                                selectedClass: 'selected',
-                                selectedTextClass: 'selectedText',
-                                itemsClass: 'items',
-                                itemClass: 'item',
-                                selectedClassName: 'isSelected',
-                                highlightClass: 'isHighlighted'
-                            });
-                        });
-
-                        afterEach(function(){
-                            $newEl.remove();
-                            $newEl = undefined;
-                        });
-
-                        it('does not select an item', function(){
-                            expect(selleckt.selectedItem).toBeUndefined();
-                        });
-                    });
-                });
-
-                describe('events', function(){
-                    it('does not trigger change event when instantiated on select with selected option', function(){
-                        var onChangeStub = sinon.stub();
-                        $el.on('change', onChangeStub);
-
-                        selleckt = Selleckt.create({
-                            mainTemplate: template,
-                            $selectEl : $el,
-                            className: 'selleckt',
-                            selectedClass: 'selected',
-                            selectedTextClass: 'selectedText',
-                            itemsClass: 'items',
-                            itemClass: 'item',
-                            selectedClassName: 'isSelected',
-                            highlightClass: 'isHighlighted'
-                        });
-
-                        expect(onChangeStub.called).toEqual(false);
-                        $el.off('change', onChangeStub);
-                    });
+                    expect(onChangeStub.called).toEqual(false);
+                    $el.off('change', onChangeStub);
                 });
             });
 
             describe('template formats', function(){
                 it('accepts template strings', function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
-                        $selectEl : $el,
-                        className: 'selleckt',
-                        selectedClass: 'selected',
-                        selectedTextClass: 'selectedText',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        selectedClassName: 'isSelected',
-                        highlightClassName: 'isHighlighted'
-                    });
-                    selleckt.render();
-                    expect(selleckt.$sellecktEl.find('.items').length).toEqual(1);
-                    expect(selleckt.$sellecktEl.find('.items > .item').length).toEqual(3);
-                });
-
-                it('accepts compiled templates', function(){
-                    selleckt = Selleckt.create({
-                        mainTemplate : Mustache.compile(template),
                         $selectEl : $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
@@ -270,7 +262,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('can build template data object from custom data and plugin data', function(){
                     var templateData;
 
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         $selectEl : $el,
                         enableSearch: true,
                         className: 'selleckt',
@@ -294,7 +286,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('prevents custom data from overriding plugin data', function(){
                     var templateData;
 
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         $selectEl : $el,
                         mainTemplateData: {
                             selectLabel: 'Please selleckt',
@@ -315,7 +307,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('includes user configurable class names in template data', function(){
                     var templateData;
 
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         $selectEl: $el,
                         className: 'sellecktTest',
                         selectedClass: 'trigger',
@@ -343,7 +335,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
         describe('rendering', function(){
             beforeEach(function(){
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     $selectEl : $el
                 });
 
@@ -384,7 +376,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     '</div>';
 
                 selleckt.destroy();
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     $selectEl : $el,
                     mainTemplate: customTemplate,
                     mainTemplateData: {
@@ -403,7 +395,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 $('body').css('overflow-y', 'scroll');
 
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     mainTemplate : mainTemplate,
                     $selectEl : $el
                 });
@@ -426,7 +418,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     'max-height': '1000px'
                 });
 
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     mainTemplate : mainTemplate,
                     $selectEl : $el
                 });
@@ -445,9 +437,402 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
         });
 
+        describe('Adding items', function(){
+            var item;
+            var waitTime = 100;
+
+            beforeEach(function(){
+                item = {
+                    label: 'new',
+                    value: 'new value'
+                };
+
+                selleckt = new SingleSelleckt({
+                    $selectEl : $el
+                });
+
+                selleckt.render();
+            });
+
+            afterEach(function(){
+                selleckt.destroy();
+                selleckt = undefined;
+            });
+
+            describe('using addItem to add a single item', function(){
+                it('adds an item to this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
+
+                    selleckt.addItem(item);
+
+                    expect(selleckt.items.length).toEqual(4);
+                    expect(selleckt.items[3]).toEqual(item);
+                });
+
+                it('appends a new option to the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+
+                    selleckt.addItem(item);
+
+                    expect($originalSelectEl.children().length).toEqual(4);
+
+                    var newOption = $originalSelectEl.find('option').eq(3);
+
+                    expect(newOption.text()).toEqual('new');
+                    expect(newOption.val()).toEqual('new value');
+                });
+
+                it('appends a new item to the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.addItem(item);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect($sellecktEl.find(itemClass).length).toEqual(4);
+                        done();
+                    }, waitTime);
+                });
+
+                it('selects the new item when it is clicked', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+
+                    selleckt.addItem(item);
+
+                    setTimeout(function(){
+                        $sellecktEl.trigger('click');
+                        $sellecktEl.find('li.item').eq(3).trigger('mouseover').trigger('click');
+
+                        expect(selleckt.selectedItem.label).toEqual('new');
+                        expect(selleckt.selectedItem.value).toEqual('new value');
+
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
+
+                        done();
+                    }, waitTime);
+                });
+
+                describe('and the new item has selected:true', function(){
+                    var originalSelection;
+
+                    beforeEach(function(){
+                        originalSelection = selleckt.$originalSelectEl.find('option:selected');
+                        item.isSelected = true;
+                    });
+
+                    it('selects the new item in the original select', function(done){
+                        expect(originalSelection.val()).toEqual('1');
+
+                        selleckt.addItem(item);
+
+                        var newSelection = selleckt.$originalSelectEl.find('option:selected');
+
+                        setTimeout(function(){
+                            expect(newSelection.length).toEqual(1);
+                            expect(newSelection.val()).toEqual('new value');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('selects the new item in Selleckt', function(done){
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('hides the new item from the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="new value"]').css('display')).toEqual('none');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('adds the previously selected item back to the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('deselects the previously selected item in the Selleckt', function(done){
+                        expect(selleckt.selectedItem.value).toEqual('1');
+                        expect(selleckt.selectedItem.label).toEqual('foo');
+
+                        selleckt.addItem(item);
+
+                        setTimeout(function(){
+                            expect(selleckt.selectedItem.value).toEqual('new value');
+                            expect(selleckt.selectedItem.label).toEqual('new');
+                            done();
+                        }, waitTime);
+                    });
+                });
+            });
+
+            describe('using addItems to add an array of items', function(){
+                var items;
+
+                beforeEach(function(){
+                    items = [
+                        { label: 'new 1', value: 'new value 1' },
+                        { label: 'new 2', value: 'new value 2' },
+                        { label: 'new 3', value: 'new value 3' }
+                    ];
+                });
+
+                afterEach(function(){
+                    items = undefined;
+                });
+
+                it('adds the items to this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
+
+                    selleckt.addItems(items);
+
+                    expect(selleckt.items.length).toEqual(6);
+                    expect(selleckt.items[3]).toEqual(items[0]);
+                    expect(selleckt.items[4]).toEqual(items[1]);
+                    expect(selleckt.items[5]).toEqual(items[2]);
+                });
+
+                it('appends new options to the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+
+                    selleckt.addItems(items);
+
+                    expect($originalSelectEl.children().length).toEqual(6);
+
+                    var newOption1 = $originalSelectEl.find('option').eq(3);
+                    expect(newOption1.text()).toEqual('new 1');
+                    expect(newOption1.val()).toEqual('new value 1');
+
+                    var newOption2 = $originalSelectEl.find('option').eq(4);
+                    expect(newOption2.text()).toEqual('new 2');
+                    expect(newOption2.val()).toEqual('new value 2');
+
+                    var newOption3 = $originalSelectEl.find('option').eq(5);
+                    expect(newOption3.text()).toEqual('new 3');
+                    expect(newOption3.val()).toEqual('new value 3');
+                });
+
+                it('appends the new items to the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.addItems(items);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect($sellecktEl.find(itemClass).length).toEqual(6);
+                        done();
+                    }, waitTime);
+                });
+
+                describe('and a new item has selected:true', function(){
+                    var originalSelection;
+
+                    beforeEach(function(){
+                        originalSelection = selleckt.$originalSelectEl.find('option:selected');
+                        items[0].isSelected = true;
+                    });
+
+                    it('selects the new item in the original select', function(done){
+                        expect(originalSelection.val()).toEqual('1');
+
+                        selleckt.addItems(items);
+
+                        var newSelection = selleckt.$originalSelectEl.find('option:selected');
+
+                        setTimeout(function(){
+                            expect(newSelection.length).toEqual(1);
+                            expect(newSelection.val()).toEqual('new value 1');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('selects the new item in Selleckt', function(done){
+                        var $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+
+                        expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('foo');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect($selectedItem.find('.'+selleckt.selectedTextClass).text()).toEqual('new 1');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('hides the new item from the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="new value 1"]').css('display')).toEqual('none');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('adds the previously selected item back to the Selleckt list', function(done){
+                        expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('none');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect(selleckt.$items.find('.item[data-value="1"]').css('display')).toEqual('list-item');
+                            done();
+                        }, waitTime);
+                    });
+
+                    it('deselects the previously selected item in the Selleckt', function(done){
+                        expect(selleckt.selectedItem.value).toEqual('1');
+                        expect(selleckt.selectedItem.label).toEqual('foo');
+
+                        selleckt.addItems(items);
+
+                        setTimeout(function(){
+                            expect(selleckt.selectedItem.value).toEqual('new value 1');
+                            expect(selleckt.selectedItem.label).toEqual('new 1');
+                            done();
+                        }, waitTime);
+                    });
+                });
+            });
+        });
+
+        describe('Removing items', function(){
+            var removeItemValue;
+            var waitTime = MutationObserver._period ? MutationObserver._period * 2 : 1;
+
+            beforeEach(function(){
+                selleckt = new SingleSelleckt({
+                    $selectEl : $el
+                });
+
+                selleckt.render();
+            });
+
+            afterEach(function(){
+                selleckt.destroy();
+                selleckt = undefined;
+            });
+
+            describe('and the removed item is not selected', function(){
+                beforeEach(function(){
+                    removeItemValue = selleckt.items[2].value;
+                });
+
+                it('removes the item from this.items', function(){
+                    expect(selleckt.items.length).toEqual(3);
+                    expect(selleckt.findItem(removeItemValue)).toBeDefined();
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.items.length).toEqual(2);
+                    expect(selleckt.findItem(removeItemValue)).toBeUndefined();
+                });
+
+                it('removes the option with the corresponding value from the original select', function(){
+                    var $originalSelectEl = selleckt.$originalSelectEl;
+
+                    expect($originalSelectEl.children().length).toEqual(3);
+                    expect($originalSelectEl.find('option[value="' + removeItemValue + '"]').length).toEqual(1);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect($originalSelectEl.children().length).toEqual(2);
+                    expect($originalSelectEl.find('option[value="' + removeItemValue + '"]').length).toEqual(0);
+                });
+
+                it('removes the corresponding item from the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect(selleckt.$originalSelectEl.children().length).toEqual(2);
+                        expect($sellecktEl.find(itemClass).length).toEqual(2);
+
+                        done();
+                    }, waitTime);
+                });
+            });
+
+            describe('and the removed item is selected', function(){
+                beforeEach(function(){
+                    removeItemValue = selleckt.selectedItem.value;
+                });
+
+                it('removes the corresponding item from the Selleckt element itself', function(done){
+                    var $sellecktEl = selleckt.$sellecktEl;
+                    var itemClass = '.' + selleckt.itemClass;
+
+                    expect($sellecktEl.find(itemClass).length).toEqual(3);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    //because of the dom event
+                    setTimeout(function(){
+                        expect(selleckt.$originalSelectEl.children().length).toEqual(2);
+                        expect($sellecktEl.find(itemClass).length).toEqual(2);
+
+                        done();
+                    }, waitTime);
+                });
+
+                it('sets this.selectedItem to undefined if it has the value of the item being removed', function(){
+                    expect(selleckt.selectedItem).toBeDefined();
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.selectedItem).toBeUndefined();
+                });
+
+                it('sets the placeholder text back', function(){
+                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.selectedItem.label);
+
+                    selleckt.removeItem(removeItemValue);
+
+                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.placeholderText);
+                });
+            });
+
+        });
+
         describe('Events', function(){
             beforeEach(function(){
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     $selectEl : $el
                 });
 
@@ -647,7 +1032,9 @@ define(['lib/selleckt', 'lib/mustache.js'],
                         var itemsOffset = Math.ceil(selleckt.$items.offset().top + selleckt.$items.outerHeight());
                         var selectedOffset = Math.ceil(selleckt.$sellecktEl.find('.selected').offset().top);
 
-                        expect(itemsOffset).toEqual(selectedOffset);
+                        //add some tolerance
+                        expect(Math.abs(itemsOffset-selectedOffset)).toBeLessThan(2);
+
                         expect(selleckt.$items.hasClass('flipped')).toEqual(true);
 
                         // clean up
@@ -832,7 +1219,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 describe('with an empty option', function(){
                     beforeEach(function(){
                         $el = $(elHtml).append('<option></option>').appendTo('body');
-                        selleckt = Selleckt.create({
+                        selleckt = new SingleSelleckt({
                             $selectEl : $el
                         });
 
@@ -873,7 +1260,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
 
@@ -894,8 +1281,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     isStub = sinon.stub($.fn, 'is').returns(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(spy.calledOnce).toEqual(true);
                     expect(spy.args[0][0]).toEqual({
@@ -920,14 +1307,14 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(liOne.is(':visible')).toEqual(false);
 
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(false);
                     expect(liThree.hasClass(selleckt.highlightClass)).toEqual(true);
 
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.UP }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.UP }));
                     expect(liTwo.hasClass(selleckt.highlightClass)).toEqual(true);
                     expect(liThree.hasClass(selleckt.highlightClass)).toEqual(false);
                 });
@@ -937,7 +1324,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                     selleckt._open();
 
-                    selleckt.$sellecktEl.trigger(jQuery.Event('keyup', { keyCode : KEY_CODES.ESC }));
+                    selleckt.$sellecktEl.trigger($.Event('keyup', { keyCode : KEY_CODES.ESC }));
 
                     expect(closeStub.calledOnce).toEqual(true);
                 });
@@ -946,8 +1333,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     var onFocusStub = sinon.stub();
 
                     selleckt.$sellecktEl.focus(onFocusStub);
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.DOWN }));
-                    $selectedItem.trigger(jQuery.Event('keydown', { which : KEY_CODES.ENTER }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                    $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
 
                     expect(onFocusStub.calledOnce).toEqual(true);
                 });
@@ -986,7 +1373,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
             describe('initialization', function(){
                 it('displays a searchbox if settings.enableSearch is true and ' +
                         'there are more items than options.searchThreshold', function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true,
@@ -999,7 +1386,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
                 it('does not display a searchbox if settings.enableSearch is true and ' +
                         'there are fewer items than options.searchThreshold', function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true,
@@ -1011,7 +1398,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                     expect(selleckt.$sellecktEl.find('.searchContainer').length).toEqual(0);
                 });
                 it('does not display a searchbox if settings.enableSearch is false', function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: false
@@ -1023,7 +1410,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 });
 
                 it('empties the search input when _close() is called', function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true
@@ -1043,7 +1430,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('clears search when _open() is called', function(){
                     var filterOptionsStub;
 
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true
@@ -1062,7 +1449,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
                 it('unfilters the selections list when _close() is called', function(){
                     var filterOptionsStub;
 
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true
@@ -1080,10 +1467,8 @@ define(['lib/selleckt', 'lib/mustache.js'],
             });
 
             describe('filtering', function(){
-                var clock;
-
                 beforeEach(function(){
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml),
                         enableSearch: true
@@ -1150,7 +1535,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 it('escapes the options when filtering and opening', function(){
                     selleckt.destroy();
-                    selleckt = Selleckt.create({
+                    selleckt = new SingleSelleckt({
                         mainTemplate : template,
                         $selectEl : $(selectHtml.replace(/bar/g, '<b>some HTML</b>')),
                         enableSearch: true
@@ -1190,7 +1575,7 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
         describe('removal', function(){
             beforeEach(function(){
-                selleckt = Selleckt.create({
+                selleckt = new SingleSelleckt({
                     mainTemplate : mainTemplate,
                     $selectEl : $el
                 });
@@ -1227,545 +1612,15 @@ define(['lib/selleckt', 'lib/mustache.js'],
 
                 expect($el.css('display')).toEqual('inline-block');
             });
-        });
-    });
 
-    describe('multiselleckt', function(){
-        var multiSelleckt,
-            $el,
-            selectHtml  =
-                '<select multiple>' +
-                    '<option value="1" selected>foo</option>' +
-                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
-                    '<option value="3" selected>baz</option>' +
-                '</select>',
-            mainTemplate =
-                '<div class="{{className}} custom" tabindex=1>' +
-                    '<ul class="mySelections">' +
-                    '{{#selections}}' +
-                    '{{/selections}}' +
-                    '</ul>' +
-                    '<div class="selected">' +
-                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
-                    '</div>' +
-                    '<ul class="items">' +
-                        '{{#items}}' +
-                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
-                            '{{label}}' +
-                        '</li>' +
-                        '{{/items}}' +
-                    '</ul>' +
-                '</div>',
-            selectionTemplate =
-                '<li class="mySelectionItem custom-item" data-value="{{value}}">' +
-                    '{{text}}<i class="icon-remove remove"></i>' +
-                '</li>';
+            it('stops observing mutation events', function(){
+                var stopObservingMutationsSpy = sinon.spy(selleckt, '_stopObservingMutations');
 
-        beforeEach(function(){
-            $el = $(selectHtml);
-        });
+                selleckt.destroy();
 
-        afterEach(function(){
-            $el = undefined;
-
-            if(multiSelleckt){
-                multiSelleckt.destroy();
-                multiSelleckt = undefined;
-            }
-        });
-
-        describe('initialization', function(){
-            describe('custom options', function(){
-                beforeEach(function(){
-                    multiSelleckt = Selleckt.create({
-                        mainTemplate: mainTemplate,
-                        selectionTemplate: selectionTemplate,
-                        multiple: true,
-                        $selectEl : $el,
-                        className: 'selleckt',
-                        selectedTextClass: 'selectedText',
-                        selectionsClass: 'mySelections',
-                        selectionItemClass: 'mySelectionItem',
-                        placeholderText: 'click me!',
-                        alternatePlaceholder: 'click me again!',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        removeItemClass: 'removeItem',
-                        selectedClass: 'isSelected',
-                        highlightClass: 'isHighlighted',
-                        showEmptyList: true
-                    });
-                });
-
-                it('stores options.selectionTemplate as this.selectionTemplate',function(){
-                    expect(multiSelleckt.selectionTemplate({})).toEqual(Mustache.compile(selectionTemplate)({}));
-                });
-                it('stores options.selectionsClass as this.selectionsClass',function(){
-                    expect(multiSelleckt.selectionsClass).toEqual('mySelections');
-                });
-                it('stores options.selectionItemClass as this.selectionItemClass',function(){
-                    expect(multiSelleckt.selectionItemClass).toEqual('mySelectionItem');
-                });
-                it('stores options.placeholderText as this.placeholderText',function(){
-                    expect(multiSelleckt.placeholderText).toEqual('click me!');
-                });
-                it('stores options.alternatePlaceholder as this.alternatePlaceholder',function(){
-                    expect(multiSelleckt.alternatePlaceholder).toEqual('click me again!');
-                });
-                it('stores options.removeItemClass as this.removeItemClass',function(){
-                    expect(multiSelleckt.removeItemClass).toEqual('removeItem');
-                });
-                it('stores options.selectedClassName as this.selectedClass',function(){
-                    expect(multiSelleckt.selectedClass).toEqual('isSelected');
-                });
-                it('stores options.highlightClass as this.highlightClass',function(){
-                    expect(multiSelleckt.highlightClass).toEqual('isHighlighted');
-                });
-                it('stores options.showEmptyList as this.showEmptyList',function(){
-                    expect(multiSelleckt.showEmptyList).toEqual(true);
-                });
+                expect(stopObservingMutationsSpy.calledOnce).toEqual(true);
             });
 
-            describe('defaults', function(){
-                beforeEach(function(){
-                    multiSelleckt = Selleckt.create({
-                        multiple: true,
-                        $selectEl : $el
-                    });
-                });
-
-                it('defaults this.selectionsClass to "selections"',function(){
-                    expect(multiSelleckt.selectionsClass).toEqual('selections');
-                });
-                it('defaults this.selectionItemClass to "selectionItem"',function(){
-                    expect(multiSelleckt.selectionItemClass).toEqual('selectionItem');
-                });
-                it('defaults this.removeItemClass to "remove"',function(){
-                    expect(multiSelleckt.removeItemClass).toEqual('remove');
-                });
-                it('defaults this.placeholderText to "Please select..."',function(){
-                    expect(multiSelleckt.placeholderText).toEqual('Please select...');
-                });
-                it('defaults this.alternatePlaceholder to "Select another..."',function(){
-                    expect(multiSelleckt.alternatePlaceholder).toEqual('Select another...');
-                });
-                it('defaults this.showEmptyList to false',function(){
-                    expect(multiSelleckt.showEmptyList).toEqual(false);
-                });
-            });
-        });
-
-        describe('template formats', function(){
-            it('accepts template strings', function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el,
-                    selectionsClass: 'mySelections',
-                    selectionItemClass: 'mySelectionItem',
-                    mainTemplate : mainTemplate,
-                    selectionTemplate : selectionTemplate
-                });
-
-                multiSelleckt.render();
-
-                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
-            });
-
-            it('accepts compiled templates', function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el,
-                    selectionsClass: 'mySelections',
-                    selectionItemClass: 'mySelectionItem',
-                    mainTemplate : Mustache.compile(mainTemplate),
-                    selectionTemplate: Mustache.compile(selectionTemplate)
-                });
-                multiSelleckt.render();
-                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
-            });
-        });
-
-        describe('template data', function(){
-            it('includes user configurable class name in main template data', function(){
-                var templateData;
-
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl: $el,
-                    selectionsClass: 'selected-list'
-                });
-
-                templateData = multiSelleckt.getTemplateData();
-
-                expect(templateData.selectionsClass).toEqual('selected-list');
-            });
-
-            it('includes user configurable class names in item template data', function(){
-                var itemData;
-
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl: $el,
-                    selectionItemClass: 'selected-item',
-                    removeItemClass: 'remove-selected'
-                });
-
-                itemData = multiSelleckt.getItemTemplateData(multiSelleckt.items[0]);
-
-                expect(itemData.selectionItemClass).toEqual('selected-item');
-                expect(itemData.removeItemClass).toEqual('remove-selected');
-            });
-
-            it('includes option data attributes as property of item template data', function(){
-                var itemData;
-
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl: $el
-                });
-
-                itemData = multiSelleckt.getItemTemplateData(multiSelleckt.items[1]);
-
-                expect(itemData.data).toBeDefined();
-                expect(itemData.data.meh).toEqual('whee');
-                expect(itemData.data.bah).toEqual('oink');
-            });
-        });
-
-        describe('rendering', function(){
-            beforeEach(function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el
-                });
-
-                multiSelleckt.render();
-            });
-
-            it('renders the selected items in the multiselectItemTemplate', function(){
-                expect(multiSelleckt.getSelection()).toEqual([{
-                        value: '1',
-                        label: 'foo',
-                        data: {}
-                    }, {
-                        value: '3',
-                        label: 'baz',
-                        data: {}
-                    }]);
-
-                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
-            });
-            it('attaches the item to the selectedItem dom element', function(){
-                var selectedItems = multiSelleckt.getSelection();
-
-                expect(selectedItems).toEqual([{
-                        value: '1',
-                        label: 'foo',
-                        data: {}
-                    }, {
-                        value: '3',
-                        label: 'baz',
-                        data: {}
-                    }]);
-
-                expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(0).data('item')).toEqual(selectedItems[0]);
-                expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(1).data('item')).toEqual(selectedItems[1]);
-            });
-        });
-
-        describe('item selection', function(){
-            beforeEach(function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el
-                });
-            });
-
-            it('allows multiple items to be selected', function(){
-                multiSelleckt.render();
-                multiSelleckt.selectedItems = [];
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '2',
-                    label: 'bar',
-                    data: {
-                        meh: 'whee',
-                        bah: 'oink'
-                    }
-                }]);
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection()).toEqual([
-                    {
-                        value: '2',
-                        label: 'bar',
-                        data: {
-                            meh: 'whee',
-                            bah: 'oink'
-                        }
-                    }, {
-                        value: '1',
-                        label: 'foo',
-                        data: {}
-                    }
-                ]);
-            });
-
-            it('hides the selected item from the list', function(){
-                multiSelleckt.selectedItems = [];
-                multiSelleckt.render();
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '2',
-                    label: 'bar',
-                    data: {
-                        meh: 'whee',
-                        bah: 'oink'
-                    }
-                }]);
-
-                multiSelleckt._open();
-
-                expect(multiSelleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
-            });
-
-            it('adds a class of "disabled" to the select if all options are selected', function(){
-                multiSelleckt.render();
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection().length).toEqual(3);
-
-                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
-            });
-
-            it('does not add a class of "disabled" to the select if all options are selected but options.showEmptyList is true', function(){
-                multiSelleckt.destroy();
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el,
-                    showEmptyList: true
-                });
-                multiSelleckt.render();
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection().length).toEqual(3);
-
-                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
-            });
-
-            it('updates the original select element with the new value', function(){
-                multiSelleckt.selectedItems = [];
-                multiSelleckt.render();
-
-                multiSelleckt.selectItem(multiSelleckt.items[1]);
-
-                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
-
-                multiSelleckt.selectItem(multiSelleckt.items[2]);
-                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
-            });
-
-            describe('item deselection', function(){
-                it('removes an item when the "remove" link is clicked', function(){
-                    multiSelleckt.render();
-
-                    expect(multiSelleckt.getSelection().length).toEqual(2);
-
-                    expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-
-                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
-
-                    expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(1);
-                });
-                it('removes the class of "disabled" from the select if all options were selected but one becomes available', function(){
-                    multiSelleckt.render();
-
-                    multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                    expect(multiSelleckt.getSelection().length).toEqual(3);
-                    expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
-
-                    multiSelleckt.$sellecktEl.find('.selectionItem .remove').first().trigger('click');
-
-                    expect(multiSelleckt.getSelection().length).toEqual(2);
-                    expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
-                });
-                it('updates the original select element with the removed value', function(){
-                    multiSelleckt.selectedItems = [];
-                    multiSelleckt.render();
-
-                    multiSelleckt.selectItem(multiSelleckt.items[1]);
-
-                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
-
-                    multiSelleckt.selectItem(multiSelleckt.items[2]);
-                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
-
-                    multiSelleckt.removeItem(multiSelleckt.items[2]);
-
-                    expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
-                });
-                it('restores the placeholder text when the selection is cleared', function(){
-                    multiSelleckt.render();
-                    multiSelleckt.selectItem(multiSelleckt.items[1]);
-
-                    expect(multiSelleckt.selectedItems.length).toEqual(3);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
-                        .toEqual(multiSelleckt.alternatePlaceholder);
-
-                    multiSelleckt.removeItem(multiSelleckt.items[0]);
-                    multiSelleckt.removeItem(multiSelleckt.items[1]);
-                    multiSelleckt.removeItem(multiSelleckt.items[2]);
-
-                    expect(multiSelleckt.selectedItems.length).toEqual(0);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
-                        .toEqual(multiSelleckt.placeholderText);
-                });
-            });
-        });
-
-        describe('removing items', function(){
-            var $clickTarget;
-
-            beforeEach(function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el
-                });
-
-                multiSelleckt.render();
-
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '1',
-                    label: 'foo',
-                    data: {}
-                }, {
-                    value: '3',
-                    label: 'baz',
-                    data: {}
-                }]);
-
-                $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.removeItemClass).eq(0);
-            });
-            it('removes the item from the selections when the remove link is clicked', function(){
-                var $selections = multiSelleckt.$selections;
-
-                expect($selections.children().length).toEqual(2);
-
-                $clickTarget.trigger('click');
-
-                expect($selections.children().length).toEqual(1);
-                expect($selections.children().first().data('item')).toEqual({
-                    value: '3',
-                    label: 'baz',
-                    data: {}
-                });
-            });
-            it('removes the item from the selectedItems array when the remove link is clicked', function(){
-               var $selections = multiSelleckt.$selections;
-
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '1',
-                    label: 'foo',
-                    data: {}
-                }, {
-                    value: '3',
-                    label: 'baz',
-                    data: {}
-                }]);
-
-                $clickTarget.trigger('click');
-
-                expect($selections.children().length).toEqual(1);
-
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '3',
-                    label: 'baz',
-                    data: {}
-                }]);
-            });
-            it('shows the item in the items when the remove link is clicked', function(){
-                var $selections = multiSelleckt.$selections;
-
-                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).toEqual('none');
-
-                $clickTarget.trigger('click');
-
-                expect($selections.children().length).toEqual(1);
-                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).not.toEqual('none');
-            });
-            it('triggers a change event on original select when item is removed', function(){
-                var changeHandler = sinon.spy();
-
-                multiSelleckt.$originalSelectEl.on('change', changeHandler);
-                $clickTarget.trigger('click');
-
-                expect(changeHandler.calledOnce).toEqual(true);
-                expect(changeHandler.args[0].length).toEqual(2);
-                expect(changeHandler.args[0][1].origin).toEqual('selleckt');
-
-                multiSelleckt.$originalSelectEl.off('change', changeHandler);
-            });
-            it('triggers an "itemRemoved" event with the removed item', function(){
-                var spy = sinon.spy();
-
-                multiSelleckt.bind('itemRemoved', spy);
-                $clickTarget.trigger('click');
-
-                expect(spy.calledOnce).toEqual(true);
-                expect(spy.args[0][0]).toEqual({
-                    value: '1',
-                    label: 'foo',
-                    data: {}
-                });
-            });
-        });
-
-        describe('events', function(){
-            beforeEach(function(){
-                multiSelleckt = Selleckt.create({
-                    multiple: true,
-                    $selectEl : $el
-                });
-            });
-
-            it('does not open when it has a class of "disabled"', function(){
-                multiSelleckt.render();
-
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection().length).toEqual(3);
-                expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
-
-                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
-
-                expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
-            });
-            it('updates multiSelleckt when change is triggered on original select', function(){
-                multiSelleckt.render();
-
-                multiSelleckt.$originalSelectEl.val(['1', '2']).change();
-
-                expect(multiSelleckt.getSelection().length).toEqual(2);
-                expect(multiSelleckt.getSelection()[0].value).toEqual('1');
-                expect(multiSelleckt.getSelection()[1].value).toEqual('2');
-            });
         });
     });
 });
