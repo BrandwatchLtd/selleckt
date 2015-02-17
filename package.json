@@ -27,7 +27,6 @@
     "grunt-shell": "^1.1.1",
     "jshint": "^2.6",
     "mocha": "^2.1",
-    "serve": "*",
   },
   "optionalDependencies": {},
   "volo": {
