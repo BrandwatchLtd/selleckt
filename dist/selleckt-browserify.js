@@ -1037,12 +1037,11 @@ var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global 
 
 module.exports = {
     cacheTemplate: function(template) {
-        if(typeof(template) === 'string'){
-            Mustache.parse(template);
-            return;
+        if(typeof(template) !== 'string'){
+            throw new Error('Please provide a valid mustache template.');
         }
 
-        throw new Error('Please provide a valid mustache template.');
+        Mustache.parse(template);
     }
 };
 
