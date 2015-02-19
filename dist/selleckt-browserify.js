@@ -70,17 +70,30 @@ var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined
 var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
 
 function MultiSelleckt(options){
-    this.mainTemplate = templateUtils.parseTemplate(options.mainTemplate || TEMPLATES.MULTI);
-    this.itemTemplate = templateUtils.parseTemplate(options.itemTemplate || TEMPLATES.MULTI_ITEM);
-    this.selectionTemplate = templateUtils.parseTemplate(options.selectionTemplate || TEMPLATES.MULTI_SELECTION);
+    var settings = _.defaults(options, {
+        mainTemplate: TEMPLATES.MULTI,
+        itemTemplate: TEMPLATES.MULTI_ITEM,
+        selectionTemplate: TEMPLATES.MULTI_SELECTION,
+        alternatePlaceholder: 'Select another...',
+        selectionsClass: 'selections',
+        selectionItemClass: 'selectionItem',
+        unselectItemClass: 'unselect',
+        showEmptyList: false
+    });
 
-    this.alternatePlaceholder = options.alternatePlaceholder || 'Select another...';
-    this.selectionsClass = options.selectionsClass || 'selections';
-    this.selectionItemClass = options.selectionItemClass || 'selectionItem';
-    this.unselectItemClass = options.unselectItemClass || 'unselect';
-    this.showEmptyList = options.showEmptyList || false;
+    this.mainTemplate = settings.mainTemplate;
+    this.itemTemplate = settings.itemTemplate;
+    this.selectionTemplate = settings.selectionTemplate;
 
-    SingleSelleckt.call(this, options);
+    this.alternatePlaceholder = settings.alternatePlaceholder;
+    this.selectionsClass = settings.selectionsClass;
+    this.selectionItemClass = settings.selectionItemClass;
+    this.unselectItemClass = settings.unselectItemClass;
+    this.showEmptyList = settings.showEmptyList;
+
+    templateUtils.cacheTemplate(this.selectionTemplate);
+
+    SingleSelleckt.call(this, settings);
 }
 
 MultiSelleckt.prototype = Object.create(SingleSelleckt.prototype);
@@ -267,8 +280,8 @@ function SingleSelleckt(options){
 
     this.$originalSelectEl = options.$selectEl;
 
-    this.mainTemplate = this.mainTemplate || templateUtils.parseTemplate(settings.mainTemplate);
-    this.itemTemplate = this.itemTemplate || templateUtils.parseTemplate(settings.itemTemplate);
+    this.mainTemplate = settings.mainTemplate;
+    this.itemTemplate = settings.itemTemplate;
     this.mainTemplateData = settings.mainTemplateData;
     this.selectedClass = settings.selectedClass;
     this.selectedTextClass = settings.selectedTextClass;
@@ -288,6 +301,9 @@ function SingleSelleckt(options){
                         this.items.length > settings.searchThreshold);
 
     this.id = _.uniqueId('selleckt');
+
+    templateUtils.cacheTemplate(this.mainTemplate);
+    templateUtils.cacheTemplate(this.itemTemplate);
 }
 
 SingleSelleckt.prototype.DELAY_TIMEOUT = 0;
@@ -1020,10 +1036,10 @@ module.exports = SingleSelleckt;
 var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
 
 module.exports = {
-    parseTemplate: function(template) {
+    cacheTemplate: function(template) {
         if(typeof(template) === 'string'){
             Mustache.parse(template);
-            return template;
+            return;
         }
 
         throw new Error('Please provide a valid mustache template.');
