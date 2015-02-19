@@ -103,7 +103,7 @@ describe('MultiSelleckt', function(){
             it('caches the selection template', function(){
                 var cacheStub = sinon.stub(templateUtils, 'cacheTemplate');
 
-                new MultiSelleckt({
+                multiSelleckt = new MultiSelleckt({
                     mainTemplate: mainTemplate,
                     selectionTemplate: selectionTemplate,
                     multiple: true,
