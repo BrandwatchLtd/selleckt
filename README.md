@@ -37,6 +37,12 @@ karma start karma.conf.js --browsers=Chrome --single-run=false
 
 Valid browser names would include any of `Chrome`, `Safari` or `Firefox`. The addition of `--single-run=false` will stop the spawned window from closing when the test run completes.
 
+NB: to run karma from the terminal you'll need to install Karma's CLI tool with
+
+```javascript
+npm install -g karma-cli
+```
+
 
 Configuration
 =================
