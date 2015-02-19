@@ -148,8 +148,16 @@
 .demo-4 .selleckt ul.selections li > div {
     margin: 0 30px 2px 0;
 }
-.demo-5 button {
+.demo-5 button,
+.demo-6 button {
     margin-top: 10px;
+}
+.demo-5-options label{
+    display: inline-block;
+    margin-left: 5px;
+}
+.demo-5-options input[type="checkbox"]{
+    margin: 0 0 0 5px;
 }
 .selleckt .selections i {
     position: absolute;
