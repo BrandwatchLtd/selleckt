@@ -27,12 +27,11 @@ describe('LegacySelleckt', function(){
     });
 
     it('sets DELAY_TIMEOUT to window.MutationObserver._period', function(){
-        expect(window.MutationObserver._period).toBeDefined();
-
         var selleckt = new LegacySelleckt({
             $selectEl : $el
         });
 
-        expect(selleckt.DELAY_TIMEOUT).toEqual(60);
+        expect(window.MutationObserver._period).toBeDefined();
+        expect(selleckt.DELAY_TIMEOUT).toEqual(window.MutationObserver._period);
     });
 });
