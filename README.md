@@ -14,23 +14,28 @@ Running the demos
 
 Pull down the repo then execute:
 
-    ./serve.sh
-
+```javascript
+npm start
+```
 and open `http://localhost:8080/demo`
 
 
 Running the tests
 =================
 
-Run
-    npm install testem -g
-    testem
+The tests are run using [Karma](http://karma-runner.github.io/) as the test runner. For convenience and consistency between local dev environments and CI (Travis), it's recommended to use grunt to run the tests.
 
-Or pull down the repo then execute:
+`grunt test` will start the test suite, and attempt to run the tests in Safari, Firefox and Chrome.
 
-    ./serve.sh
+The test suites themselves are written using [Mocha](http://mochajs.org/). To view the mocha tests, press the debug button at the top right of the browser window (that you wish to debug in) when it spawns after `grunt test` is executed.
 
-and open `http://localhost:8080/test`
+To target a single browser run:
+
+```javascript
+karma start karma.conf.js --browsers=Chrome --single-run=false
+```
+
+Valid browser names would include any of `Chrome`, `Safari` or `Firefox`. The addition of `--single-run=false` will stop the spawned window from closing when the test run completes.
 
 
 Configuration
