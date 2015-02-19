@@ -1,9 +1,9 @@
 'use strict';
 
 var MultiSelleckt = require('../lib/MultiSelleckt');
+var templateUtils = require('../lib/templateUtils');
 
 var $ = require('jquery');
-var Mustache = require('Mustache');
 
 describe('MultiSelleckt', function(){
     var multiSelleckt,
@@ -73,7 +73,7 @@ describe('MultiSelleckt', function(){
             });
 
             it('stores options.selectionTemplate as this.selectionTemplate',function(){
-                expect(Mustache.render(multiSelleckt.selectionTemplate, {})).toEqual(Mustache.render(selectionTemplate, {}));
+                expect(multiSelleckt.selectionTemplate).toEqual(selectionTemplate);
             });
             it('stores options.selectionsClass as this.selectionsClass',function(){
                 expect(multiSelleckt.selectionsClass).toEqual('mySelections');
@@ -98,6 +98,33 @@ describe('MultiSelleckt', function(){
             });
             it('stores options.showEmptyList as this.showEmptyList',function(){
                 expect(multiSelleckt.showEmptyList).toEqual(true);
+            });
+
+            it('caches the selection template', function(){
+                var cacheStub = sinon.stub(templateUtils, 'cacheTemplate');
+
+                new MultiSelleckt({
+                    mainTemplate: mainTemplate,
+                    selectionTemplate: selectionTemplate,
+                    multiple: true,
+                    $selectEl : $el,
+                    className: 'selleckt',
+                    selectedTextClass: 'selectedText',
+                    selectionsClass: 'mySelections',
+                    selectionItemClass: 'mySelectionItem',
+                    placeholderText: 'click me!',
+                    alternatePlaceholder: 'click me again!',
+                    itemsClass: 'items',
+                    itemClass: 'item',
+                    unselectItemClass: 'unselectItem',
+                    selectedClass: 'isSelected',
+                    highlightClass: 'isHighlighted',
+                    showEmptyList: true
+                });
+
+                expect(cacheStub.calledWith(selectionTemplate)).toEqual(true);
+
+                cacheStub.restore();
             });
         });
 

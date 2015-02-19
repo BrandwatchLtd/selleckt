@@ -1,10 +1,10 @@
 'use strict';
 
 var SingleSelleckt = require('../lib/SingleSelleckt');
+var templateUtils = require('../lib/templateUtils');
 
 var $ = require('jquery');
 var _ = require('underscore');
-var Mustache = require('Mustache');
 
 describe('SingleSelleckt', function(){
     var selleckt,
@@ -124,11 +124,11 @@ describe('SingleSelleckt', function(){
             });
 
             it('stores options.mainTemplate as this.template', function(){
-                expect(Mustache.render(selleckt.mainTemplate, {})).toEqual(Mustache.render(template, {}));
+                expect(selleckt.mainTemplate).toEqual(template);
             });
 
             it('stores options.itemTemplate as this.itemTemplate', function(){
-                expect(Mustache.render(selleckt.itemTemplate, {})).toEqual(Mustache.render(itemTemplate, {}));
+                expect(selleckt.itemTemplate).toEqual(itemTemplate);
             });
 
             it('stores options.mainTemplateData as this.mainTemplateData', function(){
@@ -214,6 +214,39 @@ describe('SingleSelleckt', function(){
                     it('does not select an item', function(){
                         expect(selleckt.selectedItem).toBeUndefined();
                     });
+                });
+            });
+
+            describe('template caching', function(){
+                var cacheStub;
+
+                beforeEach(function(){
+                    cacheStub = sinon.stub(templateUtils, 'cacheTemplate');
+
+                    selleckt = new SingleSelleckt({
+                        mainTemplate: template,
+                        itemTemplate: itemTemplate,
+                        $selectEl : $el,
+                        className: 'selleckt',
+                        selectedClass: 'selected',
+                        selectedTextClass: 'selectedText',
+                        itemsClass: 'items',
+                        itemClass: 'item',
+                        selectedClassName: 'isSelected',
+                        highlightClass: 'isHighlighted'
+                    });
+                });
+
+                afterEach(function(){
+                    cacheStub.restore();
+                });
+
+                it('caches the main template', function(){
+                    expect(cacheStub.calledWith(template)).toEqual(true);
+                });
+
+                it('caches the item template', function(){
+                    expect(cacheStub.calledWith(itemTemplate)).toEqual(true);
                 });
             });
 
