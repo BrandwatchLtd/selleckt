@@ -37,6 +37,20 @@ module.exports = function(grunt) {
                 ext: 'html',
                 showDir: false
             }
+        },
+        karma: {
+            'saucelabs': {
+                configFile: 'karma.conf-saucelabs.js'
+            },
+            'saucelabs-legacy': {
+                configFile: 'karma.conf-saucelabs-legacyselleckt.js'
+            },
+            'travis-browser': {
+                configFile: 'karma.conf-travis.js'
+            },
+            'local-browser': {
+                configFile: 'karma.conf.js'
+            }
         }
     });
 
@@ -44,7 +58,20 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-karma');
 
     grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
     grunt.registerTask('start', [ 'clean', 'browserify', 'http-server:dev']);
+
+    var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
+    var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
+
+    if(!isTravis){
+        grunt.registerTask('test', [ 'karma:local-browser']);
+    } else if(isPr){
+        grunt.registerTask('test', [ 'karma:travis-browser']);
+    } else {
+        grunt.registerTask('test', [ 'karma:saucelabs', 'karma:saucelabs-legacy']);
+    }
+
 };
