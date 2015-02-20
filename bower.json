@@ -1,13 +1,13 @@
 {
   "name": "selleckt",
-  "version": "0.3.1",
-  "main": "lib/selleckt.js",
+  "version": "1.0.0",
+  "main": "dist/selleckt-browserify.js",
   "ignore": [
     "**/.*",
-    "node_modules",
-    "components",
     "demo",
-    "test",
-    "server.sh"
+    "lib",
+    "node_modules",
+    "shims",
+    "test"
   ]
 }
