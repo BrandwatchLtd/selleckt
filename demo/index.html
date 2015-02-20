@@ -5,7 +5,7 @@
         <link href="css/selleckt.css" type="text/css" rel="stylesheet" />
         <link href="css/bootstrap.css" type="text/css" rel="stylesheet" />
 
-        <script src="lib/jquery-1.10.1.js"></script>
+        <script src="lib/jquery-1.11.2.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/mustache.js"></script>
 
@@ -14,9 +14,13 @@
         <script src="../shims/es5-shim.min.js"></script>
         <![endif]-->
 
-        <script src="../shims/mutationobserver-shim.js"></script>
 
-        <script src="../lib/selleckt.js"></script>
+        <script src="../dist/selleckt-browserify.js"></script>
+
+        <!--[if lte IE 10]>
+        <script src="../shims/mutationobserver-shim.js"></script>
+        <script src="../dist/selleckt-legacy.js"></script>
+        <![endif]-->
 
         <style>
             .demo {
@@ -115,12 +119,14 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     <option value="2">Bar</option>
                     <option value="3">Baz</option>
                 </select>
-                <button id="addButton">Click me!</button>
-                <input type="checkbox" id="select-immediately"></input><label for="select-immediately">Select the new item immediately</label>
+                <div class="demo-5-options">
+                    <button id="addButton">Click me!</button>
+                    <input type="checkbox" id="select-immediately"></input><label for="select-immediately">Select the new item immediately</label>
+                </div>
             </div>
             <div class="demo demo-6">
                 <h2>Removing items</h2>
-                <p>Click the button to remove the "Baz" item</p>
+                <p>Click the button to remove the "Bar" item</p>
                 <select id="demo-6">
                     <option value="1">Foo</option>
                     <option value="2">Bar</option>
@@ -218,7 +224,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 
                 $select6.selleckt();
                 $('.demo-6 #removeButton').click(function (){
-                    $select6.data('selleckt').removeItem('3');
+                    $select6.data('selleckt').removeItem('2');
                 });
             });
         </script>

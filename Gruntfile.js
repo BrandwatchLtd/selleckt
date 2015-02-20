@@ -1,60 +1,77 @@
 'use strict';
 
-/*globals process:false,module:false*/
+/*globals module:false*/
 module.exports = function(grunt) {
     grunt.initConfig({
         jshint: {
-            all: ['lib/**/*.js', 'test/*.js']
-        },
-        connect: {
-            server: {
-                options: {
-                    port: 9000
-                }
+            all: ['lib/**/*.js', 'test/*.js'],
+            options: {
+                jshintrc: true
             }
         },
-        shell: {
-            runLocalTests: {
-                command: './testem -l Firefox'
-            }
+        clean: {
+            dist: ['./dist/**/*']
         },
-        'saucelabs-mocha': {
-            all: {
+        browserify: {
+            dist: {
+                files: {
+                    'dist/selleckt-browserify.js': [ 'lib/LegacySelleckt.js', 'lib/selleckt.js']
+                },
+                ignore: ['jquery', 'underscore', 'mustache'],
                 options: {
-                    urls: ['localhost:9000/test/index.html'],
-                    build: process.env.TRAVIS_BUILD_NUMBER,
-                    testname: 'Sauce Unit Test for Selleckt',
-                    browsers: [
-                        {browserName: 'firefox'},
-                        {browserName: 'chrome'},
-                        ['OS X 10.10', 'safari', 8],
-                        ['Windows 7', 'internet explorer', 8],
-                        ['Windows 7', 'internet explorer', 9],
-                        ['Windows 7', 'internet explorer', 10],
-                        ['Windows 7', 'internet explorer', 11]
-                    ],
-                    sauceConfig: {
-                        'public': 'public' //make the logs publicly visible so README badges work
-                    },
-                    tags: [
-                        process.env.TRAVIS_PULL_REQUEST || 'no pr',
-                        process.env.TRAVIS_BRANCH || 'no branch'
+                    transform: ['browserify-shim'],
+                    plugin: [
+                        ['factor-bundle', {
+                                outputs : [
+                                    'dist/selleckt-legacy.js'
+                                ]
+                            }
+                        ]
                     ]
                 }
+            }
+        },
+        'http-server': {
+            'dev': {
+                host: '0.0.0.0',
+                ext: 'html',
+                showDir: false
+            }
+        },
+        karma: {
+            'saucelabs': {
+                configFile: 'karma.conf-saucelabs.js'
+            },
+            'saucelabs-legacy': {
+                configFile: 'karma.conf-saucelabs-legacyselleckt.js'
+            },
+            'travis-browser': {
+                configFile: 'karma.conf-travis.js'
+            },
+            'local-browser': {
+                configFile: 'karma.conf.js'
             }
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-shell');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-saucelabs');
+    grunt.loadNpmTasks('grunt-http-server');
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-karma');
+
+    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
+    grunt.registerTask('start', [ 'clean', 'browserify', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
+    var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
 
-    if(isPr){
-        grunt.registerTask('test', ['jshint', 'shell:runLocalTests']);
+    if(!isTravis){
+        grunt.registerTask('test', [ 'karma:local-browser']);
+    } else if(isPr){
+        grunt.registerTask('test', [ 'karma:travis-browser']);
     } else {
-        grunt.registerTask('test', ['jshint', 'shell:runLocalTests', 'connect', 'saucelabs-mocha']);
+        grunt.registerTask('test', [ 'karma:saucelabs', 'karma:saucelabs-legacy']);
     }
+
 };

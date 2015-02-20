@@ -2,18 +2,15 @@ language: node_js
 
 env:
   global:
-    - secure: ARuzgCvTx/EbHzeRqp/plOAGRCUUpuqExkGxh7mwpdBDZpO2v//VRpXCyMOE4SH4salv2pgzvPJYiP4Qyqn4gve1ry8kIuGhk0n6Tt+9OjrmJcbxZ75flImgBVfoR9qFXIVrUWFKGChUL3rMkJiSR33gD7zQY2R7hYyrDMNfc+Q=
-    - secure: SbmDW3aZBrDsJrWtcXEi2fX6FjWZnfTtZBQqYlQoBqNjsdwKrOum5fi+67aIgdU8cN+eTMVBGOBNHzsGBPV3jQs2jZ7GHq/2vzyE39B0v/iBvpFJEi5wH7tk3+L6FeWIwdGIcXB3xHg16BmqHF5aegef1Es/t+ghCYBZUJ+3eBA=
+    - secure: OYtfZTVo0HxCm4vZbZe3oKviBfSuFtzVoLm/90jsD4dmsKZ1HcrpO4S5wbo035gISa5tijtUzEkEMhUoE84EIg6noW/SuF7dpYony51Soo03ZtvGmQVhYAKyxndeztlRxeIE4EzxfycT4bmBbM99XXPpRcwlywPOspYp2dgnTYI=
+    - secure: EFIJa3M5WISWWT+idxmjQzyPjq2Klj3vk//GaNzbCECDI2A4ax2H2rNuaEBR3CVhr/lD7waPGI4v/58wkFkvir8JZiCgMxyJDXeQKZJTMp7zCSWPeT10ECUm/etLFfUwq/WbyllXWR1k6wnbbXownaQNmSnyCrJexkooqRcoRN0=
 
 node_js:
    - "0.10"
 
 before_script:
-  - npm -q install
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
+
 script:
   - $(npm bin)/grunt test
-
-addons:
-  sauce_connect: true
