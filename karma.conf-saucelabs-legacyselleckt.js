@@ -1,7 +1,7 @@
 'use strict';
 
 //Load the base configuration
-var baseConfig = require('./karma.conf.js');
+var baseConfig = require('./karma.conf-saucelabs.js');
 
 module.exports = function(config) {
     // Load base config
@@ -36,17 +36,14 @@ module.exports = function(config) {
             'shims/es5-shim.min.js',
             'shims/mutationobserver-shim.js',
             'test/lib/*.js',
-            'test/*.tests.js'
-        ],
-
-        // list of files to exclude
-        exclude: [
+            'dist/selleckt.js',
+            'dist/selleckt-legacy-shim.js',
+            'test/specs/*.js',
+            'test/integration.js'
         ],
 
         customLaunchers: customLaunchers,
-        browsers: Object.keys(customLaunchers),
-
-        logLevel: config.LOG_INFO
+        browsers: Object.keys(customLaunchers)
 
     });
 };

@@ -1,21 +1,22 @@
 // Karma configuration
-// Generated on Thu Feb 12 2015 09:55:44 GMT+0000 (GMT)
+// This is the base spec for running the integration tests, which use the built
+// distro of Selleckt instead of browserifying everything on the fly
 'use strict';
 module.exports = function(config) {
     config.set({
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
-
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['browserify', 'mocha'],
-
+        frameworks: ['mocha'],
 
         // list of files / patterns to load in the browser
         files: [
             'test/lib/*.js',
-            'test/unit.js'
+            'dist/selleckt.js',
+            'test/specs/*.js',
+            'test/integration.js'
         ],
 
         client: {
@@ -24,19 +25,6 @@ module.exports = function(config) {
                 ui: 'bdd'
             }
         },
-
-
-        // preprocess matching files before serving them to the browser
-        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {
-            'test/unit.js': ['browserify']
-        },
-
-        browserify: {
-            debug: true,
-            transform: ['brfs']
-        },
-
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
@@ -55,10 +43,6 @@ module.exports = function(config) {
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
         logLevel: config.LOG_INFO,
-
-
-        // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: true,
 
 
         // start these browsers

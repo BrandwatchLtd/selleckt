@@ -1,7 +1,7 @@
 'use strict';
 
 //Load the base configuration
-var baseConfig = require('./karma.conf.js');
+var baseConfig = require('./karma.conf-integration.js');
 
 module.exports = function(config) {
     // Load base config
