@@ -62,7 +62,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-karma');
 
     grunt.registerTask('build', [ 'jshint', 'clean', 'browserify', 'copy:shim']);
-    grunt.registerTask('start', [ 'clean', 'browserify', 'http-server:dev']);
+    grunt.registerTask('start', [ 'build', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
     var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
