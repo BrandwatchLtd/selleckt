@@ -1,5 +1,5 @@
 'use strict';
-
+/*globals SingleSellecktSpecs:false, MultiSellecktSpecs:false  */
 var jquery = window.$;
 var underscore = window._;
 
@@ -9,5 +9,7 @@ var SingleSelleckt = selleckt.SingleSelleckt;
 var MultiSelleckt = selleckt.MultiSelleckt;
 var templateUtils = selleckt.templateUtils;
 
-SingleSellecktSpecs(SingleSelleckt, templateUtils, jquery, underscore);
-MultiSellecktSpecs(MultiSelleckt, templateUtils, jquery);
+(function exec(){
+    return new SingleSellecktSpecs(SingleSelleckt, templateUtils, jquery, underscore) &&
+        new MultiSellecktSpecs(MultiSelleckt, templateUtils, jquery);
+})();
