@@ -17,7 +17,7 @@
     "test": "./node_modules/karma/bin/karma start",
     "test-integration": "./node_modules/karma/bin/karma start ./karma.conf-integration.js",
     "test-saucelabs": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs.js",
-    "test-legacy-saucelabs": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs-legacyselleckt.js"
+    "test-saucelabs-legacy": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs-legacyselleckt.js"
   },
   "devDependencies": {
     "browserify": "^9.0.0",

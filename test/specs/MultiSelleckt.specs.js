@@ -1,6 +1,6 @@
 'use strict';
 
-function MultiSellecktSpecs(MultiSelleckt, templateUtils, $){
+function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
     return describe('MultiSelleckt', function(){
         var multiSelleckt,
             $el,
@@ -558,11 +558,22 @@ function MultiSellecktSpecs(MultiSelleckt, templateUtils, $){
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
         // like Node.
-        module.exports = factory();
+        var selleckt = require('../../lib/selleckt');
+
+        factory(exports,
+                selleckt.MultiSelleckt,
+                selleckt.templateUtils,
+                require('jquery')
+            );
     } else {
         // Browser globals
-        root.MultiSellecktSpecs = factory();
+        factory(
+            root.MultiSellecktSpecs,
+            root.selleckt.MultiSelleckt,
+            root.selleckt.templateUtils,
+            root.$
+        );
     }
-}(this, function () {
-    return MultiSellecktSpecs;
+}(this, function (exports, MultiSelleckt, templateUtils, $) {
+    return multiSellecktSpecs(MultiSelleckt, templateUtils, $);
 }));

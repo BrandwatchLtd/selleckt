@@ -38,8 +38,7 @@ module.exports = function(config) {
             'test/lib/*.js',
             'dist/selleckt.js',
             'dist/selleckt-legacy-shim.js',
-            'test/specs/*.js',
-            'test/integration.js'
+            'test/specs/*.js'
         ],
 
         customLaunchers: customLaunchers,

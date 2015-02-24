@@ -15,8 +15,7 @@ module.exports = function(config) {
         files: [
             'test/lib/*.js',
             'dist/selleckt.js',
-            'test/specs/*.js',
-            'test/integration.js'
+            'test/specs/*.js'
         ],
 
         client: {

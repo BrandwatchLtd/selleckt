@@ -1,6 +1,6 @@
 'use strict';
 
-function SingleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
+function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
     return describe('SingleSelleckt', function(){
         var selleckt,
             mainTemplate =
@@ -1659,11 +1659,24 @@ function SingleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
         // like Node.
-        module.exports = factory();
+        var selleckt = require('../../lib/selleckt');
+
+        factory(exports = singleSellecktSpecs,
+                selleckt.SingleSelleckt,
+                selleckt.templateUtils,
+                require('jquery'),
+                require('underscore')
+            );
     } else {
         // Browser globals
-        root.SingleSellecktSpecs = factory();
+        factory(
+            root.singleSellecktSpecs,
+            root.selleckt.SingleSelleckt,
+            root.selleckt.templateUtils,
+            root.$,
+            root._
+        );
     }
-}(this, function () {
-    return SingleSellecktSpecs;
+}(this, function (exports, SingleSelleckt, templateUtils, $, _) {
+    return singleSellecktSpecs(SingleSelleckt, templateUtils, $, _);
 }));
