@@ -12,6 +12,12 @@ module.exports = function(grunt) {
         clean: {
             dist: ['./dist/**/*']
         },
+        copy: {
+            shim: {
+                src: 'lib/shim/selleckt-legacy-shim.js',
+                dest: 'dist/selleckt-legacy-shim.js'
+            }
+        },
         browserify: {
             standalone: {
                 src: [ 'lib/selleckt.js' ],
@@ -50,11 +56,12 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
+    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify', 'copy:shim']);
     grunt.registerTask('start', [ 'clean', 'browserify', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
