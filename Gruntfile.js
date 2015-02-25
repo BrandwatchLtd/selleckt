@@ -12,22 +12,22 @@ module.exports = function(grunt) {
         clean: {
             dist: ['./dist/**/*']
         },
+        copy: {
+            shim: {
+                src: 'lib/shim/selleckt-legacy-shim.js',
+                dest: 'dist/selleckt-legacy-shim.js'
+            }
+        },
         browserify: {
-            dist: {
-                files: {
-                    'dist/selleckt-browserify.js': [ 'lib/LegacySelleckt.js', 'lib/selleckt.js']
-                },
-                ignore: ['jquery', 'underscore', 'mustache'],
+            standalone: {
+                src: [ 'lib/selleckt.js' ],
+                dest: 'dist/selleckt.js',
                 options: {
-                    transform: ['browserify-shim'],
-                    plugin: [
-                        ['factor-bundle', {
-                                outputs : [
-                                    'dist/selleckt-legacy.js'
-                                ]
-                            }
-                        ]
-                    ]
+                    browserifyOptions: {
+                        standalone: 'selleckt'
+                    },
+                    external: ['underscore', 'Mustache', 'jquery'],
+                    transform: ['browserify-shim']
                 }
             }
         },
@@ -39,16 +39,16 @@ module.exports = function(grunt) {
             }
         },
         karma: {
-            'saucelabs': {
+            'saucelabs-integration': {
                 configFile: 'karma.conf-saucelabs.js'
             },
-            'saucelabs-legacy': {
+            'saucelabs-integration-legacy': {
                 configFile: 'karma.conf-saucelabs-legacyselleckt.js'
             },
-            'travis-browser': {
+            'travis-integration-browser': {
                 configFile: 'karma.conf-travis.js'
             },
-            'local-browser': {
+            'local-unit': {
                 configFile: 'karma.conf.js'
             }
         }
@@ -56,22 +56,23 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
-    grunt.registerTask('start', [ 'clean', 'browserify', 'http-server:dev']);
+    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify', 'copy:shim']);
+    grunt.registerTask('start', [ 'build', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
     var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
 
     if(!isTravis){
-        grunt.registerTask('test', [ 'karma:local-browser']);
+        grunt.registerTask('test', [ 'karma:local-unit']);
     } else if(isPr){
-        grunt.registerTask('test', [ 'karma:travis-browser']);
+        grunt.registerTask('test', [ 'karma:travis-integration-browser']);
     } else {
-        grunt.registerTask('test', [ 'karma:saucelabs', 'karma:saucelabs-legacy']);
+        grunt.registerTask('test', [ 'karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
     }
 
 };

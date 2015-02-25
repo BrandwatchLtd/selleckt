@@ -1,7 +1,7 @@
 'use strict';
 
 //Load the base configuration
-var baseConfig = require('./karma.conf.js');
+var baseConfig = require('./karma.conf-integration.js');
 
 if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
     console.error('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
@@ -44,15 +44,11 @@ module.exports = function(config) {
             },
         },
 
-        //logLevel: 'debug',
-
         // Increase timeout in case connection in CI is slow
         captureTimeout: 120000,
 
         customLaunchers: customLaunchers,
         browsers: Object.keys(customLaunchers),
-
-        singleRun: true,
 
         // Do no watch for file changes
         autoWatch : false

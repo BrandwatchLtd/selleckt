@@ -17,7 +17,7 @@ Pull down the repo then execute:
 ```javascript
 npm start
 ```
-and open `http://localhost:8080/demo`
+and open `http://localhost:8282/demo`
 
 
 Running the tests
@@ -25,9 +25,9 @@ Running the tests
 
 The tests are run using [Karma](http://karma-runner.github.io/) as the test runner. For convenience and consistency between local dev environments and CI (Travis), it's recommended to use grunt to run the tests.
 
-`grunt test` will start the test suite, and attempt to run the tests in Safari, Firefox and Chrome.
+`npm test` will start the test suite, and attempt to run the tests in Safari, Firefox and Chrome.
 
-The test suites themselves are written using [Mocha](http://mochajs.org/). To view the mocha tests, press the debug button at the top right of the browser window (that you wish to debug in) when it spawns after `grunt test` is executed.
+The test suites themselves are written using [Mocha](http://mochajs.org/). To view the mocha tests, press the debug button at the top right of the browser window (that you wish to debug in) when it spawns after `npm test` is executed.
 
 To target a single browser run:
 
@@ -43,6 +43,7 @@ NB: to run karma from the terminal you'll need to install Karma's CLI tool with
 npm install -g karma-cli
 ```
 
+various integration test suites are available, and can be accessed using `npm run-script`. They use the built distribution of Selleckt. view `package.json` to see what suites there are.
 
 Configuration
 =================

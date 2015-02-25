@@ -1,63 +1,68 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({7:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.selleckt=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var SingleSelleckt = require('./SingleSelleckt');
-var MultiSelleckt = require('./MultiSelleckt');
-var jqueryPlugin = require('./sellecktJqueryPlugin');
-
-//this is what we return in the CommonJS module.
-var selleckt = {
-    create : function(options){
-        var Super = !!options.multiple ? MultiSelleckt : SingleSelleckt,
-            o = Object.create(Super.prototype);
-
-        Super.call(o, options);
-
-        return o;
-    },
-    SingleSelleckt: SingleSelleckt,
-    MultiSelleckt: MultiSelleckt
+var KEY_CODES = {
+    DOWN: 40,
+    UP: 38,
+    ENTER: 13,
+    ESC: 27
 };
 
-jqueryPlugin.mixin(selleckt);
+module.exports = KEY_CODES;
 
-module.exports = selleckt;
-
-},{"./MultiSelleckt":4,"./SingleSelleckt":5,"./sellecktJqueryPlugin":8}],8:[function(require,module,exports){
-(function (global){
+},{}],2:[function(require,module,exports){
+// Full MicroEvents library @ 54e85c036c3f903b963a0e4a671f72c1089ae4d4
+// (added some missing semi-colons etc, that's it)
+/**
+ * MicroEvent - to make any js object an event emitter (server or browser)
+ *
+ * - pure javascript - server compatible, browser compatible
+ * - dont rely on the browser doms
+ * - super simple - you get it immediatly, no mistery, no magic involved
+ *
+ * - create a MicroEventDebug with goodies to debug
+ *   - make it safer to use
+*/
 'use strict';
 
-var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
-var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
-
-module.exports = {
-    mixin: function(selleckt){
-        $.fn.selleckt = function(options) {
-            options = options || {};
-
-            return this.each(function() {
-                var $self = $(this),
-                    sellecktPlugin = $self.data('selleckt'),
-                    settings = _.extend( {
-                        $selectEl: $self,
-                        multiple: !!$self.attr('multiple')
-                    }, options);
-
-                if(sellecktPlugin){
-                    return;
-                }
-
-                sellecktPlugin = selleckt.create(settings);
-                $self.data('selleckt', sellecktPlugin);
-
-                sellecktPlugin.render();
-            });
-        };
+var MicroEvent  = function(){};
+MicroEvent.prototype = {
+    bind    : function(event, fct){
+        this._events = this._events || {};
+        this._events[event] = this._events[event]   || [];
+        this._events[event].push(fct);
+    },
+    unbind  : function(event, fct){
+        this._events = this._events || {};
+        if( event in this._events === false  ) { return; }
+        this._events[event].splice(this._events[event].indexOf(fct), 1);
+    },
+    trigger : function(event /* , args... */){
+        this._events = this._events || {};
+        if( event in this._events === false  ) { return; }
+        for(var i = 0; i < this._events[event].length; i++){
+            this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+        }
     }
 };
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],4:[function(require,module,exports){
+/**
+ * mixin will delegate all MicroEvent.js function in the destination object
+ *
+ * - require('MicroEvent').mixin(Foobar) will make Foobar able to use MicroEvent
+ *
+ * @param {Object} the object which will support MicroEvent
+*/
+MicroEvent.mixin = function(destObject){
+    var props  = ['bind', 'unbind', 'trigger'];
+    for(var i = 0; i < props.length; i ++){
+        destObject.prototype[props[i]]  = MicroEvent.prototype[props[i]];
+    }
+};
+
+module.exports = MicroEvent;
+
+},{}],3:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -246,7 +251,7 @@ MultiSelleckt.prototype.toggleDisabled = function(){
 module.exports = MultiSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./SingleSelleckt.js":5,"./TEMPLATES":6,"./templateUtils":9}],5:[function(require,module,exports){
+},{"./SingleSelleckt.js":4,"./TEMPLATES":5,"./templateUtils":8}],4:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1029,24 +1034,7 @@ MicroEvent.mixin(SingleSelleckt);
 module.exports = SingleSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./KEY_CODES":1,"./MicroEvent":3,"./TEMPLATES":6,"./templateUtils":9}],9:[function(require,module,exports){
-(function (global){
-'use strict';
-
-var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
-
-module.exports = {
-    cacheTemplate: function(template) {
-        if(typeof(template) !== 'string'){
-            throw new Error('Please provide a valid mustache template.');
-        }
-
-        Mustache.parse(template);
-    }
-};
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{"./KEY_CODES":1,"./MicroEvent":2,"./TEMPLATES":5,"./templateUtils":8}],5:[function(require,module,exports){
 'use strict';
 
 var TEMPLATES = {
@@ -1102,68 +1090,83 @@ var TEMPLATES = {
 
 module.exports = TEMPLATES;
 
-},{}],3:[function(require,module,exports){
-// Full MicroEvents library @ 54e85c036c3f903b963a0e4a671f72c1089ae4d4
-// (added some missing semi-colons etc, that's it)
-/**
- * MicroEvent - to make any js object an event emitter (server or browser)
- *
- * - pure javascript - server compatible, browser compatible
- * - dont rely on the browser doms
- * - super simple - you get it immediatly, no mistery, no magic involved
- *
- * - create a MicroEventDebug with goodies to debug
- *   - make it safer to use
-*/
+},{}],6:[function(require,module,exports){
 'use strict';
 
-var MicroEvent  = function(){};
-MicroEvent.prototype = {
-    bind    : function(event, fct){
-        this._events = this._events || {};
-        this._events[event] = this._events[event]   || [];
-        this._events[event].push(fct);
+var SingleSelleckt = require('./SingleSelleckt');
+var MultiSelleckt = require('./MultiSelleckt');
+var templateUtils = require('./templateUtils');
+var jqueryPlugin = require('./sellecktJqueryPlugin');
+
+//this is what we return in the CommonJS module.
+var selleckt = {
+    create : function(options){
+        var Super = !!options.multiple ? MultiSelleckt : SingleSelleckt,
+            o = Object.create(Super.prototype);
+
+        Super.call(o, options);
+
+        return o;
     },
-    unbind  : function(event, fct){
-        this._events = this._events || {};
-        if( event in this._events === false  ) { return; }
-        this._events[event].splice(this._events[event].indexOf(fct), 1);
-    },
-    trigger : function(event /* , args... */){
-        this._events = this._events || {};
-        if( event in this._events === false  ) { return; }
-        for(var i = 0; i < this._events[event].length; i++){
-            this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+    SingleSelleckt: SingleSelleckt,
+    MultiSelleckt: MultiSelleckt,
+    templateUtils: templateUtils
+};
+
+jqueryPlugin.mixin(selleckt);
+
+module.exports = selleckt;
+
+},{"./MultiSelleckt":3,"./SingleSelleckt":4,"./sellecktJqueryPlugin":7,"./templateUtils":8}],7:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
+var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
+
+module.exports = {
+    mixin: function(selleckt){
+        $.fn.selleckt = function(options) {
+            options = options || {};
+
+            return this.each(function() {
+                var $self = $(this),
+                    sellecktPlugin = $self.data('selleckt'),
+                    settings = _.extend( {
+                        $selectEl: $self,
+                        multiple: !!$self.attr('multiple')
+                    }, options);
+
+                if(sellecktPlugin){
+                    return;
+                }
+
+                sellecktPlugin = selleckt.create(settings);
+                $self.data('selleckt', sellecktPlugin);
+
+                sellecktPlugin.render();
+            });
+        };
+    }
+};
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],8:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+
+module.exports = {
+    cacheTemplate: function(template) {
+        if(typeof(template) !== 'string'){
+            throw new Error('Please provide a valid mustache template.');
         }
+
+        Mustache.parse(template);
     }
 };
 
-/**
- * mixin will delegate all MicroEvent.js function in the destination object
- *
- * - require('MicroEvent').mixin(Foobar) will make Foobar able to use MicroEvent
- *
- * @param {Object} the object which will support MicroEvent
-*/
-MicroEvent.mixin = function(destObject){
-    var props  = ['bind', 'unbind', 'trigger'];
-    for(var i = 0; i < props.length; i ++){
-        destObject.prototype[props[i]]  = MicroEvent.prototype[props[i]];
-    }
-};
-
-module.exports = MicroEvent;
-
-},{}],1:[function(require,module,exports){
-'use strict';
-
-var KEY_CODES = {
-    DOWN: 40,
-    UP: 38,
-    ENTER: 13,
-    ESC: 27
-};
-
-module.exports = KEY_CODES;
-
-},{}]},{},[7]);
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}]},{},[6])(6)
+});
