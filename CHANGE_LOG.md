@@ -1,10 +1,12 @@
 1.1.0 - 25 February 2015
+===============
 
 - Selleckt now allows addition and removal of items using `addItem` and `removeItems`
 - Breaking change - deselecting items in MultiSelleckt is now achieved via `unselectItem` instead of `removeItem`
 - Selleckt is now browserified and the codebase fully modular
 
 0.3.1 - 8 January 2015
+===============
 
 - Selleckt now allows event propgation and default behaviour on mouse scrolling
 - EditorConfig added
