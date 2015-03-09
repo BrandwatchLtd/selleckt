@@ -572,6 +572,7 @@ _.extend(SingleSelleckt.prototype, {
             $sellecktEl = this.$sellecktEl,
             $originalSelectEl = this.$originalSelectEl,
             $items = this.$items,
+            itemslist = $items.find('.'+this.itemslistClass)[0],
             $selected = $sellecktEl.find('> .' + this.selectedClass),
             $searchInput = $sellecktEl.find(searchInputClass),
             filterOptions = _.bind(this.filterOptions, this),
@@ -650,9 +651,9 @@ _.extend(SingleSelleckt.prototype, {
         function scrollItems(offset, absolute){
             lockMousover = true;
             if (absolute) {
-                $items[0].scrollTop = offset;
+                itemslist.scrollTop = offset;
             } else {
-                $items[0].scrollTop += offset;
+                itemslist.scrollTop += offset;
             }
 
             _.delay(function(){
@@ -697,37 +698,37 @@ _.extend(SingleSelleckt.prototype, {
             var whichKey = e.which,
                 $currentHighlightItem,
                 $theItems = self.$items.find('.'+self.itemClass),
-                itemToHighlight;
+                $itemToHighlight;
 
             if(whichKey === KEY_CODES.DOWN){
                 e.preventDefault();
 
                 $currentHighlightItem = getHighlightItem();
-                itemToHighlight = $currentHighlightItem.nextAll('.'+self.itemClass+':visible').first();
+                $itemToHighlight = $currentHighlightItem.nextAll('.'+self.itemClass+':visible').first();
 
-                if (!$currentHighlightItem.length || !itemToHighlight.length) {
-                    itemToHighlight = $theItems.filter(':visible').first();
+                if (!$currentHighlightItem.length || !$itemToHighlight.length) {
+                    $itemToHighlight = $theItems.filter(':visible').first();
                     scrollItems(0, true);
-                } else if (itemToHighlight.offset().top + itemToHighlight.outerHeight() > $items.offset().top + $items.outerHeight()) {
-                    scrollItems(itemToHighlight.outerHeight());
+                } else if ($itemToHighlight.offset().top + $itemToHighlight.outerHeight() > $items.offset().top + $items.outerHeight()) {
+                    scrollItems($itemToHighlight.outerHeight());
                 }
-                return highlightItem(itemToHighlight);
+                return highlightItem($itemToHighlight);
             }
 
             if(whichKey === KEY_CODES.UP){
                 e.preventDefault();
 
                 $currentHighlightItem = getHighlightItem();
-                itemToHighlight = $currentHighlightItem.prevAll('.'+self.itemClass+':visible').first();
+                $itemToHighlight = $currentHighlightItem.prevAll('.'+self.itemClass+':visible').first();
 
-                if(!$currentHighlightItem.length || !itemToHighlight.length){
-                    itemToHighlight = $theItems.filter(':visible').last();
-                    scrollItems($items.outerHeight(), true);
-                } else if (itemToHighlight.offset().top < $items.offset().top) {
-                    scrollItems(-itemToHighlight.outerHeight());
+                if(!$currentHighlightItem.length || !$itemToHighlight.length){
+                    $itemToHighlight = $theItems.filter(':visible').last();
+                    scrollItems($itemToHighlight.offset().top, true);
+                } else if ($itemToHighlight.offset().top < $items.offset().top + $itemToHighlight.outerHeight()) {
+                    scrollItems(-$itemToHighlight.outerHeight());
                 }
 
-                return highlightItem(itemToHighlight);
+                return highlightItem($itemToHighlight);
             }
 
             if(whichKey === KEY_CODES.ENTER){
