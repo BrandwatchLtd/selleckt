@@ -82,7 +82,27 @@ The following options can be passed to selleckt:
     </thead>
         <tr>
             <td>mainTemplate</td>
-            <td>string or compiled mustacheJs template function</td>
+            <td>string</td>
+            <td>
+                <a href="#templates">See below for default templates</a>
+            </div>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>itemTemplate</td>
+            <td>string</td>
+            <td>
+                <a href="#templates">See below for default templates</a>
+            </div>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>popupTemplate</td>
+            <td>string</td>
             <td>
                 <a href="#templates">See below for default templates</a>
             </div>
@@ -190,9 +210,16 @@ The following options can be passed to selleckt:
             <td>number</td>
             <td>0</td>
             <td>
-                 If the amount of items is above this number, and enableSearch is true then the search input will render.
+                If the amount of items is above this number, and enableSearch is true then the search input will render.
             </td>
         </tr>
+        <tr>
+            <td>hideSelectedItem</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>
+                set to `true` if you want currently selected items to not show in the `SellecktPopup`
+            </td>
     <tbody>
     </tbody>
 </table>
@@ -276,51 +303,68 @@ For multiselleckts, in addition to the above:
 Templates
 =================
 
-An example basic template:
-````html
-<div class="{{className}}" tabindex=1>
-    <div class="selected">
-        <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
-    </div>
-    <ul class="items">
-        {{#showSearch}}
-        <li class="searchContainer">
-            <input class="search"></input>
-        </li>
-        {{/showSearch}}
-        {{#items}}
-        <li class="item" data-text="{{label}}" data-value="{{value}}">
-            <span class="itemText">{{label}}</span>
-        </li>
-        {{/items}}
-    </ul>
-</div>
-````
-An example template for multiselleckt:
-````html
-<div class="{{className}}" tabindex=1>
-    <ul class="{{selectionsClass}}">
-    {{#selections}}
-    {{/selections}}
-    </ul>
-    <div class="selected">
-        <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
-    </div>
-    <ul class="items">
-        {{#items}}
-        <li class="item" data-text="{{label}}" data-value="{{value}}">
-            {{label}}
-        </li>
-        {{/items}}
-    </ul>
-</div>
-````
-An example template for a multiselleckt item:
-````html
-<li class="{{selectionItemClass}}" data-value="{{value}}">
-    {{text}}<i class="icon-remove {{unselectItemClass}}"></i>
-</li>
-````
+Selleckt uses mustache templates in order to render. There are 3 separate templates used in SingleSelleckt instances, and 4 in MultiSelleckt instances. The templates are explained in the following table:
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Usage</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>mainTemplate</td>
+            <td>SingleSelleckt and MultiSelleckt</td>
+            <td>
+                <p>
+                This template is the 'trigger' or 'opener' element for the selleckt popup. It's what you see in the DOM instead of the original `select` element.
+                </p>
+                <p>
+                There's defaults for this template in `TEMPLATES.SINGLE` and `TEMPLATES.MULTI`
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>itemTemplate</td>
+            <td>SingleSelleckt and MultiSelleckt</td>
+            <td>
+                <p>
+                This template is used to render a single item in the `SellecktPopup`. It represents an `option` element from the original `select`
+                </p>
+                <p>
+                There's defaults for this template in `TEMPLATES.SINGLE_ITEM` and `TEMPLATES.MULTI_ITEM`
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>popupTemplate</td>
+            <td>SingleSelleckt and MultiSelleckt</td>
+            <td>
+                <p>
+                This template is used to render the `SellecktPopup` - this element is attached to the `body` of the document and positioned absolutely.
+                </p>
+                <p>
+                There's a default for this template in `TEMPLATES.ITEMS_CONTAINER`
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>selectionTemplate</td>
+            <td>MultiSelleckt</td>
+            <td>
+                <p>
+                This template is used to render a single selected item in the MultiSelleckt. The items are attached to the DOM above the replaced `select` element so you can see which items have been selected.
+                </p>
+                <p>
+                There's a default for this template in `TEMPLATES.MULTI_SELECTION`
+                </p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 
 <a name="events"></a>
 Events
@@ -348,9 +392,32 @@ The following events are raised by an instance of selleckt:
             <td>Triggered each time an option is selected by the user. An item is an object representing an option in the selleckt, consisting of value, label and data properties.</td>
         </tr>
         <tr>
+            <td>itemUnselected</td>
+            <td>The item that the user has unselected from a </td>
+            <td>Triggered each time an option is deselected by the user. An item is an object representing an option in the selleckt, consisting of value, label and data properties.</td>
+        </tr>
+        <tr>
             <td>optionsFiltered</td>
             <td>The user's search term</td>
             <td>Triggered after the list of options has been filtered by the user's search term. The provided search term is an unmodified version of the user's search term. Please note that the option filtering will have been case insensitive.</td>
+        </tr>
+        <tr>
+            <td>onPopupCreated</td>
+            <td>The SellecktPopup instance</td>
+            <td>Triggered when a popup instance is created. Useful to bind to events triggered by both the `SellecktPopup` itself, or its DOM element (`popup.$popup`)
+            </td>
+        </tr>
+        <tr>
+            <td>itemsUpdated</td>
+            <td>
+                <ul>
+                    <li>`items` - all the items</li>
+                    <li>`newItems` - items that were added</li>
+                    <li>`removedItems` - items that were removed</li>
+                    <li>`selectedItems` - all items that are now selected</li>
+                </ul>
+            </td>
+            <td>Triggered when the `option` elements in the replaced select element change . Uses a Mutation Observer under the hood</td>
         </tr>
     </tbody>
 </table>
