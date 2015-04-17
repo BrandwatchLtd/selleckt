@@ -1113,6 +1113,28 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 ]);
             });
 
+            it('performs a case-insensitive search', function(){
+                var selleckt = new SingleSelleckt({
+                    $selectEl: $('<select>')
+                });
+
+                selleckt.items = [
+                    {label: 'foo', value: 'foo'},
+                    {label: 'bar', value: 'bar'},
+                    {label: 'baz', value: 'baz'},
+                    {label: 'foofoo', value: 'foofoo'},
+                    {label: 'foobaz', value: 'foobaz'}
+                ];
+
+                var filteredItems = selleckt._filterItems(selleckt.items, 'BA');
+
+                expect(filteredItems).toEqual([
+                    { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
+                    { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
+                    { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
+                ]);
+            });
+
             it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(){
                 var spy = sandbox.spy();
 
