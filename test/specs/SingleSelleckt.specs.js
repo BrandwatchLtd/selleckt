@@ -708,8 +708,15 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
         describe('popup options', function(){
             var popup;
+            var outerWidthStub;
+            var cssStub;
+            var dummyWidth;
 
             beforeEach(function(){
+                dummyWidth = 100;
+                outerWidthStub = sandbox.stub($.fn, 'outerWidth').returns(dummyWidth);
+                cssStub = sandbox.stub($.fn, 'css');
+
                 selleckt = new SingleSelleckt({
                     $selectEl : $el,
                     itemsClass: 'items',
@@ -764,6 +771,14 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             it('passes this.showSearch to the popup', function(){
                 expect(popup.showSearch).toEqual(selleckt.showSearch);
+            });
+
+            it('passes the outer width of the selleckt element to the popup as options.css', function(){
+                expect(outerWidthStub.calledOnce).toEqual(true);
+                expect(outerWidthStub.thisValues[0].is(selleckt.$sellecktEl)).toEqual(true);
+
+                expect(cssStub.thisValues[1].is(popup.$popup));
+                expect(cssStub.args[0][0]).toEqual({minWidth: dummyWidth + 'px'});
             });
         });
 
