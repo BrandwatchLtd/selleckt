@@ -206,6 +206,29 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                             data: {}
                         });
                     });
+                    it('ignores empty options', function(){
+                        var selectHtml = '<select>' +
+                            '<option></option>' +
+                            '<option value="2">bar</option>' +
+                            '<option value="3">baz</option>' +
+                            '</select>';
+
+                        selleckt.destroy();
+
+                        var $newEl = $(selectHtml).appendTo($testArea);
+
+                        selleckt = new SingleSelleckt({
+                            $selectEl : $newEl
+                        });
+
+                        expect(selleckt.items.length).toEqual(2);
+
+                        expect(selleckt.items[0].value).toEqual('2');
+                        expect(selleckt.items[0].label).toEqual('bar');
+
+                        expect(selleckt.items[1].value).toEqual('3');
+                        expect(selleckt.items[1].label).toEqual('baz');
+                    });
 
                     describe('when there is no selected item already', function(){
                         var $newEl;
