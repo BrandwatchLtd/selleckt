@@ -233,17 +233,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     describe('when there is no selected item already', function(){
                         var $newEl;
 
-                        beforeEach(function(){
-                            var selectHtml = '<select>' +
-                            '<option value="1">foo</option>' +
-                            '<option value="2">bar</option>' +
-                            '<option value="3">baz</option>' +
-                            '</select>';
-
-                            selleckt.destroy();
-
-                            $newEl = $(selectHtml).appendTo($testArea);
-
+                        function buildSelleckt() {
                             selleckt = new SingleSelleckt({
                                 mainTemplate: template,
                                 $selectEl : $newEl,
@@ -255,6 +245,19 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                                 selectedClassName: 'isSelected',
                                 highlightClass: 'isHighlighted'
                             });
+                        }
+
+                        beforeEach(function(){
+                            var selectHtml = '<select>' +
+                            '<option value="1">foo</option>' +
+                            '<option value="2">bar</option>' +
+                            '<option value="3">baz</option>' +
+                            '</select>';
+
+                            selleckt.destroy();
+
+                            $newEl = $(selectHtml).appendTo($testArea);
+                            buildSelleckt();
                         });
 
                         afterEach(function(){
@@ -264,6 +267,22 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                         it('does not select an item', function(){
                             expect(selleckt.selectedItem).toBeUndefined();
+                        });
+
+                        describe('if an item is selected via the DOM API', function() {
+                            beforeEach(function() {
+                                selleckt.destroy();
+                                $newEl.val('1');
+                                buildSelleckt();
+                            });
+
+                            it('preselects the item', function() {
+                                expect(selleckt.selectedItem).toEqual({
+                                    value: '1',
+                                    label: 'foo',
+                                    data: {}
+                                });
+                            });
                         });
                     });
                 });
