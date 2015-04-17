@@ -706,6 +706,37 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             });
         });
 
+        describe('when the popup closes', function(){
+            var closeSpy;
+
+            beforeEach(function(){
+
+                closeSpy = sandbox.spy(SingleSelleckt.prototype, '_close');
+
+                selleckt = new SingleSelleckt({
+                    $selectEl : $el
+                });
+
+                selleckt.render();
+            });
+
+            it('calls selleckt._close if selleckt is open', function(){
+                selleckt._open();
+
+                selleckt.popup.trigger('close');
+
+                expect(closeSpy.calledOnce).toEqual(true);
+            });
+
+            it('sets tabindex to -1 on the selleckt element if selleckt is open', function(){
+                selleckt._open();
+
+                selleckt.popup.trigger('close');
+
+                expect(selleckt.$sellecktEl.attr('tabindex')).toEqual('-1');
+            });
+        });
+
         describe('popup options', function(){
             var popup;
             var outerWidthStub;
