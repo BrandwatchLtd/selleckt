@@ -103,7 +103,48 @@ function MultiSelleckt(options){
 
 MultiSelleckt.prototype = Object.create(SingleSelleckt.prototype);
 
-MultiSelleckt.prototype.selectItem = function(item){
+MultiSelleckt.prototype._mutationHandler = function (mutations){
+    var newItems = [],
+        removedItems = [],
+        selectedItems = [];
+
+    _.forEach(mutations, function(mutation) {
+        newItems = newItems.concat(this._getItemsFromNodes(mutation.addedNodes));
+        removedItems = removedItems.concat(this._getItemsFromNodes(mutation.removedNodes));
+    }, this);
+
+    this.items = this.items.concat(newItems);
+
+    if(removedItems.length){
+        _.forEach(removedItems, function(item){
+            this.unselectItem(item, {silent: true});
+        }, this);
+
+        this.items = _.reject(this.items, function(item){
+            return _.any(removedItems, function(removedItem){
+                return removedItem.value === item.value;
+            });
+        });
+    }
+
+    _.forEach(this.items, function(item){
+        if(item.isSelected){
+            this.selectItem(item, {silent: true});
+            selectedItems.push(item);
+        }
+    }, this);
+
+    this.trigger('itemsUpdated', {
+        items: this.items,
+        newItems: newItems,
+        removedItems: removedItems,
+        selectedItems: selectedItems
+    });
+};
+
+MultiSelleckt.prototype.selectItem = function(item, options){
+    options = options || {};
+
     if(!this.selectedItems){
         this.selectedItems = [];
     }
@@ -117,11 +158,11 @@ MultiSelleckt.prototype.selectItem = function(item){
 
     this.$sellecktEl.find('.'+this.selectedTextClass).text(this.alternatePlaceholder);
 
-    this.findItemInList(item).hide();
-
     this.toggleDisabled();
 
-    this.updateOriginalSelect();
+    if (!options.silent) {
+        this.updateOriginalSelect();
+    }
 
     this.trigger('itemSelected', item);
 };
@@ -166,6 +207,17 @@ MultiSelleckt.prototype.parseItems = function($selectEl){
     this.selectedItems = itemsObj.selectedItems;
 };
 
+MultiSelleckt.prototype.getItemsForPopup = function() {
+    var showSelectedItem = !this.hideSelectedItem;
+    var selectedValues = _.map(this.selectedItems, function(item){
+        return item.value;
+    });
+
+    return showSelectedItem ? this.items : _.filter(this.items, function(item){
+        return _.indexOf(selectedValues, item.value) === -1;
+    }, this);
+};
+
 MultiSelleckt.prototype.render = function(){
     SingleSelleckt.prototype.render.call(this);
 
@@ -195,12 +247,6 @@ MultiSelleckt.prototype.bindEvents = function(){
     SingleSelleckt.prototype.bindEvents.call(this);
 };
 
-MultiSelleckt.prototype.hideSelectionFromChoices = function(){
-    _(this.selectedItems).each(function(item){
-        this.findItemInList(item).hide();
-    }, this);
-};
-
 MultiSelleckt.prototype.getItemTemplateData = function(item){
     return {
         text: item.label,
@@ -220,10 +266,10 @@ MultiSelleckt.prototype.buildItem = function(item){
     return $html.data('item', item);
 };
 
-MultiSelleckt.prototype.unselectItem = function(item){
-    this.$selections.find('[data-value="' + item.value +'"]').remove();
+MultiSelleckt.prototype.unselectItem = function(item, options){
+    options = options || {};
 
-    this.findItemInList(item).show();
+    this.$selections.find('[data-value="' + item.value +'"]').remove();
 
     this.selectedItems = _(this.selectedItems).reject(function(candidate){
         return candidate === item;
@@ -233,7 +279,9 @@ MultiSelleckt.prototype.unselectItem = function(item){
         this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
     }
 
-    this.updateOriginalSelect();
+    if(!options.silent){
+        this.updateOriginalSelect();
+    }
 
     this.toggleDisabled();
 
@@ -251,7 +299,7 @@ MultiSelleckt.prototype.toggleDisabled = function(){
 module.exports = MultiSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./SingleSelleckt.js":4,"./TEMPLATES":5,"./templateUtils":8}],4:[function(require,module,exports){
+},{"./SingleSelleckt.js":5,"./TEMPLATES":6,"./templateUtils":9}],4:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -264,214 +312,579 @@ var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined
 var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
 var MicroEvent = require('./MicroEvent');
 
+function createPopup(){
+    return $('<div>', {
+        'class': 'sellecktPopup selleckt',
+    });
+}
+
+function attachPopup($popup, $attachTarget){
+    $attachTarget.find('.sellecktPopup').remove();
+    $popup.appendTo($attachTarget);
+}
+
+function SellecktPopup(options){
+    var settings = _.defaults(options || {}, {
+        template: TEMPLATES.ITEMS_CONTAINER,
+        itemTemplate: TEMPLATES.SINGLE_ITEM,
+        templateData: {},
+        itemsClass : 'items',
+        itemslistClass : 'itemslist',
+        itemClass : 'item',
+        itemTextClass: 'itemText',
+        highlightClass : 'highlighted',
+        searchInputClass: 'search',
+        showSearch: false
+    });
+
+    this.template = settings.template;
+    this.templateData = settings.templateData;
+    this.itemTemplate = settings.itemTemplate;
+    this.itemsClass = settings.itemsClass;
+    this.itemslistClass = settings.itemslistClass;
+    this.itemClass = settings.itemClass;
+    this.itemTextClass = settings.itemTextClass;
+    this.highlightClass = settings.highlightClass;
+
+    this.searchInputClass = settings.searchInputClass;
+    this.showSearch = settings.showSearch;
+
+    templateUtils.cacheTemplate(this.template);
+    templateUtils.cacheTemplate(this.itemTemplate);
+}
+
+_.extend(SellecktPopup.prototype, {
+
+    open: function($opener, items, options) {
+        options = options || {};
+
+        var $popup = this.$popup = createPopup();
+
+        if(options.css){
+            $popup.css(options.css);
+        }
+
+        this.$opener = $opener;
+
+        this.renderItems(items);
+
+        attachPopup($popup, $('body'));
+        this._positionPopup($opener);
+
+        this.bindEvents();
+        this._attachResizeHandler($opener);
+
+        if (this.showSearch) {
+            $popup.find('.'+this.searchInputClass).focus();
+        } else {
+            //NB: set the tabindex so we can apply focus, which makes the key handling work
+            $popup.find('.'+this.itemClass).first().attr('tabindex',-1).focus();
+        }
+    },
+
+    close: function() {
+        this._removeResizeHandler();
+
+        this.$opener = undefined;
+
+        if(this.$popup){
+            this.$popup.remove();
+            this.$popup = undefined;
+
+            this.trigger('close');
+        }
+    },
+
+    getTemplateData: function() {
+        return _.extend(this.templateData, {
+            showSearch : this.showSearch,
+            itemsClass: this.itemsClass,
+            itemslistClass : this.itemslistClass,
+            itemClass: this.itemClass,
+            itemTextClass: this.itemTextClass,
+            searchInputClass: this.searchInputClass
+        });
+    },
+
+    renderItems: function(items) {
+        var templateData = _.extend({
+                items: items
+            }, this.getTemplateData()),
+            rendered = Mustache.render(this.template, templateData, {
+                item: this.itemTemplate
+            });
+
+        this.$popup.html(rendered);
+    },
+
+    refreshItems: function(items){
+        var $rendered = _.map(items, function(item){
+            var itemEl = Mustache.render(this.itemTemplate, {
+                itemTextClass: this.itemTextClass,
+                itemClass: this.itemClass,
+                label: item.label,
+                value: item.value
+            });
+
+            if(item.matchEnd > 0){
+                return this._addMarkToItem(itemEl, item);
+            }
+
+            return itemEl;
+        }, this);
+
+        this.$popup.find('.'+this.itemslistClass).html($rendered);
+
+        this.$popup.toggleClass('noitems', !items.length);
+
+        if(this.$popup.hasClass('flipped')){
+            //we may need to reposition the popup as it's positioned using top
+            this._positionPopup(this.$opener, {keepCurrentOrientation: true});
+        }
+    },
+
+    _addMarkToItem: function(itemEl, item){
+        var $itemEl = $(itemEl),
+            $textContainer = $itemEl.find('.' + this.itemTextClass),
+            markStart = '<mark>',
+            markEnd = '</mark>',
+            html;
+
+        html = _.escape(item.label.substring(0, item.matchStart)) +
+                markStart +
+                _.escape(item.label.slice(item.matchStart, item.matchEnd + 1)) +
+                markEnd +
+                _.escape(item.label.substring(item.matchEnd + 1));
+
+        $textContainer.html(html);
+
+        return $itemEl;
+    },
+
+    bindEvents: function() {
+        var self = this,
+            lockMousover = false,
+            highlightClass = this.highlightClass,
+            itemClass = '.'+this.itemClass,
+            itemslistClass = '.'+this.itemslistClass,
+            $popup = this.$popup,
+            itemslist = $popup.find(itemslistClass)[0],
+            trigger = _.bind(this.trigger, this),
+            searchInputClass = '.'+this.searchInputClass,
+            $searchInput;
+
+        function getHighlightItem(){
+            return $popup.find('.' + highlightClass);
+        }
+
+        function highlightItem($item){
+            $popup.find(itemClass).removeClass(highlightClass);
+
+            $item.addClass(highlightClass).attr('tabindex', -1).focus();
+        }
+
+        function selectItem($target){
+            trigger('valueSelected', $target.attr('data-value'));
+
+            self.close();
+        }
+
+        function scrollItems(offset, absolute){
+            lockMousover = true;
+            if (absolute) {
+                itemslist.scrollTop = offset;
+            } else {
+                itemslist.scrollTop += offset;
+            }
+
+            _.delay(function(){
+                lockMousover = false;
+            }, 200);
+        }
+
+        $popup.on('mouseover', itemClass, function(e){
+            if (lockMousover) {
+                return;
+            }
+            highlightItem($(e.currentTarget));
+        });
+
+        $popup.on('click', itemClass, function(e){
+            e.preventDefault();
+
+            return selectItem($(e.currentTarget));
+        });
+
+        $popup.on('keydown', itemClass, function(e){
+            var whichKey = e.which,
+                $currentHighlightItem,
+                $theItems,
+                $itemToHighlight;
+
+            if(whichKey !== KEY_CODES.DOWN && whichKey !== KEY_CODES.UP &&
+                whichKey !== KEY_CODES.ENTER && whichKey !== KEY_CODES.ESC){
+                return;
+            }
+
+            e.preventDefault();
+
+            if(e.which === KEY_CODES.ESC){
+                return self.close();
+            }
+
+            $currentHighlightItem = getHighlightItem();
+
+            if(e.which === KEY_CODES.ENTER){
+                return selectItem($currentHighlightItem);
+            }
+
+            $theItems = $popup.find(itemClass);
+
+            if(whichKey === KEY_CODES.DOWN){
+                $itemToHighlight = $currentHighlightItem.nextAll(itemClass).first();
+
+                if (!$currentHighlightItem.length || !$itemToHighlight.length) {
+                    $itemToHighlight = $theItems.first();
+                    scrollItems(0, true);
+                } else if ($itemToHighlight.offset().top +
+                            $itemToHighlight.outerHeight() >
+                            $popup.offset().top +
+                            $popup.outerHeight()) {
+                    scrollItems($itemToHighlight.outerHeight());
+                }
+
+                return highlightItem($itemToHighlight);
+            }
+
+            if(whichKey === KEY_CODES.UP){
+                $itemToHighlight = $currentHighlightItem.prevAll(itemClass).first();
+
+                if(!$currentHighlightItem.length || !$itemToHighlight.length){
+                    $itemToHighlight = $theItems.last();
+                    scrollItems($itemToHighlight.offset().top, true);
+                } else if ($itemToHighlight.offset().top < $popup.offset().top + $itemToHighlight.outerHeight()) {
+                    scrollItems(-$itemToHighlight.outerHeight());
+                }
+
+                return highlightItem($itemToHighlight);
+            }
+        });
+
+        if(this.showSearch){
+            $searchInput = $popup.find(searchInputClass);
+
+            $searchInput.on('keydown', function(e){
+                var whichKey = e.which;
+
+                if(whichKey === KEY_CODES.ESC){
+                    return self.close();
+                }
+
+                if(whichKey === KEY_CODES.DOWN){
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    return highlightItem($popup.find(itemClass).first());
+                }
+            });
+
+            $searchInput.on('keyup', _.debounce(function(e){
+                var whichKey = e.which;
+
+                if(whichKey === KEY_CODES.ESC || whichKey === KEY_CODES.ENTER){
+                    return;
+                }
+
+                var term = $searchInput.val();
+
+                trigger('search', term);
+            }));
+        }
+
+        $popup.on('click', function(e){
+            var $target = $(e.target);
+
+            if($target.is(itemClass) || $target.is(searchInputClass)){
+                return;
+            }
+            self.close();
+        });
+    },
+
+    _positionPopup: function($opener, options){
+        options = options || {};
+
+        var $window = $(window),
+            windowHeight = $window.height(),
+            windowScrollTop = $window.scrollTop(),
+            popupHeight = this.$popup.outerHeight(),
+            openerHeight = $opener.outerHeight(),
+            openerOffset = $opener.offset(),
+            viewportBottom = windowScrollTop + windowHeight,
+            enoughRoomBelow = viewportBottom > (openerOffset.top + openerHeight + popupHeight),
+            showBelow = enoughRoomBelow && !(options.keepCurrentOrientation && this.$popup.hasClass('flipped')),
+            css = {
+                position: 'absolute',
+                left: openerOffset.left,
+                top: showBelow ? openerOffset.top + openerHeight : openerOffset.top - popupHeight
+            };
+
+        this.$popup.css(css);
+
+        if(options.keepCurrentOrientation !== true){
+            this.$popup.toggleClass('flipped', !showBelow);
+        }
+    },
+
+    _attachResizeHandler: function($opener){
+        var $popup = this.$popup,
+            positionPopup = _.bind(this._positionPopup, this);
+
+        this.resizeHandler = _.throttle(function(){
+            positionPopup($opener, $popup);
+        }, 20);
+
+        $(window).on('resize', this.resizeHandler);
+    },
+
+    _removeResizeHandler: function(){
+        if (this.resizeHandler){
+            $(window).off('resize', this.resizeHandler);
+            this.resizeHandler = undefined;
+        }
+    }
+});
+
+MicroEvent.mixin(SellecktPopup);
+module.exports = SellecktPopup;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./KEY_CODES":1,"./MicroEvent":2,"./TEMPLATES":6,"./templateUtils":9}],5:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var KEY_CODES = require('./KEY_CODES');
+var TEMPLATES = require('./TEMPLATES');
+var templateUtils = require('./templateUtils');
+var SellecktPopup = require('./SellecktPopup');
+
+var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
+var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
+var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+var MicroEvent = require('./MicroEvent');
+
 function SingleSelleckt(options){
     var settings = _.defaults(options, {
         mainTemplate: TEMPLATES.SINGLE,
         itemTemplate: TEMPLATES.SINGLE_ITEM,
+        popupTemplate: TEMPLATES.ITEMS_CONTAINER,
         mainTemplateData: {},
+        popupTemplateData: {},
         selectedClass : 'selected',
         selectedTextClass : 'selectedText',
-        itemsClass : 'items',
-        itemslistClass : 'itemslist',
-        itemClass : 'item',
         className : 'dropdown selleckt',
-        highlightClass : 'highlighted',
-        itemTextClass: 'itemText',
         placeholderText : 'Please select...',
+        highlightClass : 'highlighted',
         enableSearch : false,
         searchInputClass : 'search',
-        searchThreshold : 0
+        searchThreshold : 0,
+        hideSelectedItem: false
     });
 
     this.$originalSelectEl = options.$selectEl;
 
     this.mainTemplate = settings.mainTemplate;
     this.itemTemplate = settings.itemTemplate;
+    this.popupTemplate = settings.popupTemplate;
     this.mainTemplateData = settings.mainTemplateData;
+    this.popupTemplateData = settings.popupTemplateData;
     this.selectedClass = settings.selectedClass;
     this.selectedTextClass = settings.selectedTextClass;
+    this.className = settings.className;
+    this.placeholderText = settings.placeholderText;
+    this.highlightClass = settings.highlightClass;
+
     this.itemsClass = settings.itemsClass;
     this.itemslistClass = settings.itemslistClass;
     this.itemClass = settings.itemClass;
     this.itemTextClass = settings.itemTextClass;
     this.searchInputClass = settings.searchInputClass;
-    this.className = settings.className;
-    this.highlightClass = settings.highlightClass;
-
-    this.placeholderText = settings.placeholderText;
 
     this.parseItems(this.$originalSelectEl);
 
     this.showSearch = (settings.enableSearch &&
                         this.items.length > settings.searchThreshold);
 
+    this.hideSelectedItem = settings.hideSelectedItem;
+
     this.id = _.uniqueId('selleckt');
 
     templateUtils.cacheTemplate(this.mainTemplate);
-    templateUtils.cacheTemplate(this.itemTemplate);
+}
+
+function closeEventHandler(context, event){
+    var eventTrigger = $(event.target).closest('.'+context.selectedClass)[0];
+    var dropdownTrigger = context.$sellecktEl.find('.'+context.selectedClass)[0];
+    var $popup = context.popup && context.popup.$popup;
+
+    //prevent the dropdown from closing immediately when the 'click' event propagates to the document
+    if(eventTrigger === dropdownTrigger && event.currentTarget === document){
+        return;
+    }
+
+    var anyParentIsPopup = $popup && _.any($(event.target).parents(), function(parent) {
+        return $(parent).is($popup);
+    });
+
+    if(anyParentIsPopup){
+        return;
+    }
+
+    context._close();
 }
 
 SingleSelleckt.prototype.DELAY_TIMEOUT = 0;
 
-function getScrollingParent($el){
-    var $scrollingParent;
-
-    $el.parents().each(function(idx, elem){
-        var $elem = $(elem);
-        if(_(['auto', 'scroll']).indexOf($elem.css('overflow-y')) > -1){
-            $scrollingParent = $elem;
-            return false;
-        }
-    });
-
-    return $scrollingParent || $(window);
-}
-
-function getOverflowHiddenParent($el){
-    var $overflowHiddenParent;
-
-    $el.parents().each(function(idx, elem){
-        var $elem = $(elem),
-            elemOverflowY = $elem.css('overflow-y'),
-            elemMaxHeight = $elem.css('max-height');
-
-        if((elemOverflowY==='hidden' && elemMaxHeight!=='auto') || _(['auto', 'scroll']).indexOf(elemOverflowY) > -1){
-            $overflowHiddenParent = $elem;
-            return false;
-        }
-    });
-
-    return $overflowHiddenParent;
-}
-
 _.extend(SingleSelleckt.prototype, {
 
     _open: function() {
-        var $sellecktEl = this.$sellecktEl,
-            closeFunc;
+        var $sellecktEl = this.$sellecktEl;
 
         if($sellecktEl.hasClass('disabled')){
             return;
         }
 
-        this.$items.show();
-        this.$sellecktEl.addClass('open').removeClass('closed');
-
-        if(this.showSearch){
-            this.clearSearch();
-        }
-
-        closeFunc = _.bind(this._close, this);
-
-        $(document).off('click.selleckt-' + this.id);
-        $(document).on('click.selleckt-' + this.id, closeFunc);
-
-        if(this._isOverflowing()) {
-            this._setItemsFixed();
-            this.$scrollingParent.off('scroll.selleckt-' + this.id);
-            this.$scrollingParent.on('scroll.selleckt-' + this.id, closeFunc);
-        } else {
-            this._setItemsAbsolute();
-        }
-
-        this.$items.find('.'+this.searchInputClass).focus();
-    },
-
-    _close: function(event) {
-        var dropdownTrigger = this.$sellecktEl.find('.'+this.selectedClass)[0],
-            eventTrigger = event ? $(event.target).closest('.'+this.selectedClass)[0] : undefined;
-
-        // prevent the dropdown from closing immediately when the 'click' event propagates to the document
-        if(eventTrigger===dropdownTrigger && event.currentTarget===document) {
+        if(this.popup){
             return;
         }
 
-        this.$items.find('.'+this.highlightClass).removeClass(this.highlightClass);
-        this.$items.find('.'+this.itemslistClass).scrollTop(0);
+        this.popup = this._makePopup();
 
-        this.$items.hide().removeClass('flipped');
+        $sellecktEl.addClass('open').removeClass('closed');
+
+        $(document)
+            .off('click.selleckt-' + this.id)
+            .on('click.selleckt-' + this.id, _.bind(closeEventHandler, this, this));
+
+        $('body').addClass('no-scroll');
+    },
+
+    _close: function() {
+        $(document).off('click.selleckt-' + this.id);
+
         this.$sellecktEl.removeClass('open').addClass('closed');
 
-        if(this.showSearch){
-            this.clearSearch();
-        }
-
-        $(document).off('click.selleckt-' + this.id);
-        this.$scrollingParent.off('scroll.selleckt-' + this.id);
+        this._removePopup();
 
         this.trigger('close');
+
+        $('body').removeClass('no-scroll');
     },
 
-    _isOverflowing: function(){
-        if(!this.$overflowHiddenParent) {
-            return false;
+    _removePopup: function() {
+        if(this.popup){
+            this.popup.unbind('valueSelected', this.onPopupValueSelected);
+            this.popup.close();
+            this.popup = undefined;
         }
-
-        var $dropdownTrigger = this.$items.prev(),
-            itemsBottom = $dropdownTrigger.offset().top + $dropdownTrigger.outerHeight() + this.$items.height(),
-            overflowHiddenParentBottom = this.$overflowHiddenParent.offset().top + this.$overflowHiddenParent.height();
-
-        return itemsBottom > overflowHiddenParentBottom;
     },
 
-    _flipIfNeeded: function() {
-        var $items = this.$items,
-            itemsHeight = $items.outerHeight(),
-            $window = $(window),
-            windowHeight = $window.height(),
-            scrollDistance = $window.scrollTop(),
-            dropdownBottom = $items.offset().top - scrollDistance + itemsHeight,
-            bottomSpace = windowHeight - dropdownBottom,
-            topSpace, $dropdownTrigger, triggerTop, newDropdownBottom;
+    getItemsForPopup: function() {
+        var showSelectedItem = !this.hideSelectedItem;
+        var itemsToShow =  showSelectedItem ? this.items : _.filter(this.items, function(item){
+            return this.selectedItem !== item;
+        }, this);
 
-        if(bottomSpace > -1) { // there's enough space below the trigger
-            return;
-        }
-
-        $dropdownTrigger = this.$sellecktEl.find('.'+this.selectedClass);
-        triggerTop = $dropdownTrigger.offset().top - scrollDistance;
-        newDropdownBottom = windowHeight - triggerTop;
-        topSpace = windowHeight - (newDropdownBottom + itemsHeight);
-
-        if(topSpace < 0) { // don't go off screen on top
-            newDropdownBottom = newDropdownBottom + topSpace;
-        }
-
-        // when the dropdown is flipped it is positioned via 'bottom' rather than 'top' so that
-        // it won't "detach" from the trigger when the search is used and its height changes
-        $items.css({
-            top: 'auto',
-            bottom: newDropdownBottom
-        }).addClass('flipped');
+        return itemsToShow;
     },
 
-    _setItemsFixed: function(){
-        var $dropdownTrigger = this.$sellecktEl.find('.'+this.selectedClass),
-            $triggerOffset = $dropdownTrigger.offset(),
-            $window = $(window);
-
-        this.$items.css({
-            width: 'inherit',
-            position: 'fixed',
-            top: ($triggerOffset.top - $window.scrollTop() + $dropdownTrigger.outerHeight()) + 'px',
-            left: ($triggerOffset.left - $window.scrollLeft()) + 'px',
-            bottom: 'auto'
+    _makePopup: function() {
+        var popup = new SellecktPopup({
+            template: this.popupTemplate,
+            templateData: this.popupTemplateData,
+            itemTemplate: this.itemTemplate,
+            itemsClass: this.itemsClass,
+            itemslistClass : this.itemslistClass,
+            itemClass: this.itemClass,
+            itemTextClass: this.itemTextClass,
+            searchInputClass: this.searchInputClass,
+            showSearch: this.showSearch
         });
 
-        this._flipIfNeeded();
+        var popupOptions = {
+            css: {
+                minWidth: this.$sellecktEl.outerWidth() + 'px'
+            }
+        };
+
+        popup.open(this.$sellecktEl.find('.'+this.selectedClass), this.getItemsForPopup(), popupOptions);
+
+        popup.bind('close', _.bind(this._onPopupClose, this));
+        popup.bind('valueSelected', _.bind(this._onPopupValueSelected, this));
+        popup.bind('search', _.bind(this._refreshPopupWithSearchHits, this));
+
+        this.trigger('onPopupCreated', popup);
+
+        return popup;
     },
 
-    _setItemsAbsolute: function(){
-        this.$items.css({
-            position: 'absolute',
-            top: 'auto',
-            left: 'auto',
-            bottom: 'auto'
-        });
+    _onPopupClose: function(){
+        if (this.$sellecktEl.hasClass('open')){
+            this._close();
+        }
+
+        this.$sellecktEl.attr('tabindex', -1).focus();
+    },
+
+    _onPopupValueSelected: function(value){
+        var item = this.findItem(value);
+
+        this.selectItem(item);
+    },
+
+    _filterItems: function(items, term){
+        var matchTerm;
+
+        if(!term){
+            return items;
+        }
+
+        matchTerm = term.toLowerCase();
+
+        return _.reduce(items, function(memo, item){
+            var matchIndex;
+
+            if (!item.value) {
+                return memo;
+            }
+
+            matchIndex = item.label.toLowerCase().indexOf(matchTerm);
+
+            if(matchIndex === -1){
+                return memo;
+            }
+
+            memo.push(_.extend({}, item, {
+                matchStart: matchIndex,
+                matchEnd: matchIndex + (term.length - 1)
+            }));
+
+            return memo;
+        }, []);
+    },
+
+    _refreshPopupWithSearchHits: function(term){
+        var matchingItems = this._filterItems(this.items, term);
+
+        this.popup.refreshItems(matchingItems);
+
+        if(matchingItems.length < this.items.length){
+            this.trigger('optionsFiltered', term);
+        }
     },
 
     _parseItemsFromOptions: function($selectEl){
-        return _($selectEl.find('option')).reduce(function(memo, option){
+        return _.reduce($selectEl.find('option'), function(memo, option){
             var $option = $(option),
                 item = {
                     value: $option.val(),
@@ -483,7 +896,9 @@ _.extend(SingleSelleckt.prototype, {
                 memo.selectedItems.push(item);
             }
 
-            memo.items.push(item);
+            if(item.value && item.label){
+                memo.items.push(item);
+            }
 
             return memo;
         }, {
@@ -508,40 +923,56 @@ _.extend(SingleSelleckt.prototype, {
         return $option;
     },
 
-    _createSellecktItem: function(item){
-        return Mustache.render(this.itemTemplate, _.extend({
-            itemClass: this.itemClass,
-            itemTextClass: this.itemTextClass,
-        }, item));
-    },
-
     _getItemsFromNodes: function(nodeList){
         return _.map(nodeList, function(node){
             return {
                 value: node.value,
                 label: node.text,
-                isSelected: node.selected
+                isSelected: node.selected || undefined
             };
         });
     },
 
     _mutationHandler: function (mutations){
-        var createSellecktItem = _.bind(this._createSellecktItem, this),
-            $items = this.$sellecktEl.find('.' + this.itemslistClass),
-            findItemInList = _.bind(this.findItemInList, this),
-            itemsFromNodes = _.bind(this._getItemsFromNodes, this),
-            newItems = [],
-            removedItems = [];
+        var newItems = [],
+            removedItems = [],
+            selectedItems = [];
 
-        _.each(mutations, function(mutation) {
-            newItems = newItems.concat(itemsFromNodes(mutation.addedNodes));
-            removedItems = removedItems.concat(itemsFromNodes(mutation.removedNodes));
-        });
+        _.forEach(mutations, function(mutation) {
+            newItems = newItems.concat(this._getItemsFromNodes(mutation.addedNodes));
+            removedItems = removedItems.concat(this._getItemsFromNodes(mutation.removedNodes));
+        }, this);
 
-        $items.append(_.map(newItems, createSellecktItem));
+        this.items = this.items.concat(newItems);
 
-        _.each(removedItems, function(item){
-            findItemInList(item).remove();
+        if(removedItems.length){
+            this.items = _.reject(this.items, function(item){
+                return _.any(removedItems, function(removedItem){
+                    return removedItem.value === item.value;
+                });
+            });
+        }
+
+        _.forEach(this.items, function(item){
+            if(item.isSelected){
+                this.selectItem(item, {silent: true});
+                selectedItems.push(item);
+            }
+        }, this);
+
+        if(!selectedItems.length){
+            this.selectedItem = undefined;
+
+            if(this.$sellecktEl){
+                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+            }
+        }
+
+        this.trigger('itemsUpdated', {
+            items: this.items,
+            newItems: newItems,
+            removedItems: removedItems,
+            selectedItems: selectedItems
         });
     },
 
@@ -566,186 +997,30 @@ _.extend(SingleSelleckt.prototype, {
 
     bindEvents: function(){
         var self = this,
-            itemClass = '.'+this.itemClass,
-            searchInputClass = '.'+this.searchInputClass,
-            highlightClass = this.highlightClass,
             $sellecktEl = this.$sellecktEl,
             $originalSelectEl = this.$originalSelectEl,
-            $items = this.$items,
-            itemslist = $items.find('.'+this.itemslistClass)[0],
-            $selected = $sellecktEl.find('> .' + this.selectedClass),
-            $searchInput = $sellecktEl.find(searchInputClass),
-            filterOptions = _.bind(this.filterOptions, this),
-            lockMousover = false,
-            scrollNotch2PixelRatio = -40,
-            scrollStepPx = 80,
-            throttleMs = 50,
-            // based on: http://stackoverflow.com/questions/16323770/stop-page-from-scrolling-if-hovering-div/16324663#16324663
-            scrollFunc = function(ev) {
-                var $this = $(this),
-                    scrollTop = this.scrollTop,
-                    scrollHeight = this.scrollHeight,
-                    height = $this.height(),
-                    delta = (ev.type === 'DOMMouseScroll' ?
-                            ev.originalEvent.detail * scrollNotch2PixelRatio :
-                            ev.originalEvent.wheelDelta),
-                    up = delta > 0,
-                    prevent = function() {
-                        function isOpen(el){
-                            return $(el).parents('.selleckt').hasClass('open');
-                        }
+            $selected = $sellecktEl.find('> .' + this.selectedClass);
 
-                        if(!isOpen(ev.target)) {
-                            return;
-                        }
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        ev.returnValue = false;
-                        return false;
-                    };
+        $sellecktEl.on('keydown', function(e){
+            var whichKey = e.which;
 
-                delta = up ? scrollStepPx : -scrollStepPx; // hardcode same "scroll step" for all browsers
-
-                if (!up && -delta > scrollHeight - height - scrollTop) {
-                    $this.scrollTop(scrollHeight);
-                    return prevent();
-                }
-                if (up && delta > scrollTop) {
-                    $this.scrollTop(0);
-                    return prevent();
-                }
-
-                $this.scrollTop(scrollTop-delta);
-                return prevent();
-            },
-            throttledScrollFunc = _.throttle(scrollFunc, throttleMs);
-
-        function getHighlightItem(){
-            return $items.find('.' + highlightClass);
-        }
-
-        function highlightItem(item){
-            $items
-                .find(itemClass)
-                .removeClass(highlightClass);
-
-            item.addClass(highlightClass);
-        }
-
-        function selectCurrentItem(){
-            var highlightItem = getHighlightItem(),
-                selectedItem = self.findItem(highlightItem.data('value'));
-
-            if(selectedItem){
-                if(self.selectedItem && self.selectedItem.value === selectedItem.value){
-                    return;
-                }
-                self.selectItem(selectedItem);
+            if(whichKey === KEY_CODES.ENTER){
+                self._open();
             }
-
-            self._close();
-
-            return $sellecktEl.focus();
-        }
-
-        function scrollItems(offset, absolute){
-            lockMousover = true;
-            if (absolute) {
-                itemslist.scrollTop = offset;
-            } else {
-                itemslist.scrollTop += offset;
-            }
-
-            _.delay(function(){
-                lockMousover = false;
-            }, 200);
-        }
+        });
 
         $selected.on('click', function() {
             self.$sellecktEl.focus();
 
-            if (self.$items.is(':visible')) {
+            if ($sellecktEl.hasClass('open')) {
                 return self._close();
             }
 
             self._open();
         });
 
-        $items.on('click', itemClass, function(e){
-            e.stopPropagation();
-
-            $sellecktEl.focus();
-
-            selectCurrentItem($(e.target));
-        }).on('mouseover', itemClass, function(e){
-            if (lockMousover) {
-                return;
-            }
-            highlightItem($(e.currentTarget));
-        });
-
-        $sellecktEl.on('keyup', function(e){
-            var keyCode = e.keyCode;
-
-            if(keyCode === KEY_CODES.ESC){
-                if($sellecktEl.hasClass('open')){
-                    self._close();
-                }
-            }
-        });
-
-        $sellecktEl.on('keydown', function(e){
-            var whichKey = e.which,
-                $currentHighlightItem,
-                $theItems = self.$items.find('.'+self.itemClass),
-                $itemToHighlight;
-
-            if(whichKey === KEY_CODES.DOWN){
-                e.preventDefault();
-
-                $currentHighlightItem = getHighlightItem();
-                $itemToHighlight = $currentHighlightItem.nextAll('.'+self.itemClass+':visible').first();
-
-                if (!$currentHighlightItem.length || !$itemToHighlight.length) {
-                    $itemToHighlight = $theItems.filter(':visible').first();
-                    scrollItems(0, true);
-                } else if ($itemToHighlight.offset().top + $itemToHighlight.outerHeight() > $items.offset().top + $items.outerHeight()) {
-                    scrollItems($itemToHighlight.outerHeight());
-                }
-                return highlightItem($itemToHighlight);
-            }
-
-            if(whichKey === KEY_CODES.UP){
-                e.preventDefault();
-
-                $currentHighlightItem = getHighlightItem();
-                $itemToHighlight = $currentHighlightItem.prevAll('.'+self.itemClass+':visible').first();
-
-                if(!$currentHighlightItem.length || !$itemToHighlight.length){
-                    $itemToHighlight = $theItems.filter(':visible').last();
-                    scrollItems($itemToHighlight.offset().top, true);
-                } else if ($itemToHighlight.offset().top < $items.offset().top + $itemToHighlight.outerHeight()) {
-                    scrollItems(-$itemToHighlight.outerHeight());
-                }
-
-                return highlightItem($itemToHighlight);
-            }
-
-            if(whichKey === KEY_CODES.ENTER){
-                e.preventDefault();
-
-                if (self.$items.is(':visible')) {
-                    return selectCurrentItem();
-                }
-
-                self._open();
-
-                highlightItem($theItems.filter(':visible').first());
-            }
-        });
-
         $originalSelectEl.on('change.selleckt', function(e, data) {
-            if(data && data.origin==='selleckt') {
+            if(data && data.origin === 'selleckt') {
                 return;
             }
 
@@ -753,23 +1028,6 @@ _.extend(SingleSelleckt.prototype, {
             self.updateSelection(newSelection);
             e.stopImmediatePropagation();
         });
-
-        if(this._isOverflowing()) {
-            $sellecktEl.find('.'+this.selectedClass+', .'+this.itemsClass+', .'+this.itemslistClass)
-                .on('DOMMouseScroll mousewheel', throttledScrollFunc);
-        }
-
-        if(this.showSearch){
-            $searchInput.on('click', function(e){
-                e.stopPropagation();
-            });
-
-            $searchInput.on('keyup', _.debounce(function(){
-                var term = $searchInput.val();
-
-                filterOptions(term);
-            }));
-        }
     },
 
     parseItems: function($selectEl){
@@ -782,10 +1040,6 @@ _.extend(SingleSelleckt.prototype, {
         }
     },
 
-    findItemInList: function(item){
-        return this.$sellecktEl.find('.'+this.itemClass+'[data-value="' + item.value + '"]');
-    },
-
     findItem: function(value){
         return _(this.items).find(function(item){
             /*jshint eqeqeq:false*/
@@ -793,30 +1047,18 @@ _.extend(SingleSelleckt.prototype, {
         });
     },
 
-    hideSelectionFromChoices: function(){
-        if(!this.$sellecktEl){
-            return;
-        }
-
-        if(this.selectedItem){
-            this.findItemInList(this.selectedItem).hide();
-        }
-    },
-
     selectItem: function(item, options){
-        var selectedItem = this.selectedItem,
-            $sellecktEl = this.$sellecktEl,
+        var $sellecktEl = this.$sellecktEl,
             displayedLabel = (item && item.label) || this.placeholderText;
 
         item = item || {};
         options = options || {};
 
-        if(selectedItem){
-            this.findItemInList(selectedItem).show();
+        if(item === this.selectedItem){
+            return;
         }
 
         if($sellecktEl){
-            this.findItemInList(item).hide();
             $sellecktEl.find('.'+this.selectedTextClass).text(displayedLabel);
         }
 
@@ -826,9 +1068,13 @@ _.extend(SingleSelleckt.prototype, {
             this.$originalSelectEl.val(item.value).trigger('change', {origin: 'selleckt'});
         }
 
-        this.hideSelectionFromChoices();
-
         this.trigger('itemSelected', item);
+    },
+
+    selectItemByValue: function(value, options) {
+        var item = this.findItem(value);
+
+        this.selectItem(item, options);
     },
 
     updateSelection: function(newSelection){
@@ -847,18 +1093,14 @@ _.extend(SingleSelleckt.prototype, {
             selectedItemText: selectedItem && selectedItem.label || this.placeholderText,
             className : this.className,
             selectedClass: this.selectedClass,
-            selectedTextClass: this.selectedTextClass,
-            itemsClass: this.itemsClass,
-            itemslistClass : this.itemslistClass,
-            itemClass: this.itemClass,
-            itemTextClass: this.itemTextClass,
-            searchInputClass: this.searchInputClass,
-            items: this.items
+            selectedTextClass: this.selectedTextClass
         });
     },
 
     addItems: function(items){
-        var selectItem = _.bind(this.selectItem, this);
+        //stop observing mutations, else we'll get into a loop
+        this._stopObservingMutations();
+
         var $options = _.map(items, function(item){
             return this._createOptionFromItem(item);
         }, this);
@@ -867,74 +1109,65 @@ _.extend(SingleSelleckt.prototype, {
 
         this.items = this.items.concat(items);
 
-        var selectedItem = _.find(items, function(item){
-            return item.isSelected;
-        });
+        _.forEach(items, function(item) {
+            if (item.isSelected){
+                this.selectItem(item);
+            }
+        }, this);
 
-        if(!selectedItem){
-            return;
-        }
-
-        _.delay(function(){
-            selectItem(selectedItem);
-        }, this.DELAY_TIMEOUT);
+        //start observing mutations again
+        this._observeMutations(this.$originalSelectEl[0]);
     },
 
     addItem: function(item){
-        var $option = this._createOptionFromItem(item);
-        var selectItem = _.bind(this.selectItem, this);
+        //stop observing mutations, else we'll get into a loop
+        this._stopObservingMutations();
 
-        $option.appendTo(this.$originalSelectEl);
+        this._createOptionFromItem(item).appendTo(this.$originalSelectEl);
 
         this.items.push(item);
 
-        if(!item.isSelected){
-            return;
+        if(item.isSelected){
+            this.selectItem(item);
         }
 
-        //defer this because we hook into the mutation
-        //event in order to populate Selleckt, and that
-        //event fires asynchronously
-        _.delay(function(){
-            selectItem(item);
-        }, this.DELAY_TIMEOUT);
+        //start observing mutations again
+        this._observeMutations(this.$originalSelectEl[0]);
     },
 
     removeItem: function(value){
-        this.items = _.filter(this.items, function(item){
-            /*jshint eqeqeq:false*/
-            return item.value != value;
-        });
-
-        if(this.selectedItem && this.selectedItem.value === value){
-            this.selectedItem = undefined;
-            this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
-        }
+        //stop observing mutations, else we'll get into a loop
+        this._stopObservingMutations();
 
         this.$originalSelectEl.find('option[value="' + value +'"]').remove();
+
+        this.items = _.filter(this.items, function(item){
+            return value !== item.value;
+        });
+
+        if(this.selectedItem.value === value){
+            if(this.$sellecktEl){
+                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+            }
+
+            this.selectedItem = undefined;
+        }
+
+        //start observing mutations again
+        this._observeMutations(this.$originalSelectEl[0]);
     },
 
     render: function(){
         var templateData = this.getTemplateData(),
             $originalSelectEl = this.$originalSelectEl,
-            rendered = Mustache.render(this.mainTemplate, templateData, {
-                item: this.itemTemplate
-            }),
+            rendered = Mustache.render(this.mainTemplate, templateData),
             $sellecktEl = this.$sellecktEl = $(rendered).addClass('closed');
 
-        this.$items = $sellecktEl.find('.'+this.itemsClass);
-
         $originalSelectEl.hide().before($sellecktEl);
-
-        this.$scrollingParent = getScrollingParent($sellecktEl);
-
-        this.$overflowHiddenParent = getOverflowHiddenParent($sellecktEl);
 
         this.bindEvents();
 
         this._observeMutations($originalSelectEl[0]);
-
-        this.hideSelectionFromChoices();
     },
 
     destroy: function(){
@@ -942,92 +1175,15 @@ _.extend(SingleSelleckt.prototype, {
             return;
         }
 
+        this._removePopup();
+
         this._stopObservingMutations();
 
         $(document).off('click.selleckt-' + this.id);
-        this.$scrollingParent.off('scroll.selleckt-' + this.id);
 
         this.$sellecktEl.off().remove();
         this.$originalSelectEl.off('change.selleckt');
         this.$originalSelectEl.removeData('selleckt').show();
-    },
-
-    _findMatchingOptions: function(items, term){
-        return _(items).map(function(item){
-
-            if (!item.value) {
-                return item;
-            }
-
-            var matchIndex = item.label.toLowerCase().indexOf(term);
-
-            if(matchIndex === -1){
-                return item;
-            }
-
-            return (_.extend({}, item, {
-                matchStart: matchIndex,
-                matchEnd: matchIndex + (term.length - 1)
-            }));
-        });
-    },
-
-    clearSearch: function(){
-        var $searchInput = this.$sellecktEl.find('.' + this.searchInputClass);
-
-        if(!$searchInput.length){
-            return;
-        }
-
-        $searchInput.val('');
-        this.filterOptions('');
-    },
-
-    filterOptions: function(term){
-        var items = this.items,
-            matches = this._findMatchingOptions(items, term.toLowerCase()),
-            selectedItems = [].concat(this.getSelection()),
-            selectedIndices = _(selectedItems).reduce(function(memo, item){
-                var idx = _(items).indexOf(item);
-                if(idx !== -1){
-                    memo.push(idx);
-                }
-                return memo;
-            }, []),
-            $theItems = this.$items.find('.' + this.itemClass),
-            textClass = '.' + this.itemTextClass,
-            markStart = '<mark>',
-            markEnd = '</mark>';
-
-        _(matches).each(function(item, index){
-            var $item = $theItems.eq(index),
-                $textContainer = $item.find(textClass),
-                isSelectedItem = _(selectedIndices).contains(index),
-                html;
-
-            if(!_.isNumber(item.matchStart)){
-                $textContainer.html(item.label);
-                $item.hide();
-
-                return;
-            }
-
-            html = _.escape(item.label.substring(0, item.matchStart)) +
-                    markStart +
-                    _.escape(item.label.slice(item.matchStart, item.matchEnd + 1)) +
-                    markEnd +
-                    _.escape(item.label.substring(item.matchEnd + 1));
-
-            $textContainer.html(html);
-
-            if(!isSelectedItem){
-                $item.show();
-            }
-        });
-
-        this.$sellecktEl.toggleClass('noitems', !this.$items.find('mark').length);
-
-        this.trigger('optionsFiltered', term);
     }
 });
 
@@ -1035,7 +1191,7 @@ MicroEvent.mixin(SingleSelleckt);
 module.exports = SingleSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./KEY_CODES":1,"./MicroEvent":2,"./TEMPLATES":5,"./templateUtils":8}],5:[function(require,module,exports){
+},{"./KEY_CODES":1,"./MicroEvent":2,"./SellecktPopup":4,"./TEMPLATES":6,"./templateUtils":9}],6:[function(require,module,exports){
 'use strict';
 
 var TEMPLATES = {
@@ -1043,19 +1199,6 @@ var TEMPLATES = {
         '<div class="{{className}}" tabindex=1>' +
             '<div class="{{selectedClass}}">' +
                 '<span class="{{selectedTextClass}}">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
-            '</div>' +
-            '<div class="{{itemsClass}}">' +
-                '{{#showSearch}}' +
-                '<div class="searchContainer">' +
-                    '<input class="{{searchInputClass}}"></input>' +
-                '</div>' +
-                '<span class="noitemsText">No items</span>' +
-                '{{/showSearch}}' +
-                '<ul class="{{itemslistClass}}">' +
-                    '{{#items}}' +
-                        '{{> item}}' +
-                    '{{/items}}' +
-                '</ul>' +
             '</div>' +
         '</div>',
     SINGLE_ITEM:
@@ -1071,13 +1214,6 @@ var TEMPLATES = {
             '<div class="{{selectedClass}}">' +
                 '<span class="{{selectedTextClass}}">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
             '</div>' +
-            '<div class="{{itemsClass}}">' +
-                '<ul class="{{itemslistClass}}">' +
-                '{{#items}}' +
-                    '{{> item}}' +
-                '{{/items}}' +
-                '</ul>' +
-            '</div>' +
         '</div>',
     MULTI_ITEM:
         '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
@@ -1086,16 +1222,31 @@ var TEMPLATES = {
     MULTI_SELECTION:
         '<li class="{{selectionItemClass}}" data-value="{{value}}">' +
             '{{text}}<i class="icon-remove {{unselectItemClass}}"></i>' +
-        '</li>'
+        '</li>',
+    ITEMS_CONTAINER:
+        '<div class="{{itemsClass}}">' +
+            '{{#showSearch}}' +
+            '<div class="searchContainer">' +
+                '<input class="{{searchInputClass}}"></input>' +
+            '</div>' +
+            '<span class="noitemsText">No items</span>' +
+            '{{/showSearch}}' +
+            '<ul class="{{itemslistClass}}">' +
+                '{{#items}}' +
+                    '{{> item}}' +
+                '{{/items}}' +
+            '</ul>' +
+        '</div>'
 };
 
 module.exports = TEMPLATES;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var SingleSelleckt = require('./SingleSelleckt');
 var MultiSelleckt = require('./MultiSelleckt');
+var SellecktPopup = require('./SellecktPopup');
 var templateUtils = require('./templateUtils');
 var jqueryPlugin = require('./sellecktJqueryPlugin');
 
@@ -1111,6 +1262,7 @@ var selleckt = {
     },
     SingleSelleckt: SingleSelleckt,
     MultiSelleckt: MultiSelleckt,
+    SellecktPopup: SellecktPopup,
     templateUtils: templateUtils
 };
 
@@ -1118,7 +1270,7 @@ jqueryPlugin.mixin(selleckt);
 
 module.exports = selleckt;
 
-},{"./MultiSelleckt":3,"./SingleSelleckt":4,"./sellecktJqueryPlugin":7,"./templateUtils":8}],7:[function(require,module,exports){
+},{"./MultiSelleckt":3,"./SellecktPopup":4,"./SingleSelleckt":5,"./sellecktJqueryPlugin":8,"./templateUtils":9}],8:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1152,7 +1304,7 @@ module.exports = {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1169,5 +1321,5 @@ module.exports = {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[6])(6)
+},{}]},{},[7])(7)
 });
