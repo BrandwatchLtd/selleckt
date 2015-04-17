@@ -522,7 +522,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 popup.open($opener, items);
 
                 expect(focusStub.calledOnce).toEqual(true);
-                expect(focusStub.thisValues[0].is(popup.$popup.find(popup.itemClass).eq(0)));
+                expect(focusStub.thisValues[0].is(popup.$popup.find('.' + popup.itemClass).eq(0))).toEqual(true);
             });
 
             it('renders the items into the popup', function(){
