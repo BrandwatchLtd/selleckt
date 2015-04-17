@@ -785,6 +785,20 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 selleckt._close();
             });
 
+            it('allows an item to be selected by value', function(){
+                var dummyItem = {value: 100};
+                var options = {foo: 'bar'};
+                var selectItemStub = sandbox.stub(SingleSelleckt.prototype, 'selectItem');
+
+                sandbox.stub(SingleSelleckt.prototype, 'findItem').returns(dummyItem);
+
+                selleckt.selectItemByValue(100, options);
+
+                expect(selectItemStub.calledOnce).toEqual(true);
+                expect(selectItemStub.args[0][0]).toEqual(dummyItem);
+                expect(selectItemStub.args[0][1]).toEqual(options);
+            });
+
             it('does not allow multiple items to be selected', function(){
                 popup.trigger('valueSelected', '2');
 
