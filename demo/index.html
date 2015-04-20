@@ -90,6 +90,8 @@
 $select3.selleckt({
     mainTemplate : fancyTemplate,  //view source for this
     selectionTemplate: selectionTemplate, //and view source for this too
+    itemTemplate: fancyItemTemplate, //and view source for one
+    popupTemplate: fancyPopupTemplate, //and finally, view source for this one
     selectedClass: 'selected',
     selectedTextClass: 'selectedText',
     itemsClass: 'items',
@@ -143,21 +145,26 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 <div class="selected">
                     <span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>
                 </div>
-                <div class="items">
-                    <ul class="{{itemslistClass}}">
-                        {{#items}}
-                        <li class="item" data-text="{{label}}" data-value="{{value}}">
-                            {{label}}
-                        </li>
-                        {{/items}}
-                    </ul>
-                    <span class="noitemsText">No items</span>
-                    <footer>
-                    <hr/>
-                    <a class="add">Add something</a> | <a target="_blank" href="http://google.com">Google</a>
-                    </footer>
-                </div>
             </div>
+        </script>
+        <script id="fancyPopupTemplate" type="text/html">
+            <div class="items" tabindex=1>
+                <ul class="{{itemslistClass}}">
+                    {{#items}}
+                        {{> item}}
+                    {{/items}}
+                </ul>
+                <span class="noitemsText">No items</span>
+                <footer>
+                <hr/>
+                <a class="add">Add something</a> | <a target="_blank" href="http://google.com">Google</a>
+                </footer>
+            </div>
+        </script>
+        <script id="fancyItemTemplate" type="text/html">
+            <li class="item" data-text="{{label}}" data-value="{{value}}">
+                {{label}}
+            </li>
         </script>
         <script id="fancySelectionTemplate" type="text/html">
             <li class="selectionItem" data-value="{{value}}">
@@ -179,7 +186,9 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     $select5 = $('#demo-5'),
                     $select6 = $('#demo-6'),
                     fancyTemplate = document.getElementById('fancyTemplate').innerHTML,
-                    fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML;
+                    fancySelectionTemplate = document.getElementById('fancySelectionTemplate').innerHTML,
+                    fancyItemTemplate = document.getElementById('fancyItemTemplate').innerHTML,
+                    fancyPopupTemplate = document.getElementById('fancyPopupTemplate').innerHTML;
 
                 $select1.selleckt();
 
@@ -192,16 +201,17 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 $select4.selleckt({
                     mainTemplate : fancyTemplate,
                     selectionTemplate: fancySelectionTemplate,
+                    itemTemplate: fancyItemTemplate,
+                    popupTemplate: fancyPopupTemplate,
                     showEmptyList: true
                 });
 
-                $select4.data('selleckt').$sellecktEl
-                    .on('click', '.add', function(e){
+                $select4.data('selleckt').bind('onPopupCreated', function(popup){
+                    popup.$popup.on('click', '.add', function(e){
                         e.preventDefault();
                         e.stopPropagation();
                         window.alert('Hey, you clicked the "add button"');
-                    })
-                    .on('click', '.edit', function(e){
+                    }) .on('click', '.edit', function(e){
                         e.preventDefault();
                         e.stopPropagation();
 
@@ -209,6 +219,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 
                         window.alert('Hey, you clicked the "edit button" for item: ' + JSON.stringify(item));
                     });
+                });
 
                 $select5.selleckt();
                 $('.demo-5 #addButton').click(function (){

@@ -28,19 +28,11 @@
         });
     }
 
-    if(!window.MutationObserver || !window.MutationObserver._period){
-        throw new Error('Legacy Selleckt compatability requires the MutationObserver shim');
-    }
-
-    selleckt.SingleSelleckt.prototype.DELAY_TIMEOUT = window.MutationObserver._period;
-
-    selleckt.SingleSelleckt.prototype._mutationHandler = function(mutations){
-        var createSellecktItem = _.bind(this._createSellecktItem, this),
-            $items = this.$sellecktEl.find('.' + this.itemslistClass),
-            itemsFromNodes = _.bind(this._getItemsFromNodes, this),
-            findItemInList = _.bind(this.findItemInList, this),
-            newItems = [],
-            removedItems = [];
+    function getItemsDiff(mutations){
+    /*jshint validthis:true*/
+        var newItems = [],
+            removedItems = [],
+            itemsFromNodes = _.bind(this._getItemsFromNodes, this);
 
         _.each(mutations, function(mutation) {
             newItems = newItems.concat(itemsFromNodes(mutation.addedNodes));
@@ -53,13 +45,89 @@
         var trulyRemoved = objectIntersect(removedItems, newItems);
         var trulyNew = objectIntersect(newItems, removedItems);
 
-        removedItems = trulyRemoved;
-        newItems = trulyNew;
+        return {
+            removedItems: trulyRemoved,
+            newItems: trulyNew
+        };
+    }
 
-        $items.append(_.map(newItems, createSellecktItem));
+    if(!window.MutationObserver || !window.MutationObserver._period){
+        throw new Error('Legacy Selleckt compatability requires the MutationObserver shim');
+    }
 
-        _.each(removedItems, function(item){
-            findItemInList(item).remove();
+    selleckt.SingleSelleckt.prototype.DELAY_TIMEOUT = window.MutationObserver._period;
+
+    selleckt.SingleSelleckt.prototype._mutationHandler = function(mutations){
+        var itemsDiff = getItemsDiff.call(this, mutations),
+            newItems = itemsDiff.newItems,
+            removedItems = itemsDiff.removedItems,
+            selectedItems = [];
+
+        this.items = this.items.concat(newItems);
+
+        if(removedItems.length){
+            this.items = _.reject(this.items, function(item){
+                return _.any(removedItems, function(removedItem){
+                    return removedItem.value === item.value;
+                });
+            });
+        }
+
+        _.forEach(this.items, function(item){
+            if(item.isSelected){
+                this.selectItem(item, {silent: true});
+                selectedItems.push(item);
+            }
+        }, this);
+
+        if(!selectedItems.length){
+            this.selectedItem = undefined;
+
+            if(this.$sellecktEl){
+                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+            }
+        }
+
+        this.trigger('itemsUpdated', {
+            items: this.items,
+            newItems: newItems,
+            removedItems: removedItems,
+            selectedItems: selectedItems
+        });
+    };
+
+    selleckt.MultiSelleckt.prototype._mutationHandler = function(mutations){
+        var itemsDiff = getItemsDiff.call(this, mutations),
+            newItems = itemsDiff.mutations,
+            removedItems = itemsDiff.removedItems,
+            selectedItems = [];
+
+        this.items = this.items.concat(newItems);
+
+        if(removedItems.length){
+            _.forEach(removedItems, function(item){
+                this.unselectItem(item, {silent: true});
+            }, this);
+
+            this.items = _.reject(this.items, function(item){
+                return _.any(removedItems, function(removedItem){
+                    return removedItem.value === item.value;
+                });
+            });
+        }
+
+        _.forEach(this.items, function(item){
+            if(item.isSelected){
+                this.selectItem(item, {silent: true});
+                selectedItems.push(item);
+            }
+        }, this);
+
+        this.trigger('itemsUpdated', {
+            items: this.items,
+            newItems: newItems,
+            removedItems: removedItems,
+            selectedItems: selectedItems
         });
     };
 

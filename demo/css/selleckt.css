@@ -1,3 +1,7 @@
+body.no-scroll {
+    overflow: hidden;
+}
+
 .selleckt * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -32,6 +36,11 @@
 
 .selleckt .item.highlighted{
     background-color: rgba(0, 0, 0, 0.2);
+    outline: 0;
+}
+
+.selleckt .item:focus{
+    outline: 0;
 }
 
 .selleckt > .selected:hover,
@@ -59,10 +68,6 @@
     padding: 0;
 }
 .selleckt .items {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 100%;
     margin-top: -1px;
     width: 100%;
     z-index: 10;

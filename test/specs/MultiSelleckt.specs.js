@@ -2,41 +2,23 @@
 
 function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
     return describe('MultiSelleckt', function(){
-        var multiSelleckt,
+        var sandbox = sinon.sandbox.create(),
+            multiSelleckt,
             $el,
             selectHtml  =
                 '<select multiple>' +
                     '<option value="1" selected>foo</option>' +
                     '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
                     '<option value="3" selected>baz</option>' +
-                '</select>',
-            mainTemplate =
-                '<div class="{{className}} custom" tabindex=1>' +
-                    '<ul class="mySelections">' +
-                    '{{#selections}}' +
-                    '{{/selections}}' +
-                    '</ul>' +
-                    '<div class="selected">' +
-                        '<span class="selectedText">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
-                    '</div>' +
-                    '<ul class="items">' +
-                        '{{#items}}' +
-                        '<li class="item" data-text="{{label}}" data-value="{{value}}">' +
-                            '{{label}}' +
-                        '</li>' +
-                        '{{/items}}' +
-                    '</ul>' +
-                '</div>',
-            selectionTemplate =
-                '<li class="mySelectionItem custom-item" data-value="{{value}}">' +
-                    '{{text}}<i class="icon-remove unselect"></i>' +
-                '</li>';
+                '</select>';
 
         beforeEach(function(){
             $el = $(selectHtml);
         });
 
         afterEach(function(){
+            sandbox.restore();
+
             $el = undefined;
 
             if(multiSelleckt){
@@ -47,6 +29,22 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
         describe('initialization', function(){
             describe('custom options', function(){
+                var mainTemplate =
+                    '<div class="{{className}}" tabindex=1>' +
+                    '<ul class="{{selectionsClass}}">' +
+                        '{{#selections}}' +
+                        '{{/selections}}' +
+                    '</ul>' +
+                    '<div class="{{selectedClass}}">' +
+                        '<span class="{{selectedTextClass}}">{{selectedItemText}}</span><i class="icon-arrow-down"></i>' +
+                    '</div>' +
+                    '</div>';
+
+                var selectionTemplate =
+                    '<li class="{{selectionItemClass}}" data-value="{{value}}">' +
+                        '{{text}}<i class="icon-remove {{unselectItemClass}}"></i>' +
+                    '</li>';
+
                 beforeEach(function(){
                     multiSelleckt = new MultiSelleckt({
                         mainTemplate: mainTemplate,
@@ -97,28 +95,20 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 });
 
                 it('caches the selection template', function(){
-                    var cacheStub = sinon.stub(templateUtils, 'cacheTemplate');
+                    var cacheStub = sandbox.stub(templateUtils, 'cacheTemplate');
+                    var template = '<li class="{{selectionItemClass}}" data-value="{{value}}">' +
+                                        '{{text}}<i class="icon-remove {{unselectItemClass}}"></i>' +
+                                    '</li>';
+
+                    multiSelleckt.destroy();
 
                     multiSelleckt = new MultiSelleckt({
-                        mainTemplate: mainTemplate,
-                        selectionTemplate: selectionTemplate,
-                        multiple: true,
                         $selectEl : $el,
-                        className: 'selleckt',
-                        selectedTextClass: 'selectedText',
-                        selectionsClass: 'mySelections',
-                        selectionItemClass: 'mySelectionItem',
-                        placeholderText: 'click me!',
-                        alternatePlaceholder: 'click me again!',
-                        itemsClass: 'items',
-                        itemClass: 'item',
-                        unselectItemClass: 'unselectItem',
-                        selectedClass: 'isSelected',
-                        highlightClass: 'isHighlighted',
-                        showEmptyList: true
+                        multiple: true,
+                        selectionTemplate: template
                     });
 
-                    expect(cacheStub.calledWith(selectionTemplate)).toEqual(true);
+                    expect(cacheStub.calledWith(template)).toEqual(true);
 
                     cacheStub.restore();
                 });
@@ -150,25 +140,6 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 it('defaults this.showEmptyList to false',function(){
                     expect(multiSelleckt.showEmptyList).toEqual(false);
                 });
-            });
-        });
-
-        describe('template formats', function(){
-            it('accepts template strings', function(){
-                multiSelleckt = new MultiSelleckt({
-                    multiple: true,
-                    $selectEl : $el,
-                    selectionsClass: 'mySelections',
-                    selectionItemClass: 'mySelectionItem',
-                    mainTemplate : mainTemplate,
-                    selectionTemplate : selectionTemplate
-                });
-
-                multiSelleckt.render();
-
-                expect(multiSelleckt.$sellecktEl.find('.mySelectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
         });
 
@@ -263,19 +234,29 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
         });
 
         describe('item selection', function(){
+            var popup;
+
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
                     $selectEl : $el
                 });
+
+                multiSelleckt.render();
+                multiSelleckt._open();
+
+                popup = multiSelleckt.popup;
+            });
+
+            afterEach(function(){
+                multiSelleckt._close();
             });
 
             it('allows multiple items to be selected', function(){
                 multiSelleckt.render();
                 multiSelleckt.selectedItems = [];
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+                popup.trigger('valueSelected', '2');
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '2',
@@ -286,8 +267,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     }
                 }]);
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseover').trigger('click');
+                popup.trigger('valueSelected', '1');
 
                 expect(multiSelleckt.getSelection()).toEqual([
                     {
@@ -305,49 +285,38 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 ]);
             });
 
-            it('hides the selected item from the list', function(){
-                multiSelleckt.selectedItems = [];
-                multiSelleckt.render();
+            it('hides the selected item from the list when this.hideSelectedItem === true', function(){
+                expect(multiSelleckt.getSelection().length).toEqual(2);
+                expect(multiSelleckt.getItemsForPopup().length).toEqual(3);
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(0).trigger('mouseout');
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+                multiSelleckt.hideSelectedItem = true;
 
-                expect(multiSelleckt.getSelection()).toEqual([{
-                    value: '2',
-                    label: 'bar',
-                    data: {
-                        meh: 'whee',
-                        bah: 'oink'
-                    }
-                }]);
-
-                multiSelleckt._open();
-
-                expect(multiSelleckt.$items.find('.item[data-value="2"]').css('display')).toEqual('none');
+                expect(multiSelleckt.getItemsForPopup().length).toEqual(1);
             });
 
-            it('adds a class of "disabled" to the select if all options are selected', function(){
-                multiSelleckt.render();
+            it('adds a class of "disabled" to the select if all options are selected when this.hideSelectedItem === true', function(){
+                multiSelleckt.hideSelectedItem = true;
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+                popup.trigger('valueSelected', '1');
+                popup.trigger('valueSelected', '2');
+                popup.trigger('valueSelected', '3');
 
                 expect(multiSelleckt.getSelection().length).toEqual(3);
+                expect(multiSelleckt.getItemsForPopup().length).toEqual(0);
 
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
             });
 
             it('does not add a class of "disabled" to the select if all options are selected but options.showEmptyList is true', function(){
-                multiSelleckt.destroy();
-                multiSelleckt = new MultiSelleckt({
-                    multiple: true,
-                    $selectEl : $el,
-                    showEmptyList: true
-                });
-                multiSelleckt.render();
+                multiSelleckt.hideSelectedItem = true;
+                multiSelleckt.showEmptyList = true;
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+                popup.trigger('valueSelected', '1');
+                popup.trigger('valueSelected', '2');
+                popup.trigger('valueSelected', '3');
 
                 expect(multiSelleckt.getSelection().length).toEqual(3);
+                expect(multiSelleckt.getItemsForPopup().length).toEqual(0);
 
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(false);
             });
@@ -356,12 +325,11 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 multiSelleckt.selectedItems = [];
                 multiSelleckt.render();
 
-                multiSelleckt.selectItem(multiSelleckt.items[1]);
+                popup.trigger('valueSelected', '2');
+                expect(multiSelleckt.$originalSelectEl.val()).toEqual(['2']);
 
-                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
-
-                multiSelleckt.selectItem(multiSelleckt.items[2]);
-                expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
+                popup.trigger('valueSelected', '3');
+                expect(multiSelleckt.$originalSelectEl.val()).toEqual(['2','3']);
             });
 
             describe('item deselection', function(){
@@ -379,7 +347,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 it('removes the class of "disabled" from the select if all options were selected but one becomes available', function(){
                     multiSelleckt.render();
 
-                    multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
+                    popup.trigger('valueSelected', '2');
 
                     expect(multiSelleckt.getSelection().length).toEqual(3);
                     expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
@@ -393,11 +361,11 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     multiSelleckt.selectedItems = [];
                     multiSelleckt.render();
 
-                    multiSelleckt.selectItem(multiSelleckt.items[1]);
+                    popup.trigger('valueSelected', '2');
 
                     expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value]);
 
-                    multiSelleckt.selectItem(multiSelleckt.items[2]);
+                    popup.trigger('valueSelected', '3');
                     expect(multiSelleckt.$originalSelectEl.val()).toEqual([multiSelleckt.items[1].value, multiSelleckt.items[2].value]);
 
                     multiSelleckt.unselectItem(multiSelleckt.items[2]);
@@ -446,6 +414,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
                 $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.unselectItemClass).eq(0);
             });
+
             it('removes the item from the selections when the unselectItem link is clicked', function(){
                 var $selections = multiSelleckt.$selections;
 
@@ -460,7 +429,8 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     data: {}
                 });
             });
-            it('removes the item from the selectedItems array when the remove link is clicked', function(){
+
+            it('removes the item from the selectedItems array when the unselect link is clicked', function(){
                var $selections = multiSelleckt.$selections;
 
                 expect(multiSelleckt.getSelection()).toEqual([{
@@ -483,18 +453,9 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     data: {}
                 }]);
             });
-            it('shows the item in the items when the remove link is clicked', function(){
-                var $selections = multiSelleckt.$selections;
 
-                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).toEqual('none');
-
-                $clickTarget.trigger('click');
-
-                expect($selections.children().length).toEqual(1);
-                expect(multiSelleckt.$sellecktEl.find('.item[data-value="1"]').css('display')).not.toEqual('none');
-            });
             it('triggers a change event on original select when item is removed', function(){
-                var changeHandler = sinon.spy();
+                var changeHandler = sandbox.spy();
 
                 multiSelleckt.$originalSelectEl.on('change', changeHandler);
                 $clickTarget.trigger('click');
@@ -505,8 +466,9 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
                 multiSelleckt.$originalSelectEl.off('change', changeHandler);
             });
+
             it('triggers an "itemUnselected" event with the removed item', function(){
-                var spy = sinon.spy();
+                var spy = sandbox.spy();
 
                 multiSelleckt.bind('itemUnselected', spy);
                 $clickTarget.trigger('click');
@@ -526,23 +488,28 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     multiple: true,
                     $selectEl : $el
                 });
+
+                multiSelleckt.render();
+                multiSelleckt._open();
+            });
+
+            afterEach(function(){
+                multiSelleckt._close();
             });
 
             it('does not open when it has a class of "disabled"', function(){
-                multiSelleckt.render();
+                multiSelleckt.popup.trigger('valueSelected', '1');
+                multiSelleckt.popup.trigger('valueSelected', '2');
+                multiSelleckt.popup.trigger('valueSelected', '3');
 
-                multiSelleckt.$sellecktEl.find('li.item').eq(1).trigger('mouseover').trigger('click');
-
-                expect(multiSelleckt.getSelection().length).toEqual(3);
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
 
                 multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
 
                 expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
             });
-            it('updates multiSelleckt when change is triggered on original select', function(){
-                multiSelleckt.render();
 
+            it('updates multiSelleckt when change is triggered on original select', function(){
                 multiSelleckt.$originalSelectEl.val(['1', '2']).change();
 
                 expect(multiSelleckt.getSelection().length).toEqual(2);
