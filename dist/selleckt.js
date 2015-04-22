@@ -875,12 +875,21 @@ _.extend(SingleSelleckt.prototype, {
 
     _refreshPopupWithSearchHits: function(term){
         var matchingItems = this._filterItems(this.items, term);
+        var hideSelectedItem = this.hideSelectedItem;
+        var selectedItem = this.selectedItem;
+        var itemsToShow;
 
-        this.popup.refreshItems(matchingItems);
-
-        if(matchingItems.length < this.items.length){
-            this.trigger('optionsFiltered', term);
+        if(selectedItem && hideSelectedItem){
+            itemsToShow = _.filter(matchingItems, function(item) {
+                return item.value !== selectedItem.value;
+            });
+        } else {
+            itemsToShow = matchingItems;
         }
+
+        this.popup.refreshItems(itemsToShow);
+
+        this.trigger('optionsFiltered', term);
     },
 
     _parseItemsFromOptions: function($selectEl){
