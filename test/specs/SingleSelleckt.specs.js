@@ -1135,6 +1135,30 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 ]);
             });
 
+            it('does not refresh the popup with this.selectedItem, if this.hideSelectedItem === true', function() {
+                selleckt = new SingleSelleckt({
+                    $selectEl : $('<select>' +
+                        '<option value="foo">foo</option>' +
+                        '<option value="bar">bar</option>' +
+                        '<option value="baz">baz</option>' +
+                        '</select>'),
+                    enableSearch: true,
+                    searchThreshold: 0,
+                    hideSelectedItem: true
+                });
+
+                selleckt.selectItemByValue('bar');
+
+                selleckt.render();
+                selleckt._open();
+
+                selleckt._refreshPopupWithSearchHits('ba');
+
+                expect(selleckt.popup.$popup.find('.item').length).toEqual(1);
+                expect(selleckt.popup.$popup.find('.item[data-value=bar]').length).toEqual(0);
+                expect(selleckt.popup.$popup.find('.item[data-value=baz]').length).toEqual(1);
+            });
+
             it('triggers an "optionsFiltered" event after filtering, passing the filter term', function(){
                 var spy = sandbox.spy();
 
