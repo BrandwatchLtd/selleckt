@@ -17,9 +17,15 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             '</ul>' +
         '</div>';
 
-    var itemTemplate =
+    var defaultItemTemplate =
         '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
             '<span class="{{itemTextClass}}">{{label}}</span>' +
+        '</li>';
+
+    var customItemTemplate =
+        '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
+            '<span class="{{itemTextClass}}">{{label}}</span>' +
+            '<span class="custom-attribute">{{customAttr}}</span>' +
         '</li>';
 
     var KEY_CODES = {
@@ -48,7 +54,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             beforeEach(function(){
                 popupOptions = {
                     template: template,
-                    itemTemplate: itemTemplate,
+                    itemTemplate: customItemTemplate,
                     itemsClass: 'myItemsClass',
                     itemslistClass: 'myItemsListClass',
                     itemClass: 'myItemClass',
@@ -67,7 +73,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('stores the itemTemplate as this.itemTemplate', function(){
-                expect(popup.itemTemplate).toEqual(itemTemplate);
+                expect(popup.itemTemplate).toEqual(customItemTemplate);
             });
 
             it('stores the itemsClass passed in as this.itemsClass', function(){
@@ -113,7 +119,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('stores the itemTemplate as this.itemTemplate', function(){
-                expect(popup.itemTemplate).toEqual(itemTemplate);
+                expect(popup.itemTemplate).toEqual(defaultItemTemplate);
             });
 
             it('uses "items" as this.itemsClass', function(){
@@ -166,7 +172,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('caches the item template', function(){
-                expect(cacheStub.calledWith(itemTemplate)).toEqual(true);
+                expect(cacheStub.calledWith(defaultItemTemplate)).toEqual(true);
             });
         });
 
@@ -176,14 +182,16 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             beforeEach(function(){
                 items = [
-                    {label: 'item 1', value: 1},
-                    {label: 'item 2', value: 2},
-                    {label: 'item 3', value: 3},
-                    {label: 'item 4', value: 4},
-                    {label: 'item 5', value: 5}
+                    {label: 'item 1', value: 1, customAttr: 'attr 1'},
+                    {label: 'item 2', value: 2, customAttr: 'attr 2'},
+                    {label: 'item 3', value: 3, customAttr: 'attr 3'},
+                    {label: 'item 4', value: 4, customAttr: 'attr 4'},
+                    {label: 'item 5', value: 5, customAttr: 'attr 5'}
                 ];
 
-                popup = new SellecktPopup();
+                popup = new SellecktPopup({
+                    itemTemplate: customItemTemplate
+                });
                 popup.$popup = $('<div>');
 
                 mustacheRenderSpy = sandbox.spy(Mustache, 'render');
@@ -206,18 +214,22 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 expect($items.eq(0).attr('data-text')).toEqual('item 1');
                 expect($items.eq(0).attr('data-value')).toEqual('1');
                 expect($items.eq(0).find(itemTextSelector).text()).toEqual('item 1');
+                expect($items.eq(0).find('.custom-attribute').text()).toEqual('attr 1');
 
                 expect($items.eq(1).attr('data-text')).toEqual('item 2');
                 expect($items.eq(1).attr('data-value')).toEqual('2');
                 expect($items.eq(1).find(itemTextSelector).text()).toEqual('item 2');
+                expect($items.eq(1).find('.custom-attribute').text()).toEqual('attr 2');
 
                 expect($items.eq(2).attr('data-text')).toEqual('item 3');
                 expect($items.eq(2).attr('data-value')).toEqual('3');
                 expect($items.eq(2).find(itemTextSelector).text()).toEqual('item 3');
+                expect($items.eq(2).find('.custom-attribute').text()).toEqual('attr 3');
 
                 expect($items.eq(3).attr('data-text')).toEqual('item 4');
                 expect($items.eq(3).attr('data-value')).toEqual('4');
                 expect($items.eq(3).find(itemTextSelector).text()).toEqual('item 4');
+                expect($items.eq(3).find('.custom-attribute').text()).toEqual('attr 4');
 
                 expect($items.eq(4).attr('data-text')).toEqual('item 5');
                 expect($items.eq(4).attr('data-value')).toEqual('5');
@@ -260,19 +272,19 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             beforeEach(function(){
                 newItems = [
-                    {label: 'new item 1', value: 10},
-                    {label: 'new item 2', value: 20},
+                    {label: 'new item 1', value: 10, customAttr: 'attr 6'},
+                    {label: 'new item 2', value: 20, customAttr: 'attr 7'},
                 ];
 
                 popup = new SellecktPopup();
                 popup.$popup = $('<div>');
 
                 popup.renderItems([
-                    {label: 'item 1', value: 1},
-                    {label: 'item 2', value: 2},
-                    {label: 'item 3', value: 3},
-                    {label: 'item 4', value: 4},
-                    {label: 'item 5', value: 5}
+                    {label: 'item 1', value: 1, customAttr: 'attr 1'},
+                    {label: 'item 2', value: 2, customAttr: 'attr 2'},
+                    {label: 'item 3', value: 3, customAttr: 'attr 3'},
+                    {label: 'item 4', value: 4, customAttr: 'attr 4'},
+                    {label: 'item 5', value: 5, customAttr: 'attr 5'}
                 ]);
 
                 mustacheRenderSpy = sandbox.spy(Mustache, 'render');
@@ -324,6 +336,12 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                 expect(mustacheRenderSpy.args[0][1].value).toEqual(newItems[0].value);
                 expect(mustacheRenderSpy.args[1][1].value).toEqual(newItems[1].value);
+            });
+            it('passes item.customAttr to the item template', function(){
+                popup.refreshItems(newItems);
+
+                expect(mustacheRenderSpy.args[0][1].customAttr).toEqual(newItems[0].customAttr);
+                expect(mustacheRenderSpy.args[1][1].customAttr).toEqual(newItems[1].customAttr);
             });
 
             it('adds a "noitems" class to the popup if there are no items', function(){
