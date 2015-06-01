@@ -21,6 +21,9 @@ INCLUDED_FILES=`find dist -maxdepth 1 -type f`
 # The branch the builds are pushed ot
 RELEASE_BRANCH="master"
 
+LATEST_TAG=`git describe --tags`
+LATEST_COMMIT_TAG=`git describe --tags --abbrev=0`
+
 echo -e "DIST_REPO_SLUG: ${DIST_REPO_SLUG}\n"
 echo -e "INCLUDED_FILES: ${INCLUDED_FILES}\n"
 echo -e "CURRENT_BRANCH: ${TRAVIS_BRANCH}\n"
@@ -48,6 +51,12 @@ git remote add origin https://${USER}:${GH_TOKEN}@github.com/${DIST_REPO_SLUG}.g
 git add -A
 git commit -m "Selleckt Bower Auto build for https://github.com/BrandwatchLtd/selleckt/commits/${TRAVIS_COMMIT}."
 
+if [ $LATEST_TAG == $LATEST_COMMIT_TAG ]; then
+    # latest release has a new tag: create a new tag on the distribution repo as well
+    echo -e "CREATING TAG: ${LATEST_TAG}\n"
+    git tag $LATEST_TAG
+fi
+
 # sending output to /dev/null to prevent GH_TOKEN leak on error
-git push -fq origin ${RELEASE_BRANCH} &> /dev/null
+git push --tags -f origin ${RELEASE_BRANCH} &> /dev/null
 echo -e "Done\n"
