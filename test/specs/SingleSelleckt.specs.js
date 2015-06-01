@@ -845,6 +845,16 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 expect(selectItemStub.args[0][1]).toEqual(options);
             });
 
+            it('does nothing if the selectItemByValue is called with a value that does not exist', function () {
+                var selectItemStub = sandbox.stub(SingleSelleckt.prototype, 'selectItem');
+
+                sandbox.stub(SingleSelleckt.prototype, 'findItem').returns(undefined);
+
+                selleckt.selectItemByValue(100);
+
+                expect(selectItemStub.called).toEqual(false);
+            });
+
             it('does not allow multiple items to be selected', function(){
                 popup.trigger('valueSelected', '2');
 

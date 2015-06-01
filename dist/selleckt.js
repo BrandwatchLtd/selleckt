@@ -1083,6 +1083,10 @@ _.extend(SingleSelleckt.prototype, {
     selectItemByValue: function(value, options) {
         var item = this.findItem(value);
 
+        if(!item){
+            return;
+        }
+
         this.selectItem(item, options);
     },
 
