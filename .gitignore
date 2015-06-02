@@ -4,3 +4,4 @@ sauce_connect.log
 selleckt.min.js
 libpeerconnection.log
 test/browserified_tests.js
+dist/

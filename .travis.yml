@@ -14,3 +14,6 @@ before_script:
 
 script:
   - $(npm bin)/grunt test
+
+after_success:
+  - "./bin/publish_build"
