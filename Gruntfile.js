@@ -70,9 +70,9 @@ module.exports = function(grunt) {
     if(!isTravis){
         grunt.registerTask('test', [ 'karma:local-unit']);
     } else if(isPr){
-        grunt.registerTask('test', [ 'karma:travis-integration-browser']);
+        grunt.registerTask('test', [ 'build', 'karma:travis-integration-browser']);
     } else {
-        grunt.registerTask('test', [ 'karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
+        grunt.registerTask('test', [ 'build', 'karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
     }
 
 };
