@@ -33,6 +33,11 @@ if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
   exit 0
 fi
 
+if [[ $TRAVIS_BRANCH != "master" ]]; then
+  echo "not publishing because this is not a build of the master branch."
+  exit 0
+fi
+
 if [[ -z $GH_TOKEN ]]; then
   echo "secure environment variables not detected."
   echo "not a repo owner, exiting."
