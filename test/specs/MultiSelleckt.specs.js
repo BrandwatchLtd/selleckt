@@ -332,6 +332,16 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 expect(multiSelleckt.$originalSelectEl.val()).toEqual(['2','3']);
             });
 
+            it('does not trigger an "itemSelected" event when option.silent is passed', function(){
+                var spy = sandbox.spy();
+
+                multiSelleckt.bind('trigger', spy);
+
+                multiSelleckt.selectItem(1, {silent: true});
+
+                expect(spy.calledWith('itemSelected')).toEqual(false);
+            });
+
             describe('item deselection', function(){
                 it('removes an item when the "unselect" link is clicked', function(){
                     multiSelleckt.render();

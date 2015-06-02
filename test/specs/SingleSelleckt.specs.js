@@ -893,6 +893,16 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 expect(spy.args[0][0]).toEqual(selleckt.selectedItem);
             });
 
+            it('does not trigger an "itemSelected" event when option.silent is passed', function(){
+                var spy = sandbox.spy();
+
+                selleckt.bind('trigger', spy);
+
+                selleckt.selectItem(1, {silent: true});
+
+                expect(spy.calledWith('itemSelected')).toEqual(false);
+            });
+
             it('does not trigger an event when the selected item is clicked, were it to be unhidden', function(){
                 var spy = sinon.spy();
 
