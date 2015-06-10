@@ -418,12 +418,12 @@ _.extend(SellecktPopup.prototype, {
 
     refreshItems: function(items){
         var $rendered = _.map(items, function(item){
-            var itemEl = Mustache.render(this.itemTemplate, {
+            var itemEl = Mustache.render(this.itemTemplate, _.extend({
                 itemTextClass: this.itemTextClass,
                 itemClass: this.itemClass,
                 label: item.label,
                 value: item.value
-            });
+            }, item));
 
             if(item.matchEnd > 0){
                 return this._addMarkToItem(itemEl, item);

@@ -107,9 +107,6 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
 </pre>
                 <p>View source for the rest of the setup!</p>
                 <select id="demo-4" multiple="true">
-                    <option value="1">Foo</option>
-                    <option value="2">Bar</option>
-                    <option value="3">Baz</option>
                 </select>
             </div>
             <div class="demo demo-5">
@@ -122,7 +119,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                 </select>
                 <div class="demo-5-options">
                     <button id="addButton">Click me!</button>
-                    <input type="checkbox" id="select-immediately"></input><label for="select-immediately">Select the new item immediately</label>
+                    <input type="checkbox" id="select-immediately"><label for="select-immediately">Select the new item immediately</label>
                 </div>
             </div>
             <div class="demo demo-6">
@@ -149,6 +146,11 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
         </script>
         <script id="fancyPopupTemplate" type="text/html">
             <div class="items" tabindex=1>
+                {{#showSearch}}
+                <div class="searchContainer smallpadding relative db">
+                    <input class="{{searchInputClass}} rounded">
+                </div>
+                {{/showSearch}}
                 <ul class="{{itemslistClass}}">
                     {{#items}}
                         {{> item}}
@@ -163,7 +165,8 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
         </script>
         <script id="fancyItemTemplate" type="text/html">
             <li class="item" data-text="{{label}}" data-value="{{value}}">
-                {{label}}
+                <span class="{{itemTextClass}}">{{label}}</span>
+                <span class="muted">({{customAttr}})</span>
             </li>
         </script>
         <script id="fancySelectionTemplate" type="text/html">
@@ -203,8 +206,16 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     selectionTemplate: fancySelectionTemplate,
                     itemTemplate: fancyItemTemplate,
                     popupTemplate: fancyPopupTemplate,
-                    showEmptyList: true
+                    showEmptyList: true,
+                    enableSearch: true,
+                    searchThreshold: -1
                 });
+
+                $select4.data('selleckt').addItems([
+                    {label: 'Foo', value:'1', customAttr: 'X'},
+                    {label: 'Bar', value:'2', customAttr: 'Y'},
+                    {label: 'Baz', value:'3', customAttr: 'Z'}
+                ]);
 
                 $select4.data('selleckt').bind('onPopupCreated', function(popup){
                     popup.$popup.on('click', '.add', function(e){
