@@ -1,5 +1,5 @@
 'use strict';
 
-require('./specs/singleSelleckt.specs.js');
-require('./specs/multiSelleckt.specs.js');
-require('./specs/sellecktPopup.specs.js');
+require('./specs/SingleSelleckt.specs.js');
+require('./specs/MultiSelleckt.specs.js');
+require('./specs/SellecktPopup.specs.js');

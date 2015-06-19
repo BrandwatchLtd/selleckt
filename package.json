@@ -44,7 +44,8 @@
   },
   "optionalDependencies": {},
   "browser": {
-    "jquery": "./test/lib/jquery-1.11.2.js"
+    "jquery": "./test/lib/jquery-1.11.2.js",
+    "Mustache": "./test/lib/mustache.js"
   },
   "browserify-shim": {
     "jquery": "global:$",

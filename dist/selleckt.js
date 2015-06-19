@@ -142,6 +142,14 @@ MultiSelleckt.prototype._mutationHandler = function (mutations){
     });
 };
 
+MultiSelleckt.prototype._filterSelection = function (items, selection) {
+    var selectionValues = _.pluck(selection, 'value');
+
+    return _.filter(items, function(item) {
+        return selectionValues.indexOf(item.value) === -1;
+    });
+};
+
 MultiSelleckt.prototype.selectItem = function(item, options){
     options = options || {};
 
@@ -420,9 +428,7 @@ _.extend(SellecktPopup.prototype, {
         var $rendered = _.map(items, function(item){
             var itemEl = Mustache.render(this.itemTemplate, _.extend({
                 itemTextClass: this.itemTextClass,
-                itemClass: this.itemClass,
-                label: item.label,
-                value: item.value
+                itemClass: this.itemClass
             }, item));
 
             if(item.matchEnd > 0){
@@ -872,16 +878,20 @@ _.extend(SingleSelleckt.prototype, {
         }, []);
     },
 
+    _filterSelection: function(items, selection) {
+        return _.filter(items, function(item) {
+            return item.value !== selection.value;
+        });
+    },
+
     _refreshPopupWithSearchHits: function(term){
         var matchingItems = this._filterItems(this.items, term);
         var hideSelectedItem = this.hideSelectedItem;
-        var selectedItem = this.selectedItem;
+        var selectedItem = this.getSelection();
         var itemsToShow;
 
         if(selectedItem && hideSelectedItem){
-            itemsToShow = _.filter(matchingItems, function(item) {
-                return item.value !== selectedItem.value;
-            });
+            itemsToShow = this._filterSelection(matchingItems, selectedItem);
         } else {
             itemsToShow = matchingItems;
         }
