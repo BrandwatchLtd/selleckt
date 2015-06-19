@@ -492,6 +492,31 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             });
         });
 
+        describe('filtering', function(){
+            it('does not refresh the popup with this.selectedItems, if this.hideSelectedItem === true', function() {
+                multiSelleckt = new MultiSelleckt({
+                    multiple: true,
+                    $selectEl : $('<select multiple>' +
+                        '<option value="foo">foo</option>' +
+                        '<option value="bar">bar</option>' +
+                        '<option value="baz">baz</option>' +
+                        '</select>'),
+                    enableSearch: true,
+                    searchThreshold: 0,
+                    hideSelectedItem: true
+                });
+
+                multiSelleckt.render();
+                multiSelleckt.selectItemByValue('bar');
+                multiSelleckt._open();
+                multiSelleckt._refreshPopupWithSearchHits('ba');
+
+                expect(multiSelleckt.popup.$popup.find('.item').length).toEqual(1);
+                expect(multiSelleckt.popup.$popup.find('.item[data-value=bar]').length).toEqual(0);
+                expect(multiSelleckt.popup.$popup.find('.item[data-value=baz]').length).toEqual(1);
+            });
+        });
+
         describe('events', function(){
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
