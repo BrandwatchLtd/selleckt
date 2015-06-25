@@ -62,7 +62,8 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                         unselectItemClass: 'unselectItem',
                         selectedClass: 'isSelected',
                         highlightClass: 'isHighlighted',
-                        showEmptyList: true
+                        showEmptyList: true,
+                        hideSelectedItem: true
                     });
                 });
 
@@ -92,6 +93,9 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 });
                 it('stores options.showEmptyList as this.showEmptyList',function(){
                     expect(multiSelleckt.showEmptyList).toEqual(true);
+                });
+                it('stores options.hideSelectedItem as this.hideSelectedItem',function(){
+                    expect(multiSelleckt.hideSelectedItem).toEqual(true);
                 });
 
                 it('caches the selection template', function(){
@@ -285,13 +289,15 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 ]);
             });
 
-            it('hides the selected item from the list when this.hideSelectedItem === true', function(){
+            it('hides the selected item from the list by default', function(){
                 expect(multiSelleckt.getSelection().length).toEqual(2);
-                expect(multiSelleckt.getItemsForPopup().length).toEqual(3);
-
-                multiSelleckt.hideSelectedItem = true;
-
                 expect(multiSelleckt.getItemsForPopup().length).toEqual(1);
+            });
+
+            it('does not hide the selected item from the list when this.hideSelectedItem === false', function(){
+                multiSelleckt.hideSelectedItem = false;
+
+                expect(multiSelleckt.getItemsForPopup().length).toEqual(3);
             });
 
             it('adds a class of "disabled" to the select if all options are selected when this.hideSelectedItem === true', function(){
