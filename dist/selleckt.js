@@ -83,7 +83,8 @@ function MultiSelleckt(options){
         selectionsClass: 'selections',
         selectionItemClass: 'selectionItem',
         unselectItemClass: 'unselect',
-        showEmptyList: false
+        showEmptyList: false,
+        hideSelectedItem: true
     });
 
     this.mainTemplate = settings.mainTemplate;
@@ -95,6 +96,7 @@ function MultiSelleckt(options){
     this.selectionItemClass = settings.selectionItemClass;
     this.unselectItemClass = settings.unselectItemClass;
     this.showEmptyList = settings.showEmptyList;
+    this.hideSelectedItem = settings.hideSelectedItem;
 
     templateUtils.cacheTemplate(this.selectionTemplate);
 
