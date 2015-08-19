@@ -12,16 +12,21 @@ module.exports = function(grunt) {
         clean: {
             dist: ['./dist/**/*']
         },
-        copy: {
-            shim: {
-                src: 'lib/shim/selleckt-legacy-shim.js',
-                dest: 'dist/selleckt-legacy-shim.js'
-            }
-        },
         browserify: {
             standalone: {
                 src: [ 'lib/selleckt.js' ],
                 dest: 'dist/selleckt.js',
+                options: {
+                    browserifyOptions: {
+                        standalone: 'selleckt'
+                    },
+                    external: ['underscore', 'Mustache', 'jquery'],
+                    transform: ['browserify-shim']
+                }
+            },
+            legacy: {
+                src: [ 'lib/shim/selleckt-legacy-shim.js' ],
+                dest: 'dist/selleckt-legacy.js',
                 options: {
                     browserifyOptions: {
                         standalone: 'selleckt'
@@ -61,7 +66,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify', 'copy:shim']);
+    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
     grunt.registerTask('start', [ 'build', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
