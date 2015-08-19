@@ -14,3 +14,5 @@ before_script:
 
 script:
   - $(npm bin)/grunt test
+
+sudo:false
