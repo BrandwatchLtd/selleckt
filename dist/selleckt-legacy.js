@@ -83,8 +83,7 @@ function MultiSelleckt(options){
         selectionsClass: 'selections',
         selectionItemClass: 'selectionItem',
         unselectItemClass: 'unselect',
-        showEmptyList: false,
-        hideSelectedItem: true
+        showEmptyList: false
     });
 
     this.mainTemplate = settings.mainTemplate;
@@ -96,7 +95,6 @@ function MultiSelleckt(options){
     this.selectionItemClass = settings.selectionItemClass;
     this.unselectItemClass = settings.unselectItemClass;
     this.showEmptyList = settings.showEmptyList;
-    this.hideSelectedItem = settings.hideSelectedItem;
 
     templateUtils.cacheTemplate(this.selectionTemplate);
 
@@ -308,7 +306,7 @@ MultiSelleckt.prototype.toggleDisabled = function(){
 module.exports = MultiSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./SingleSelleckt.js":5,"./TEMPLATES":6,"./templateUtils":9}],4:[function(require,module,exports){
+},{"./SingleSelleckt.js":5,"./TEMPLATES":6,"./templateUtils":10}],4:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -666,7 +664,7 @@ MicroEvent.mixin(SellecktPopup);
 module.exports = SellecktPopup;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./KEY_CODES":1,"./MicroEvent":2,"./TEMPLATES":6,"./templateUtils":9}],5:[function(require,module,exports){
+},{"./KEY_CODES":1,"./MicroEvent":2,"./TEMPLATES":6,"./templateUtils":10}],5:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1214,7 +1212,7 @@ MicroEvent.mixin(SingleSelleckt);
 module.exports = SingleSelleckt;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./KEY_CODES":1,"./MicroEvent":2,"./SellecktPopup":4,"./TEMPLATES":6,"./templateUtils":9}],6:[function(require,module,exports){
+},{"./KEY_CODES":1,"./MicroEvent":2,"./SellecktPopup":4,"./TEMPLATES":6,"./templateUtils":10}],6:[function(require,module,exports){
 'use strict';
 
 var TEMPLATES = {
@@ -1293,7 +1291,7 @@ jqueryPlugin.mixin(selleckt);
 
 module.exports = selleckt;
 
-},{"./MultiSelleckt":3,"./SellecktPopup":4,"./SingleSelleckt":5,"./sellecktJqueryPlugin":8,"./templateUtils":9}],8:[function(require,module,exports){
+},{"./MultiSelleckt":3,"./SellecktPopup":4,"./SingleSelleckt":5,"./sellecktJqueryPlugin":8,"./templateUtils":10}],8:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -1330,6 +1328,135 @@ module.exports = {
 },{}],9:[function(require,module,exports){
 (function (global){
 'use strict';
+/*
+ * This module monkey patches Selleckt for browsers that do not
+ * support the MutationObserver.
+ * A shim should also be included: https://github.com/megawac/MutationObserver.js
+*/
+
+var selleckt = require('../selleckt');
+var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
+
+function objectIntersect(arr1, arr2){
+    return _.filter(arr1, function(item){
+        return !(_.any(arr2, function(otherItem){
+            return _.isEqual(item, otherItem);
+        }));
+    });
+}
+
+function getItemsDiff(mutations){
+/*jshint validthis:true*/
+    var newItems = [],
+        removedItems = [],
+        itemsFromNodes = _.bind(this._getItemsFromNodes, this);
+
+    _.each(mutations, function(mutation) {
+        newItems = newItems.concat(itemsFromNodes(mutation.addedNodes));
+        removedItems = removedItems.concat(itemsFromNodes(mutation.removedNodes));
+    });
+
+    //the Mutation Observer shim sometimes gets confused when removing nodes
+    //let's double check that the nodes are indeed removed (otherwise they
+    //appear in the newItems array too)
+    var trulyRemoved = objectIntersect(removedItems, newItems);
+    var trulyNew = objectIntersect(newItems, removedItems);
+
+    return {
+        removedItems: trulyRemoved,
+        newItems: trulyNew
+    };
+}
+
+(function(){
+    if(!window.MutationObserver || !window.MutationObserver._period){
+        //don't apply the shim
+        return;
+    }
+
+    selleckt.SingleSelleckt.prototype.DELAY_TIMEOUT = window.MutationObserver._period;
+
+    selleckt.SingleSelleckt.prototype._mutationHandler = function(mutations){
+        var itemsDiff = getItemsDiff.call(this, mutations),
+            newItems = itemsDiff.newItems,
+            removedItems = itemsDiff.removedItems,
+            selectedItems = [];
+
+        this.items = this.items.concat(newItems);
+
+        if(removedItems.length){
+            this.items = _.reject(this.items, function(item){
+                return _.any(removedItems, function(removedItem){
+                    return removedItem.value === item.value;
+                });
+            });
+        }
+
+        _.forEach(this.items, function(item){
+            if(item.isSelected){
+                this.selectItem(item, {silent: true});
+                selectedItems.push(item);
+            }
+        }, this);
+
+        if(!selectedItems.length){
+            this.selectedItem = undefined;
+
+            if(this.$sellecktEl){
+                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+            }
+        }
+
+        this.trigger('itemsUpdated', {
+            items: this.items,
+            newItems: newItems,
+            removedItems: removedItems,
+            selectedItems: selectedItems
+        });
+    };
+
+    selleckt.MultiSelleckt.prototype._mutationHandler = function(mutations){
+        var itemsDiff = getItemsDiff.call(this, mutations),
+            newItems = itemsDiff.mutations,
+            removedItems = itemsDiff.removedItems,
+            selectedItems = [];
+
+        this.items = this.items.concat(newItems);
+
+        if(removedItems.length){
+            _.forEach(removedItems, function(item){
+                this.unselectItem(item, {silent: true});
+            }, this);
+
+            this.items = _.reject(this.items, function(item){
+                return _.any(removedItems, function(removedItem){
+                    return removedItem.value === item.value;
+                });
+            });
+        }
+
+        _.forEach(this.items, function(item){
+            if(item.isSelected){
+                this.selectItem(item, {silent: true});
+                selectedItems.push(item);
+            }
+        }, this);
+
+        this.trigger('itemsUpdated', {
+            items: this.items,
+            newItems: newItems,
+            removedItems: removedItems,
+            selectedItems: selectedItems
+        });
+    };
+})();
+
+module.exports = selleckt;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"../selleckt":7}],10:[function(require,module,exports){
+(function (global){
+'use strict';
 
 var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
 
@@ -1344,5 +1471,5 @@ module.exports = {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[7])(7)
+},{}]},{},[9])(9)
 });
