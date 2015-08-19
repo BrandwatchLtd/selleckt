@@ -36,8 +36,7 @@ module.exports = function(config) {
             'shims/es5-shim.min.js',
             'shims/mutationobserver-shim.js',
             'test/lib/*.js',
-            'dist/selleckt.js',
-            'dist/selleckt-legacy-shim.js',
+            'dist/selleckt-legacy.js',
             'test/specs/*.js'
         ],
 
