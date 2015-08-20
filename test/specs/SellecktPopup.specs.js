@@ -486,6 +486,8 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('creates a handler for window.resize and adds it as this.resizeHandler', function(){
+                sandbox.stub(_, 'throttle', function(func){ return func; });
+
                 popup = new SellecktPopup();
                 popup.open($opener, items);
 
