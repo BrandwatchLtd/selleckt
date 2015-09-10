@@ -561,6 +561,36 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
+        describe('clicking on the popup', function(){
+            var $opener;
+            var $body;
+            var clickHandlerSpy;
+
+            beforeEach(function() {
+                clickHandlerSpy = sandbox.spy();
+
+                $body = $('body');
+                $opener = $('<div>foo</div>', {
+                    'class': 'opener'
+                }).appendTo($body);
+
+                $body.on('click', clickHandlerSpy);
+            });
+
+            afterEach(function() {
+                $body.off('click', clickHandlerSpy);
+            });
+
+            it('does not propagate "click" events to the parent container', function() {
+                popup = new SellecktPopup({showSearch: true});
+                popup.open($opener, []);
+
+                popup.$popup.find('input.search').click();
+
+                expect(clickHandlerSpy.called).toBeFalsy();
+            });
+        });
+
         describe('closing the popup', function (){
             var $body;
 
