@@ -229,12 +229,45 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         expect(selleckt.items[1].value).toEqual('3');
                         expect(selleckt.items[1].label).toEqual('baz');
                     });
+                    it('does not store selected options as this.selectedItem when they don\'t have a label', function(){
+                        var selectHtml = '<select>' +
+                            '<option selected></option>' +
+                            '<option value="1">foo</option>' +
+                            '</select>';
+
+                        selleckt.destroy();
+
+                        var $newEl = $(selectHtml).appendTo($testArea);
+
+                        selleckt = new SingleSelleckt({
+                            $selectEl : $newEl
+                        });
+
+                        expect(selleckt.selectedItem).toBeUndefined();
+                    });
+                    it('does not store selected options as this.selectedItem when they don\'t have a value', function(){
+                        var selectHtml = '<select>' +
+                            '<option selected value="">-- Please Select --</option>' +
+                            '<option value="1">foo</option>' +
+                            '</select>';
+
+                        selleckt.destroy();
+
+                        var $newEl = $(selectHtml).appendTo($testArea);
+
+                        selleckt = new SingleSelleckt({
+                            $selectEl : $newEl
+                        });
+
+                        expect(selleckt.selectedItem).toBeUndefined();
+                    });
 
                     describe('when there is no selected item already', function(){
                         var $newEl;
 
                         beforeEach(function(){
                             var selectHtml = '<select>' +
+                            '<option></option>' +
                             '<option value="1">foo</option>' +
                             '<option value="2">bar</option>' +
                             '<option value="3">baz</option>' +
@@ -332,6 +365,21 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             it('renders the selected element based on this.template', function(){
                 expect(selleckt.$sellecktEl.find('.selected').length).toEqual(1);
+            });
+
+            it('renders previously selected element based on this.template when re-initializing selleckt', function(){
+                selleckt.selectItemByValue(3);
+                expect(selleckt.selectedItem.value).toEqual('3');
+
+                selleckt.destroy();
+                selleckt = new SingleSelleckt({
+                    $selectEl : $el
+                });
+                selleckt.render();
+
+                expect(selleckt.$sellecktEl.find('.selected').length).toEqual(1);
+                expect(selleckt.selectedItem.value).toEqual('3');
+                expect(selleckt.selectedItem.label).toEqual('baz');
             });
 
             it('renders the selected text element based on this.template', function(){
