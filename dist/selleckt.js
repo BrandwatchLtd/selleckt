@@ -914,7 +914,7 @@ _.extend(SingleSelleckt.prototype, {
                     data: $option.data()
                 };
 
-            if($option.attr('selected')){
+            if(option.selected){
                 memo.selectedItems.push(item);
             }
 
