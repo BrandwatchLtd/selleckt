@@ -219,6 +219,24 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
                 expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
+
+            it('renders previously selected items in the multiselectItemTemplate when re-initializing selleckt', function(){
+                multiSelleckt.selectItemByValue(2);
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(3);
+
+                multiSelleckt.destroy();
+                multiSelleckt = new MultiSelleckt({
+                    multiple: true,
+                    $selectEl : $el
+                });
+                multiSelleckt.render();
+
+                expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(3);
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('bar');
+                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(2).text()).toEqual('baz');
+            });
+
             it('attaches the item to the selectedItem dom element', function(){
                 var selectedItems = multiSelleckt.getSelection();
 
