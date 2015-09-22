@@ -70,9 +70,9 @@ var TEMPLATES = require('./TEMPLATES');
 var templateUtils = require('./templateUtils');
 var SingleSelleckt = require('./SingleSelleckt.js');
 
-var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
-var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
-var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+var $ = (typeof window !== "undefined" ? window['$'] : typeof global !== "undefined" ? global['$'] : null);
+var _ = (typeof window !== "undefined" ? window['_'] : typeof global !== "undefined" ? global['_'] : null);
+var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof global !== "undefined" ? global['Mustache'] : null);
 
 function MultiSelleckt(options){
     var settings = _.defaults(options, {
@@ -316,9 +316,9 @@ var KEY_CODES = require('./KEY_CODES');
 var TEMPLATES = require('./TEMPLATES');
 var templateUtils = require('./templateUtils');
 
-var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
-var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
-var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+var $ = (typeof window !== "undefined" ? window['$'] : typeof global !== "undefined" ? global['$'] : null);
+var _ = (typeof window !== "undefined" ? window['_'] : typeof global !== "undefined" ? global['_'] : null);
+var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof global !== "undefined" ? global['Mustache'] : null);
 var MicroEvent = require('./MicroEvent');
 
 function createPopup(){
@@ -677,9 +677,9 @@ var TEMPLATES = require('./TEMPLATES');
 var templateUtils = require('./templateUtils');
 var SellecktPopup = require('./SellecktPopup');
 
-var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
-var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
-var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+var $ = (typeof window !== "undefined" ? window['$'] : typeof global !== "undefined" ? global['$'] : null);
+var _ = (typeof window !== "undefined" ? window['_'] : typeof global !== "undefined" ? global['_'] : null);
+var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof global !== "undefined" ? global['Mustache'] : null);
 var MicroEvent = require('./MicroEvent');
 
 function SingleSelleckt(options){
@@ -851,35 +851,56 @@ _.extend(SingleSelleckt.prototype, {
         this.selectItem(item);
     },
 
-    _filterItems: function(items, term){
-        var matchTerm;
+    _filterItems: function(items, term) {
+        var matchTerm, reduced;
 
-        if(!term){
+        if (!term) {
             return items;
         }
 
         matchTerm = term.toLowerCase();
 
-        return _.reduce(items, function(memo, item){
+        reduced = _.reduce(items, function(memo, item) {
             var matchIndex;
+            var group = 'byName';
+            var matchStart;
+            var matchEnd;
 
             if (!item.value) {
                 return memo;
             }
 
             matchIndex = item.label.toLowerCase().indexOf(matchTerm);
+            matchStart = matchIndex;
+            matchEnd = matchIndex + (term.length - 1);
 
-            if(matchIndex === -1){
-                return memo;
+            if (matchIndex === -1 && item.aliases && item.aliases.length > 0) {
+                // try the aliases
+                matchIndex = _.reduce(item.aliases, function(index, alias) {
+                    if (index === -1) {
+                        return String(alias).toLowerCase().indexOf(matchTerm);
+                    } else {
+                        return index;
+                    }
+                }, -1);
+
+                if (matchIndex !== -1) {
+                    group = 'byAlias';
+                    matchStart = matchEnd = -1;
+                }
             }
 
-            memo.push(_.extend({}, item, {
-                matchStart: matchIndex,
-                matchEnd: matchIndex + (term.length - 1)
-            }));
+            if (matchIndex !== -1) {
+                memo[group].push(_.extend({}, item, {
+                    matchStart: matchStart,
+                    matchEnd: matchEnd
+                }));
+            }
 
             return memo;
-        }, []);
+        }, {byName: [], byAlias: []});
+
+        return reduced.byName.concat(reduced.byAlias);
     },
 
     _filterSelection: function(items, selection) {
@@ -908,11 +929,16 @@ _.extend(SingleSelleckt.prototype, {
     _parseItemsFromOptions: function($selectEl){
         return _.reduce($selectEl.find('option'), function(memo, option){
             var $option = $(option),
+                data = $option.data(),
                 item = {
                     value: $option.val(),
                     label: $option.text(),
-                    data: $option.data()
+                    data: data
                 };
+
+            if (data && data.aliases) {
+                item.aliases = data.aliases.split(',');
+            }
 
             if(item.value && item.label){
                 memo.items.push(item);
@@ -938,7 +964,10 @@ _.extend(SingleSelleckt.prototype, {
 
         if(item.data){
             Object.keys(item.data).forEach(function(key){
-                $option.attr('data-' + key, item.data[key]);
+                var val = item.data[key];
+                var attrVal = _.isArray(val) ? val.join(',') : val;
+
+                $option.attr('data-' + key, attrVal);
             });
         }
 
@@ -947,11 +976,18 @@ _.extend(SingleSelleckt.prototype, {
 
     _getItemsFromNodes: function(nodeList){
         return _.map(nodeList, function(node){
-            return {
+            var aliases = node.getAttribute('data-aliases');
+            var item = {
                 value: node.value,
                 label: node.text,
                 isSelected: node.selected || undefined
             };
+
+            if (aliases) {
+                item.aliases = aliases.split(',');
+            }
+
+            return item;
         });
     },
 
@@ -1299,8 +1335,8 @@ module.exports = selleckt;
 (function (global){
 'use strict';
 
-var $ = (typeof window !== "undefined" ? window.$ : typeof global !== "undefined" ? global.$ : null);
-var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null);
+var $ = (typeof window !== "undefined" ? window['$'] : typeof global !== "undefined" ? global['$'] : null);
+var _ = (typeof window !== "undefined" ? window['_'] : typeof global !== "undefined" ? global['_'] : null);
 
 module.exports = {
     mixin: function(selleckt){
@@ -1333,7 +1369,7 @@ module.exports = {
 (function (global){
 'use strict';
 
-var Mustache = (typeof window !== "undefined" ? window.Mustache : typeof global !== "undefined" ? global.Mustache : null);
+var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof global !== "undefined" ? global['Mustache'] : null);
 
 module.exports = {
     cacheTemplate: function(template) {

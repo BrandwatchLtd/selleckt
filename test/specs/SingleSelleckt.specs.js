@@ -6,7 +6,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             elHtml =
                 '<select>' +
                     '<option selected value="1">foo</option>' +
-                    '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
+                    '<option value="2" data-meh="whee" data-bah="oink" data-aliases="foo,bar">bar</option>' +
                     '<option value="3">baz</option>' +
                 '</select>',
             $testArea,
@@ -192,11 +192,20 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         expect(_.size(selleckt.items[0].data)).toEqual(0);
 
                         expect(selleckt.items[1].data).toBeDefined();
-                        expect(_.size(selleckt.items[1].data)).toEqual(2);
+                        expect(_.size(selleckt.items[1].data)).toEqual(3);
                         expect(selleckt.items[1].data).toEqual({
                             meh: 'whee',
-                            bah: 'oink'
+                            bah: 'oink',
+                            aliases: 'foo,bar'
                         });
+                    });
+                    it('parses aliases into .aliases property', function(){
+                        expect(selleckt.items[0].aliases).toBeUndefined();
+                        expect(_.size(selleckt.items[0].data)).toEqual(0);
+
+                        expect(selleckt.items[1].aliases).toBeDefined();
+                        expect(_.size(selleckt.items[1].data)).toEqual(3);
+                        expect(selleckt.items[1].aliases).toEqual(['foo', 'bar']);
                     });
                     it('stores the selected option as this.selectedItem', function(){
                         expect(selleckt.selectedItem).toBeDefined();
@@ -911,8 +920,10 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     label: 'bar',
                     data: {
                         bah: 'oink',
-                        meh: 'whee'
-                    }
+                        meh: 'whee',
+                        aliases: 'foo,bar'
+                    },
+                    aliases: ['foo', 'bar']
                 });
 
                 popup.trigger('valueSelected', '1');
@@ -1200,6 +1211,31 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
                     { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
                     { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
+                ]);
+            });
+
+            it('performs a search in aliases if they are there, placing found by alias at the end', function(){
+                var selleckt = new SingleSelleckt({
+                    $selectEl: $('<select>')
+                });
+
+                selleckt.items = [
+                    {label: 'foo', value: 'foo', aliases: ['baaar']},
+                    {label: 'foo2', value: 'foo2', aliases: ['ohno', 'FOOBAR']},
+                    {label: 'bar', value: 'bar'},
+                    {label: 'baz', value: 'baz'},
+                    {label: 'foofoo', value: 'foofoo'},
+                    {label: 'foobaz', value: 'foobaz'}
+                ];
+
+                var filteredItems = selleckt._filterItems(selleckt.items, 'BA');
+
+                expect(filteredItems).toEqual([
+                    { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
+                    { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
+                    { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 },
+                    { label: 'foo', value: 'foo', aliases: ['baaar'], matchStart: -1, matchEnd: -1 },
+                    { label: 'foo2', value: 'foo2', aliases: ['ohno', 'FOOBAR'], matchStart: -1, matchEnd: -1 }
                 ]);
             });
 
