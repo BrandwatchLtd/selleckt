@@ -976,7 +976,7 @@ _.extend(SingleSelleckt.prototype, {
 
     _getItemsFromNodes: function(nodeList){
         return _.map(nodeList, function(node){
-            var aliases = node.getAttribute('data-aliases');
+            var aliases = $(node).attr('data-aliases');
             var item = {
                 value: node.value,
                 label: node.text,
