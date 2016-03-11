@@ -620,18 +620,30 @@ _.extend(SellecktPopup.prototype, {
         });
     },
 
+    _canShowBelow: function(options, openerHeight, openerOffset) {
+        var $window = $(window),
+            popupHeight = this.$popup.outerHeight(),
+            windowHeight = $window.height(),
+            windowScrollTop = $window.scrollTop(),
+            viewportBottom = windowScrollTop + windowHeight,
+            enoughRoomBelow = viewportBottom > (openerOffset.top + openerHeight + popupHeight),
+            enoughRoomAbove = openerOffset.top >= popupHeight;
+
+        // when there's no space anywhere, prefer bottom placement
+        if (!enoughRoomAbove) {
+            enoughRoomBelow = true;
+        }
+
+        return enoughRoomBelow && !(options.keepCurrentOrientation && this.$popup.hasClass('flipped'));
+    },
+
     _positionPopup: function($opener, options){
         options = options || {};
 
-        var $window = $(window),
-            windowHeight = $window.height(),
-            windowScrollTop = $window.scrollTop(),
-            popupHeight = this.$popup.outerHeight(),
+        var popupHeight = this.$popup.outerHeight(),
             openerHeight = $opener.outerHeight(),
             openerOffset = $opener.offset(),
-            viewportBottom = windowScrollTop + windowHeight,
-            enoughRoomBelow = viewportBottom > (openerOffset.top + openerHeight + popupHeight),
-            showBelow = enoughRoomBelow && !(options.keepCurrentOrientation && this.$popup.hasClass('flipped')),
+            showBelow = this._canShowBelow(options, openerHeight, openerOffset),
             css = {
                 position: 'absolute',
                 left: openerOffset.left,

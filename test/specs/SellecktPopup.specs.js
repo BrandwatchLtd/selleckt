@@ -691,6 +691,14 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                 expect(popup.$popup.hasClass('flipped')).toEqual(true);
             });
+
+            it('if there is no place on either side, prefers bottom placement', function(){
+                $opener.css({top :0, height: $(window).height()});
+
+                popup.open($opener, items);
+
+                expect(popup.$popup.hasClass('flipped')).toEqual(false);
+            });
         });
 
         describe('Keyboard input - items', function(){
