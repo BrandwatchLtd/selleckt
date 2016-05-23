@@ -3,18 +3,19 @@
 /*globals module:false*/
 module.exports = function(grunt) {
     grunt.initConfig({
-        jshint: {
-            all: ['lib/**/*.js', 'test/*.js'],
-            options: {
-                jshintrc: true
-            }
+        eslint: {
+            target: [
+                'lib/**/*.js',
+                'test/*.js',
+                '!lib/MicroEvent.js'
+            ]
         },
         clean: {
             dist: ['./dist/**/*']
         },
         browserify: {
             standalone: {
-                src: [ 'lib/selleckt.js' ],
+                src: ['lib/selleckt.js'],
                 dest: 'dist/selleckt.js',
                 options: {
                     browserifyOptions: {
@@ -25,7 +26,7 @@ module.exports = function(grunt) {
                 }
             },
             legacy: {
-                src: [ 'lib/shim/selleckt-legacy-shim.js' ],
+                src: ['lib/shim/selleckt-legacy-shim.js'],
                 dest: 'dist/selleckt-legacy.js',
                 options: {
                     browserifyOptions: {
@@ -60,24 +61,24 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('build', [ 'jshint', 'clean', 'browserify']);
-    grunt.registerTask('start', [ 'build', 'http-server:dev']);
+    grunt.registerTask('build', ['eslint', 'clean', 'browserify']);
+    grunt.registerTask('start', ['build', 'http-server:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
     var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
 
-    if(!isTravis){
-        grunt.registerTask('test', [ 'karma:local-unit']);
-    } else if(isPr){
-        grunt.registerTask('test', [ 'karma:travis-integration-browser']);
+    if (!isTravis) {
+        grunt.registerTask('test', ['karma:local-unit']);
+    } else if (isPr) {
+        grunt.registerTask('test', ['karma:travis-integration-browser']);
     } else {
-        grunt.registerTask('test', [ 'karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
+        grunt.registerTask('test', ['karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
     }
 
 };
