@@ -32,7 +32,7 @@ module.exports = function(config) {
 
     // Override base config
     config.set({
-        reporters: ['progress', 'saucelabs'],
+        reporters: ['mocha', 'saucelabs'],
         port: 9876,
         colors: true,
         sauceLabs: {
