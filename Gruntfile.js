@@ -6,8 +6,10 @@ module.exports = function(grunt) {
         eslint: {
             target: [
                 'lib/**/*.js',
-                'test/*.js',
-                '!lib/MicroEvent.js'
+                'test/**/*.js',
+                // Note: Duplicate for eslint not throwing a warning.
+                '!test/lib/**/*.js',
+                '!shims/**/*.js'
             ]
         },
         clean: {
@@ -37,7 +39,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        'connect': {
+        connect: {
             'dev': {
                 options: {
                     hostname: '0.0.0.0',

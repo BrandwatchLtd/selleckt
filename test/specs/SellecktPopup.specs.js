@@ -40,7 +40,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
         var sandbox = sinon.sandbox.create();
 
         afterEach(function(){
-            if(popup){
+            if (popup){
                 popup.close();
                 popup = undefined;
             }
@@ -155,7 +155,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
-        describe('template caching', function (){
+        describe('template caching', function(){
             var cacheStub;
 
             beforeEach(function(){
@@ -176,7 +176,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
-        describe('rendering items', function (){
+        describe('rendering items', function(){
             var items;
             var mustacheRenderSpy;
 
@@ -200,9 +200,9 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('replaces the popup contents with the rendered template', function(){
-                var itemSelector = '.'+popup.itemClass;
-                var itemTextSelector = '.'+popup.itemTextClass;
-                var itemContainerSelector = '.'+popup.itemsClass;
+                var itemSelector = '.' + popup.itemClass;
+                var itemTextSelector = '.' + popup.itemTextClass;
+                var itemContainerSelector = '.' + popup.itemsClass;
 
                 expect(popup.$popup.children().length).toEqual(1);
                 expect(popup.$popup.children().eq(0).is(itemContainerSelector)).toEqual(true);
@@ -266,7 +266,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
-        describe('refreshing items', function (){
+        describe('refreshing items', function(){
             var newItems;
             var mustacheRenderSpy;
 
@@ -291,7 +291,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('replaces only the contents of the itemslist', function(){
-                var itemSelector = '.'+popup.itemClass;
+                var itemSelector = '.' + popup.itemClass;
 
                 $('<p>', {
                     'class': 'leave-me-alone'
@@ -410,7 +410,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                     expect(addMarkSpy.calledOnce).toEqual(true);
 
-                    var itemSelector = '.'+popup.itemClass;
+                    var itemSelector = '.' + popup.itemClass;
 
                     var $items = popup.$popup.find(itemSelector);
 
@@ -438,7 +438,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                     expect(addMarkSpy.calledOnce).toEqual(true);
 
-                    var itemSelector = '.'+popup.itemClass;
+                    var itemSelector = '.' + popup.itemClass;
 
                     var $items = popup.$popup.find(itemSelector);
 
@@ -450,12 +450,11 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
-        describe('opening the popup', function (){
+        describe('opening the popup', function(){
             var bindEventsStub;
             var positionStub;
             var items;
             var $opener;
-            var offsetStub;
             var renderItemsSpy;
 
             beforeEach(function(){
@@ -475,7 +474,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                     'class': 'opener'
                 });
 
-                offsetStub = sandbox.stub($opener, 'offset').returns({
+                sandbox.stub($opener, 'offset').returns({
                     top: 50,
                     left: 100
                 });
@@ -486,7 +485,9 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('creates a handler for window.resize and adds it as this.resizeHandler', function(){
-                sandbox.stub(_, 'throttle', function(func){ return func; });
+                sandbox.stub(_, 'throttle', function(func) {
+                    return func;
+                });
 
                 popup = new SellecktPopup();
                 popup.open($opener, items);
@@ -591,7 +592,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
         });
 
-        describe('closing the popup', function (){
+        describe('closing the popup', function(){
             var $body;
 
             beforeEach(function(){
@@ -633,16 +634,16 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
         });
 
         //these tests manipulate the DOM so they can test the layout of the popup.
-        describe('positioning the popup [DOM tests]', function (){
+        describe('positioning the popup [DOM tests]', function(){
             var $opener;
             var items;
             var _OPENER_LEFT;
 
-            beforeEach(function (){
+            beforeEach(function(){
                 _OPENER_LEFT = 100;
 
                 $opener = $('<div>', {
-                    'class': opener,
+                    'class': 'opener',
                     'css': {
                         position: 'absolute',
                         left: _OPENER_LEFT
@@ -660,7 +661,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 popup = new SellecktPopup();
             });
 
-            afterEach(function (){
+            afterEach(function(){
                 $opener.remove();
             });
 
@@ -693,7 +694,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             });
 
             it('if there is no place on either side, prefers bottom placement', function(){
-                $opener.css({top :0, height: $(window).height()});
+                $opener.css({top: 0, height: $(window).height()});
 
                 popup.open($opener, items);
 
@@ -718,7 +719,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 });
 
                 $opener = $('<div>', {
-                    'class': opener
+                    'class': 'opener'
                 }).appendTo($('body'));
 
                 popup.open($opener, items);
@@ -732,21 +733,25 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             it('closes the popup when esc is pressed', function(){
                 var closeSpy = sandbox.spy(popup, 'close');
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
 
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.ESC }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.ESC
+                }));
 
                 expect(closeSpy.calledOnce).toEqual(true);
             });
 
             it('selects the current item when enter is pressed', function(){
                 var spy = sandbox.spy();
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
 
                 popup.bind('valueSelected', spy);
 
                 $firstItem.addClass(popup.highlightClass);
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.ENTER
+                }));
 
                 expect(spy.calledOnce).toEqual(true);
                 expect(spy.args[0][0]).toEqual($firstItem.attr('data-value'));
@@ -754,41 +759,55 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             it('closes the popup when enter is pressed', function(){
                 var closeSpy = sandbox.spy(popup, 'close');
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
 
                 $firstItem.addClass(popup.highlightClass);
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.ENTER
+                }));
 
                 expect(closeSpy.calledOnce).toEqual(true);
             });
 
             it('highlights the next item if there is one when down is pressed', function(){
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
                 var $secondItem = $firstItem.next();
 
                 $firstItem.addClass(popup.highlightClass);
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
 
                 expect($secondItem.hasClass(popup.highlightClass)).toEqual(true);
             });
 
             it('highlights the first item if there is no next item when down is pressed', function(){
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
                 $firstItem.addClass(popup.highlightClass);
 
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
 
                 expect($firstItem.hasClass(popup.highlightClass)).toEqual(true);
             });
 
             it('highlights the previous item when up is pressed', function(){
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
                 $firstItem.addClass(popup.highlightClass);
 
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
-                $firstItem.trigger($.Event('keydown', { which : KEY_CODES.UP }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
+                $firstItem.trigger($.Event('keydown', {
+                    which: KEY_CODES.UP
+                }));
 
                 expect($firstItem.hasClass(popup.highlightClass)).toEqual(true);
             });
@@ -801,7 +820,9 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             var items;
 
             beforeEach(function(){
-                sandbox.stub(_, 'debounce', function(func){ return func; });
+                sandbox.stub(_, 'debounce', function(func){
+                    return func;
+                });
 
                 items = [
                     {label: 'item 1', value: 1},
@@ -814,7 +835,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 });
 
                 $opener = $('<div>', {
-                    'class': opener
+                    'class': 'opener'
                 }).appendTo($('body'));
 
                 popup.open($opener, items);
@@ -832,17 +853,21 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             it('closes the popup when esc is pressed', function(){
                 var closeSpy = sandbox.spy(popup, 'close');
 
-                $searchInput.trigger($.Event('keydown', { which : KEY_CODES.ESC }));
+                $searchInput.trigger($.Event('keydown', {
+                    which: KEY_CODES.ESC
+                }));
 
                 expect(closeSpy.calledOnce).toEqual(true);
             });
 
             it('selects the first item when down is pressed', function(){
-                var $firstItem = $popup.find('.'+popup.itemClass).first();
+                var $firstItem = $popup.find('.' + popup.itemClass).first();
 
                 expect($firstItem.hasClass(popup.highlightClass)).toEqual(false);
 
-                $searchInput.trigger($.Event('keydown', { which : KEY_CODES.DOWN }));
+                $searchInput.trigger($.Event('keydown', {
+                    which: KEY_CODES.DOWN
+                }));
 
                 expect($firstItem.hasClass(popup.highlightClass)).toEqual(true);
             });
@@ -856,7 +881,9 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 popup.bind('search', searchSpy);
 
                 $searchInput.val('foo');
-                $searchInput.trigger($.Event('keyup', { which : letterCodes.O }));
+                $searchInput.trigger($.Event('keyup', {
+                    which: letterCodes.O
+                }));
 
                 expect(searchSpy.calledOnce).toEqual(true);
                 expect(searchSpy.args[0][0]).toEqual($searchInput.val());
@@ -899,7 +926,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
     });
 }
 
-(function (root, factory) {
+(function(root, factory) {
     if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
@@ -924,6 +951,8 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             root.Mustache
         );
     }
-}(this, function (exports, SellecktPopup, templateUtils, $, _, Mustache) {
+}(this, function(exports, SellecktPopup, templateUtils, $, _, Mustache) {
+    /*eslint max-params: ["error", 6]*/
+    /*eslint max-statements: ["error", 30]*/
     return sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache);
 }));

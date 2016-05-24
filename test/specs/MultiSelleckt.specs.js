@@ -5,7 +5,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
         var sandbox = sinon.sandbox.create(),
             multiSelleckt,
             $el,
-            selectHtml  =
+            selectHtml =
                 '<select multiple>' +
                     '<option value="1" selected>foo</option>' +
                     '<option value="2" data-meh="whee" data-bah="oink">bar</option>' +
@@ -21,7 +21,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
             $el = undefined;
 
-            if(multiSelleckt){
+            if (multiSelleckt){
                 multiSelleckt.destroy();
                 multiSelleckt = undefined;
             }
@@ -50,7 +50,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                         mainTemplate: mainTemplate,
                         selectionTemplate: selectionTemplate,
                         multiple: true,
-                        $selectEl : $el,
+                        $selectEl: $el,
                         className: 'selleckt',
                         selectedTextClass: 'selectedText',
                         selectionsClass: 'mySelections',
@@ -107,7 +107,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     multiSelleckt.destroy();
 
                     multiSelleckt = new MultiSelleckt({
-                        $selectEl : $el,
+                        $selectEl: $el,
                         multiple: true,
                         selectionTemplate: template
                     });
@@ -122,7 +122,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 beforeEach(function(){
                     multiSelleckt = new MultiSelleckt({
                         multiple: true,
-                        $selectEl : $el
+                        $selectEl: $el
                     });
                 });
 
@@ -198,7 +198,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 multiSelleckt.render();
@@ -206,18 +206,18 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
             it('renders the selected items in the multiselectItemTemplate', function(){
                 expect(multiSelleckt.getSelection()).toEqual([{
-                        value: '1',
-                        label: 'foo',
-                        data: {}
-                    }, {
-                        value: '3',
-                        label: 'baz',
-                        data: {}
-                    }]);
+                    value: '1',
+                    label: 'foo',
+                    data: {}
+                }, {
+                    value: '3',
+                    label: 'baz',
+                    data: {}
+                }]);
 
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(2);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
+                expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectionItemClass).eq(1).text()).toEqual('baz');
             });
 
             it('renders previously selected items in the multiselectItemTemplate when re-initializing selleckt', function(){
@@ -227,28 +227,28 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 multiSelleckt.destroy();
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $el
+                    $selectEl: $el
                 });
                 multiSelleckt.render();
 
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').length).toEqual(3);
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(1).text()).toEqual('bar');
-                expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectionItemClass).eq(2).text()).toEqual('baz');
+                expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectionItemClass).eq(0).text()).toEqual('foo');
+                expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectionItemClass).eq(1).text()).toEqual('bar');
+                expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectionItemClass).eq(2).text()).toEqual('baz');
             });
 
             it('attaches the item to the selectedItem dom element', function(){
                 var selectedItems = multiSelleckt.getSelection();
 
                 expect(selectedItems).toEqual([{
-                        value: '1',
-                        label: 'foo',
-                        data: {}
-                    }, {
-                        value: '3',
-                        label: 'baz',
-                        data: {}
-                    }]);
+                    value: '1',
+                    label: 'foo',
+                    data: {}
+                }, {
+                    value: '3',
+                    label: 'baz',
+                    data: {}
+                }]);
 
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(0).data('item')).toEqual(selectedItems[0]);
                 expect(multiSelleckt.$sellecktEl.find('.selectionItem').eq(1).data('item')).toEqual(selectedItems[1]);
@@ -261,7 +261,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 multiSelleckt.render();
@@ -411,7 +411,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     multiSelleckt.selectItem(multiSelleckt.items[1]);
 
                     expect(multiSelleckt.selectedItems.length).toEqual(3);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
+                    expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectedTextClass).text())
                         .toEqual(multiSelleckt.alternatePlaceholder);
 
                     multiSelleckt.unselectItem(multiSelleckt.items[0]);
@@ -419,7 +419,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     multiSelleckt.unselectItem(multiSelleckt.items[2]);
 
                     expect(multiSelleckt.selectedItems.length).toEqual(0);
-                    expect(multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedTextClass).text())
+                    expect(multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectedTextClass).text())
                         .toEqual(multiSelleckt.placeholderText);
                 });
             });
@@ -431,7 +431,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 multiSelleckt.render();
@@ -446,7 +446,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     data: {}
                 }]);
 
-                $clickTarget = multiSelleckt.$sellecktEl.find('.'+multiSelleckt.unselectItemClass).eq(0);
+                $clickTarget = multiSelleckt.$sellecktEl.find('.' + multiSelleckt.unselectItemClass).eq(0);
             });
 
             it('removes the item from the selections when the unselectItem link is clicked', function(){
@@ -465,7 +465,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             });
 
             it('removes the item from the selectedItems array when the unselect link is clicked', function(){
-               var $selections = multiSelleckt.$selections;
+                var $selections = multiSelleckt.$selections;
 
                 expect(multiSelleckt.getSelection()).toEqual([{
                     value: '1',
@@ -520,7 +520,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             it('does not refresh the popup with this.selectedItems, if this.hideSelectedItem === true', function() {
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $('<select multiple>' +
+                    $selectEl: $('<select multiple>' +
                         '<option value="foo">foo</option>' +
                         '<option value="bar">bar</option>' +
                         '<option value="baz">baz</option>' +
@@ -545,7 +545,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             beforeEach(function(){
                 multiSelleckt = new MultiSelleckt({
                     multiple: true,
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 multiSelleckt.render();
@@ -563,7 +563,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
 
                 expect(multiSelleckt.$sellecktEl.hasClass('disabled')).toEqual(true);
 
-                multiSelleckt.$sellecktEl.find('.'+multiSelleckt.selectedClass).trigger('click');
+                multiSelleckt.$sellecktEl.find('.' + multiSelleckt.selectedClass).trigger('click');
 
                 expect(multiSelleckt.$sellecktEl.hasClass('open')).toEqual(false);
             });
@@ -579,7 +579,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
     });
 }
 
-(function (root, factory) {
+(function(root, factory) {
     if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
@@ -600,6 +600,6 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             root.$
         );
     }
-}(this, function (exports, MultiSelleckt, templateUtils, $) {
+}(this, function(exports, MultiSelleckt, templateUtils, $) {
     return multiSellecktSpecs(MultiSelleckt, templateUtils, $);
 }));
