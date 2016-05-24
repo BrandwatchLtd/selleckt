@@ -6,7 +6,7 @@ env:
     - secure: EFIJa3M5WISWWT+idxmjQzyPjq2Klj3vk//GaNzbCECDI2A4ax2H2rNuaEBR3CVhr/lD7waPGI4v/58wkFkvir8JZiCgMxyJDXeQKZJTMp7zCSWPeT10ECUm/etLFfUwq/WbyllXWR1k6wnbbXownaQNmSnyCrJexkooqRcoRN0=
 
 node_js:
-   - "0.10"
+   - "4.3"
 
 before_script:
   - "export DISPLAY=:99.0"

@@ -37,11 +37,13 @@ module.exports = function(grunt) {
                 }
             }
         },
-        'http-server': {
+        'connect': {
             'dev': {
-                host: '0.0.0.0',
-                ext: 'html',
-                showDir: false
+                options: {
+                    hostname: '0.0.0.0',
+                    port: 8282,
+                    keepalive: true
+                }
             }
         },
         karma: {
@@ -63,12 +65,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-http-server');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-karma');
 
     grunt.registerTask('build', ['eslint', 'clean', 'browserify']);
-    grunt.registerTask('start', ['build', 'http-server:dev']);
+    grunt.registerTask('start', ['build', 'connect:dev']);
 
     var isPr = (parseInt(process.env.TRAVIS_PULL_REQUEST, 10) > 0);
     var isTravis = !!process.env.TRAVIS_BUILD_NUMBER;
@@ -80,5 +82,4 @@ module.exports = function(grunt) {
     } else {
         grunt.registerTask('test', ['karma:saucelabs-integration', 'karma:saucelabs-integration-legacy']);
     }
-
 };
