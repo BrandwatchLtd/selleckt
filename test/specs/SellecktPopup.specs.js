@@ -62,7 +62,8 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                     highlightClass: 'myHighlightClass',
                     searchInputClass: 'mySearchInputClass',
                     showSearch: true,
-                    templateData: {foo: 'bar'}
+                    templateData: {foo: 'bar'},
+                    forcePopupPositionTop: true
                 };
 
                 popup = new SellecktPopup(popupOptions);
@@ -107,9 +108,13 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             it('stores the templateData passed in as this.templateData', function(){
                 expect(popup.templateData).toEqual(popupOptions.templateData);
             });
+
+            it('stores the maxHeightPopupPositioning passed in as this.maxHeightPopupPositioning', function(){
+                expect(popup.maxHeightPopupPositioning).toEqual(popupOptions.maxHeightPopupPositioning);
+            });
         });
 
-        describe('valid instantation with default options', function(){
+        describe('valid instantiation with default options', function(){
             beforeEach(function(){
                 popup = new SellecktPopup();
             });
@@ -152,6 +157,10 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             it('stores an empty object as this.templateData', function(){
                 expect(popup.templateData).toEqual({});
+            });
+
+            it('stores an empty object as this.maxHeightPopupPositioning', function(){
+                expect(popup.maxHeightPopupPositioning).toEqual(false);
             });
         });
 
@@ -698,6 +707,54 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 popup.open($opener, items);
 
                 expect(popup.$popup.hasClass('flipped')).toEqual(false);
+            });
+
+            describe('when option maxHeightPopupPositioning is set to true', function() {
+                var itemsListMaxHeight = 225;
+                var $itemsList;
+                var popupMaxHeight;
+
+                beforeEach(function() {
+                    var _positionPopupStub = sandbox.stub(popup, '_positionPopup');
+
+                    popup.maxHeightPopupPositioning = true;
+                    popup.template = '<div class="{{itemsClass}}">' +
+                        '{{#showSearch}}' +
+                        '<div class="searchContainer">' +
+                        '<input class="{{searchInputClass}}"></input>' +
+                        '</div>' +
+                        '<span class="noitemsText">No items</span>' +
+                        '{{/showSearch}}' +
+                        '<ul class="{{itemslistClass}}" style="max-height: ' + itemsListMaxHeight + 'px;">' +
+                        '{{#items}}' +
+                        '{{> item}}' +
+                        '{{/items}}' +
+                        '</ul>' +
+                        '</div>';
+
+                    popup.open($opener, items);
+                    $itemsList = popup.$popup.find('.' + popup.itemslistClass);
+                    popupMaxHeight = popup.$popup.outerHeight() + itemsListMaxHeight - $itemsList.height();
+                    popup.close();
+
+                    _positionPopupStub.restore();
+                });
+
+                it('if there is enough room below the opener, prefers bottom placement', function() {
+                    $opener.css({top: $(window).scrollTop() + $(window).height() - popupMaxHeight - 1});
+
+                    popup.open($opener, items);
+
+                    expect(popup.$popup.hasClass('flipped')).toEqual(false);
+                });
+
+                it('if there is not enough room below the opener, prefers top placement', function(){
+                    $opener.css({top: $(window).scrollTop() + $(window).height() - popupMaxHeight});
+
+                    popup.open($opener, items);
+
+                    expect(popup.$popup.hasClass('flipped')).toEqual(true);
+                });
             });
         });
 

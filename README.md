@@ -220,6 +220,15 @@ The following options can be passed to selleckt:
             <td>
                 set to `true` if you want currently selected items to not show in the `SellecktPopup`
             </td>
+        </tr>
+        <tr>
+            <td>maxHeightPopupPositioning</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>
+                set to `true` if you want selleckt to evaluate `SellecktPopup` position based on its max height (e.g. remote search).
+            </td>
+        </tr>
     <tbody>
     </tbody>
 </table>

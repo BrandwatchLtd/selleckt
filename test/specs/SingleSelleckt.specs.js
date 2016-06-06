@@ -119,7 +119,8 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         itemClass: 'item',
                         selectedClassName: 'isSelected',
                         highlightClass: 'isHighlighted',
-                        hideSelectedItem: true
+                        hideSelectedItem: true,
+                        maxHeightPopupPositioning: true
                     });
                 });
 
@@ -173,6 +174,10 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 it('stores options.hideSelectedItem as this.hideSelectedItem', function(){
                     expect(selleckt.hideSelectedItem).toEqual(true);
+                });
+
+                it('stores options.maxHeightPopupPositioning as this.maxHeightPopupPositioning', function(){
+                    expect(selleckt.maxHeightPopupPositioning).toEqual(true);
                 });
 
                 describe('items', function(){
