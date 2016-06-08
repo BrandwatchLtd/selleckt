@@ -1,7 +1,7 @@
 {
   "name": "selleckt",
   "description": "Another select replacement. This one loves mustache",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/BrandwatchLtd/selleckt.git"
@@ -30,7 +30,6 @@
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-connect": "^1.0.2",
     "grunt-eslint": "^18.1.0",
     "grunt-karma": "^1.0.0",
     "karma": "^0.13.22",
