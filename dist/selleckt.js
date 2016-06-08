@@ -105,7 +105,7 @@ function MultiSelleckt(options){
 
 MultiSelleckt.prototype = Object.create(SingleSelleckt.prototype);
 
-MultiSelleckt.prototype._mutationHandler = function (mutations){
+MultiSelleckt.prototype._mutationHandler = function(mutations){
     var newItems = [],
         removedItems = [],
         selectedItems = [];
@@ -117,7 +117,7 @@ MultiSelleckt.prototype._mutationHandler = function (mutations){
 
     this.items = this.items.concat(newItems);
 
-    if(removedItems.length){
+    if (removedItems.length) {
         _.forEach(removedItems, function(item){
             this.unselectItem(item, {silent: true});
         }, this);
@@ -130,7 +130,7 @@ MultiSelleckt.prototype._mutationHandler = function (mutations){
     }
 
     _.forEach(this.items, function(item){
-        if(item.isSelected){
+        if (item.isSelected) {
             this.selectItem(item, {silent: true});
             selectedItems.push(item);
         }
@@ -144,7 +144,7 @@ MultiSelleckt.prototype._mutationHandler = function (mutations){
     });
 };
 
-MultiSelleckt.prototype._filterSelection = function (items, selection) {
+MultiSelleckt.prototype._filterSelection = function(items, selection) {
     var selectionValues = _.pluck(selection, 'value');
 
     return _.filter(items, function(item) {
@@ -155,18 +155,18 @@ MultiSelleckt.prototype._filterSelection = function (items, selection) {
 MultiSelleckt.prototype.selectItem = function(item, options){
     options = options || {};
 
-    if(!this.selectedItems){
+    if (!this.selectedItems) {
         this.selectedItems = [];
     }
 
-    if(_(this.selectedItems).indexOf(item) !== -1){
+    if (_(this.selectedItems).indexOf(item) !== -1) {
         return;
     }
 
     this.selectedItems.push(item);
     this.$selections.append(this.buildItem(item));
 
-    this.$sellecktEl.find('.'+this.selectedTextClass).text(this.alternatePlaceholder);
+    this.$sellecktEl.find('.' + this.selectedTextClass).text(this.alternatePlaceholder);
 
     this.toggleDisabled();
 
@@ -244,11 +244,11 @@ MultiSelleckt.prototype.bindEvents = function(){
     var unselectItem = _.bind(this.unselectItem, this),
         selectionItemClass = this.selectionItemClass;
 
-    this.$sellecktEl.on('click', '.'+this.unselectItemClass, function(e){
+    this.$sellecktEl.on('click', '.' + this.unselectItemClass, function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var $item = $(e.target).closest('.'+selectionItemClass);
+        var $item = $(e.target).closest('.' + selectionItemClass);
 
         unselectItem($item.data('item'));
     });
@@ -278,17 +278,17 @@ MultiSelleckt.prototype.buildItem = function(item){
 MultiSelleckt.prototype.unselectItem = function(item, options){
     options = options || {};
 
-    this.$selections.find('[data-value="' + item.value +'"]').remove();
+    this.$selections.find('[data-value="' + item.value + '"]').remove();
 
     this.selectedItems = _(this.selectedItems).reject(function(candidate){
         return candidate === item;
     });
 
-    if(!this.selectedItems.length) {
-        this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+    if (!this.selectedItems.length) {
+        this.$sellecktEl.find('.' + this.selectedTextClass).text(this.placeholderText);
     }
 
-    if(!options.silent){
+    if (!options.silent) {
         this.updateOriginalSelect();
     }
 
@@ -337,13 +337,14 @@ function SellecktPopup(options){
         template: TEMPLATES.ITEMS_CONTAINER,
         itemTemplate: TEMPLATES.SINGLE_ITEM,
         templateData: {},
-        itemsClass : 'items',
-        itemslistClass : 'itemslist',
-        itemClass : 'item',
+        itemsClass: 'items',
+        itemslistClass: 'itemslist',
+        itemClass: 'item',
         itemTextClass: 'itemText',
-        highlightClass : 'highlighted',
+        highlightClass: 'highlighted',
         searchInputClass: 'search',
-        showSearch: false
+        showSearch: false,
+        maxHeightPopupPositioning: false
     });
 
     this.template = settings.template;
@@ -357,6 +358,7 @@ function SellecktPopup(options){
 
     this.searchInputClass = settings.searchInputClass;
     this.showSearch = settings.showSearch;
+    this.maxHeightPopupPositioning = settings.maxHeightPopupPositioning;
 
     templateUtils.cacheTemplate(this.template);
     templateUtils.cacheTemplate(this.itemTemplate);
@@ -369,7 +371,7 @@ _.extend(SellecktPopup.prototype, {
 
         var $popup = this.$popup = createPopup();
 
-        if(options.css){
+        if (options.css) {
             $popup.css(options.css);
         }
 
@@ -384,10 +386,10 @@ _.extend(SellecktPopup.prototype, {
         this._attachResizeHandler($opener);
 
         if (this.showSearch) {
-            $popup.find('.'+this.searchInputClass).focus();
+            $popup.find('.' + this.searchInputClass).focus();
         } else {
             //NB: set the tabindex so we can apply focus, which makes the key handling work
-            $popup.find('.'+this.itemClass).first().attr('tabindex',-1).focus();
+            $popup.find('.' + this.itemClass).first().attr('tabindex',-1).focus();
         }
     },
 
@@ -396,7 +398,7 @@ _.extend(SellecktPopup.prototype, {
 
         this.$opener = undefined;
 
-        if(this.$popup){
+        if (this.$popup) {
             this.$popup.remove();
             this.$popup = undefined;
 
@@ -406,9 +408,9 @@ _.extend(SellecktPopup.prototype, {
 
     getTemplateData: function() {
         return _.extend(this.templateData, {
-            showSearch : this.showSearch,
+            showSearch: this.showSearch,
             itemsClass: this.itemsClass,
-            itemslistClass : this.itemslistClass,
+            itemslistClass: this.itemslistClass,
             itemClass: this.itemClass,
             itemTextClass: this.itemTextClass,
             searchInputClass: this.searchInputClass
@@ -433,18 +435,18 @@ _.extend(SellecktPopup.prototype, {
                 itemClass: this.itemClass
             }, item));
 
-            if(item.matchEnd > 0){
+            if (item.matchEnd > 0) {
                 return this._addMarkToItem(itemEl, item);
             }
 
             return itemEl;
         }, this);
 
-        this.$popup.find('.'+this.itemslistClass).html($rendered);
+        this.$popup.find('.' + this.itemslistClass).html($rendered);
 
         this.$popup.toggleClass('noitems', !items.length);
 
-        if(this.$popup.hasClass('flipped')){
+        if (this.$popup.hasClass('flipped')) {
             //we may need to reposition the popup as it's positioned using top
             this._positionPopup(this.$opener, {keepCurrentOrientation: true});
         }
@@ -472,12 +474,12 @@ _.extend(SellecktPopup.prototype, {
         var self = this,
             lockMousover = false,
             highlightClass = this.highlightClass,
-            itemClass = '.'+this.itemClass,
-            itemslistClass = '.'+this.itemslistClass,
+            itemClass = '.' + this.itemClass,
+            itemslistClass = '.' + this.itemslistClass,
             $popup = this.$popup,
             itemslist = $popup.find(itemslistClass)[0],
             trigger = _.bind(this.trigger, this),
-            searchInputClass = '.'+this.searchInputClass,
+            searchInputClass = '.' + this.searchInputClass,
             $searchInput;
 
         function getHighlightItem(){
@@ -522,32 +524,34 @@ _.extend(SellecktPopup.prototype, {
             return selectItem($(e.currentTarget));
         });
 
-        $popup.on('keydown', itemClass, function(e){
+        /*eslint max-statements: ["error", 25]*/
+        /*eslint complexity: ["error", 15]*/
+        $popup.on('keydown', itemClass, function(e) {
             var whichKey = e.which,
                 $currentHighlightItem,
                 $theItems,
                 $itemToHighlight;
 
-            if(whichKey !== KEY_CODES.DOWN && whichKey !== KEY_CODES.UP &&
-                whichKey !== KEY_CODES.ENTER && whichKey !== KEY_CODES.ESC){
+            if (whichKey !== KEY_CODES.DOWN && whichKey !== KEY_CODES.UP &&
+                whichKey !== KEY_CODES.ENTER && whichKey !== KEY_CODES.ESC) {
                 return;
             }
 
             e.preventDefault();
 
-            if(e.which === KEY_CODES.ESC){
+            if (e.which === KEY_CODES.ESC) {
                 return self.close();
             }
 
             $currentHighlightItem = getHighlightItem();
 
-            if(e.which === KEY_CODES.ENTER){
+            if (e.which === KEY_CODES.ENTER) {
                 return selectItem($currentHighlightItem);
             }
 
             $theItems = $popup.find(itemClass);
 
-            if(whichKey === KEY_CODES.DOWN){
+            if (whichKey === KEY_CODES.DOWN) {
                 $itemToHighlight = $currentHighlightItem.nextAll(itemClass).first();
 
                 if (!$currentHighlightItem.length || !$itemToHighlight.length) {
@@ -563,10 +567,10 @@ _.extend(SellecktPopup.prototype, {
                 return highlightItem($itemToHighlight);
             }
 
-            if(whichKey === KEY_CODES.UP){
+            if (whichKey === KEY_CODES.UP) {
                 $itemToHighlight = $currentHighlightItem.prevAll(itemClass).first();
 
-                if(!$currentHighlightItem.length || !$itemToHighlight.length){
+                if (!$currentHighlightItem.length || !$itemToHighlight.length) {
                     $itemToHighlight = $theItems.last();
                     scrollItems($itemToHighlight.offset().top, true);
                 } else if ($itemToHighlight.offset().top < $popup.offset().top + $itemToHighlight.outerHeight()) {
@@ -577,17 +581,17 @@ _.extend(SellecktPopup.prototype, {
             }
         });
 
-        if(this.showSearch){
+        if (this.showSearch) {
             $searchInput = $popup.find(searchInputClass);
 
             $searchInput.on('keydown', function(e){
                 var whichKey = e.which;
 
-                if(whichKey === KEY_CODES.ESC){
+                if (whichKey === KEY_CODES.ESC) {
                     return self.close();
                 }
 
-                if(whichKey === KEY_CODES.DOWN){
+                if (whichKey === KEY_CODES.DOWN) {
                     e.stopPropagation();
                     e.preventDefault();
 
@@ -598,7 +602,7 @@ _.extend(SellecktPopup.prototype, {
             $searchInput.on('keyup', _.debounce(function(e){
                 var whichKey = e.which;
 
-                if(whichKey === KEY_CODES.ESC || whichKey === KEY_CODES.ENTER){
+                if (whichKey === KEY_CODES.ESC || whichKey === KEY_CODES.ENTER) {
                     return;
                 }
 
@@ -613,21 +617,33 @@ _.extend(SellecktPopup.prototype, {
 
             e.stopPropagation();
 
-            if($target.is(itemClass) || $target.is(searchInputClass)){
+            if ($target.is(itemClass) || $target.is(searchInputClass)) {
                 return;
             }
             self.close();
         });
     },
 
+    _getPopupMaxHeight: function() {
+        var $itemsList;
+
+        if (!this.maxHeightPopupPositioning) {
+            return this.$popup.outerHeight();
+        }
+
+        $itemsList = this.$popup.find('.' + this.itemslistClass);
+
+        return this.$popup.outerHeight() + parseInt($itemsList.css('max-height'), 10) - $itemsList.height();
+    },
+
     _canShowBelow: function(options, openerHeight, openerOffset) {
         var $window = $(window),
-            popupHeight = this.$popup.outerHeight(),
+            popupMaxHeight = this._getPopupMaxHeight(),
             windowHeight = $window.height(),
             windowScrollTop = $window.scrollTop(),
             viewportBottom = windowScrollTop + windowHeight,
-            enoughRoomBelow = viewportBottom > (openerOffset.top + openerHeight + popupHeight),
-            enoughRoomAbove = openerOffset.top >= popupHeight;
+            enoughRoomBelow = viewportBottom > (openerOffset.top + openerHeight + popupMaxHeight),
+            enoughRoomAbove = openerOffset.top >= popupMaxHeight;
 
         // when there's no space anywhere, prefer bottom placement
         if (!enoughRoomAbove) {
@@ -652,7 +668,7 @@ _.extend(SellecktPopup.prototype, {
 
         this.$popup.css(css);
 
-        if(options.keepCurrentOrientation !== true){
+        if (options.keepCurrentOrientation !== true) {
             this.$popup.toggleClass('flipped', !showBelow);
         }
     },
@@ -669,7 +685,7 @@ _.extend(SellecktPopup.prototype, {
     },
 
     _removeResizeHandler: function(){
-        if (this.resizeHandler){
+        if (this.resizeHandler) {
             $(window).off('resize', this.resizeHandler);
             this.resizeHandler = undefined;
         }
@@ -694,6 +710,7 @@ var _ = (typeof window !== "undefined" ? window['_'] : typeof global !== "undefi
 var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof global !== "undefined" ? global['Mustache'] : null);
 var MicroEvent = require('./MicroEvent');
 
+/*eslint max-statements: ["error", 30]*/
 function SingleSelleckt(options){
     var settings = _.defaults(options, {
         mainTemplate: TEMPLATES.SINGLE,
@@ -701,15 +718,16 @@ function SingleSelleckt(options){
         popupTemplate: TEMPLATES.ITEMS_CONTAINER,
         mainTemplateData: {},
         popupTemplateData: {},
-        selectedClass : 'selected',
-        selectedTextClass : 'selectedText',
-        className : 'dropdown selleckt',
-        placeholderText : 'Please select...',
-        highlightClass : 'highlighted',
-        enableSearch : false,
-        searchInputClass : 'search',
-        searchThreshold : 0,
-        hideSelectedItem: false
+        selectedClass: 'selected',
+        selectedTextClass: 'selectedText',
+        className: 'dropdown selleckt',
+        placeholderText: 'Please select...',
+        highlightClass: 'highlighted',
+        enableSearch: false,
+        searchInputClass: 'search',
+        searchThreshold: 0,
+        hideSelectedItem: false,
+        maxHeightPopupPositioning: false
     });
 
     this.$originalSelectEl = options.$selectEl;
@@ -737,6 +755,7 @@ function SingleSelleckt(options){
                         this.items.length > settings.searchThreshold);
 
     this.hideSelectedItem = settings.hideSelectedItem;
+    this.maxHeightPopupPositioning = settings.maxHeightPopupPositioning;
 
     this.id = _.uniqueId('selleckt');
 
@@ -744,12 +763,12 @@ function SingleSelleckt(options){
 }
 
 function closeEventHandler(context, event){
-    var eventTrigger = $(event.target).closest('.'+context.selectedClass)[0];
-    var dropdownTrigger = context.$sellecktEl.find('.'+context.selectedClass)[0];
+    var eventTrigger = $(event.target).closest('.' + context.selectedClass)[0];
+    var dropdownTrigger = context.$sellecktEl.find('.' + context.selectedClass)[0];
     var $popup = context.popup && context.popup.$popup;
 
     //prevent the dropdown from closing immediately when the 'click' event propagates to the document
-    if(eventTrigger === dropdownTrigger && event.currentTarget === document){
+    if (eventTrigger === dropdownTrigger && event.currentTarget === document) {
         return;
     }
 
@@ -757,7 +776,7 @@ function closeEventHandler(context, event){
         return $(parent).is($popup);
     });
 
-    if(anyParentIsPopup){
+    if (anyParentIsPopup) {
         return;
     }
 
@@ -771,11 +790,11 @@ _.extend(SingleSelleckt.prototype, {
     _open: function() {
         var $sellecktEl = this.$sellecktEl;
 
-        if($sellecktEl.hasClass('disabled')){
+        if ($sellecktEl.hasClass('disabled')) {
             return;
         }
 
-        if(this.popup){
+        if (this.popup) {
             return;
         }
 
@@ -803,7 +822,7 @@ _.extend(SingleSelleckt.prototype, {
     },
 
     _removePopup: function() {
-        if(this.popup){
+        if (this.popup) {
             this.popup.unbind('valueSelected', this.onPopupValueSelected);
             this.popup.close();
             this.popup = undefined;
@@ -812,7 +831,7 @@ _.extend(SingleSelleckt.prototype, {
 
     getItemsForPopup: function() {
         var showSelectedItem = !this.hideSelectedItem;
-        var itemsToShow =  showSelectedItem ? this.items : _.filter(this.items, function(item){
+        var itemsToShow = showSelectedItem ? this.items : _.filter(this.items, function(item){
             return this.selectedItem !== item;
         }, this);
 
@@ -825,11 +844,12 @@ _.extend(SingleSelleckt.prototype, {
             templateData: this.popupTemplateData,
             itemTemplate: this.itemTemplate,
             itemsClass: this.itemsClass,
-            itemslistClass : this.itemslistClass,
+            itemslistClass: this.itemslistClass,
             itemClass: this.itemClass,
             itemTextClass: this.itemTextClass,
             searchInputClass: this.searchInputClass,
-            showSearch: this.showSearch
+            showSearch: this.showSearch,
+            maxHeightPopupPositioning: this.maxHeightPopupPositioning
         });
 
         var popupOptions = {
@@ -838,7 +858,7 @@ _.extend(SingleSelleckt.prototype, {
             }
         };
 
-        popup.open(this.$sellecktEl.find('.'+this.selectedClass), this.getItemsForPopup(), popupOptions);
+        popup.open(this.$sellecktEl.find('.' + this.selectedClass), this.getItemsForPopup(), popupOptions);
 
         popup.bind('close', _.bind(this._onPopupClose, this));
         popup.bind('valueSelected', _.bind(this._onPopupValueSelected, this));
@@ -927,7 +947,7 @@ _.extend(SingleSelleckt.prototype, {
         var selectedItem = this.getSelection();
         var itemsToShow;
 
-        if(selectedItem && hideSelectedItem){
+        if (selectedItem && hideSelectedItem) {
             itemsToShow = this._filterSelection(matchingItems, selectedItem);
         } else {
             itemsToShow = matchingItems;
@@ -952,10 +972,10 @@ _.extend(SingleSelleckt.prototype, {
                 item.aliases = data.aliases.split(',');
             }
 
-            if(item.value && item.label){
+            if (item.value && item.label) {
                 memo.items.push(item);
 
-                if($option.prop('selected')){
+                if ($option.prop('selected')) {
                     memo.selectedItems.push(item);
                 }
             }
@@ -974,7 +994,7 @@ _.extend(SingleSelleckt.prototype, {
             text: item.label
         });
 
-        if(item.data){
+        if (item.data) {
             Object.keys(item.data).forEach(function(key){
                 var val = item.data[key];
                 var attrVal = _.isArray(val) ? val.join(',') : val;
@@ -1003,7 +1023,7 @@ _.extend(SingleSelleckt.prototype, {
         });
     },
 
-    _mutationHandler: function (mutations){
+    _mutationHandler: function(mutations){
         var newItems = [],
             removedItems = [],
             selectedItems = [];
@@ -1015,7 +1035,7 @@ _.extend(SingleSelleckt.prototype, {
 
         this.items = this.items.concat(newItems);
 
-        if(removedItems.length){
+        if (removedItems.length) {
             this.items = _.reject(this.items, function(item){
                 return _.any(removedItems, function(removedItem){
                     return removedItem.value === item.value;
@@ -1024,17 +1044,17 @@ _.extend(SingleSelleckt.prototype, {
         }
 
         _.forEach(this.items, function(item){
-            if(item.isSelected){
+            if (item.isSelected) {
                 this.selectItem(item, {silent: true});
                 selectedItems.push(item);
             }
         }, this);
 
-        if(!selectedItems.length){
+        if (!selectedItems.length) {
             this.selectedItem = undefined;
 
-            if(this.$sellecktEl){
-                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+            if (this.$sellecktEl) {
+                this.$sellecktEl.find('.' + this.selectedTextClass).text(this.placeholderText);
             }
         }
 
@@ -1074,7 +1094,7 @@ _.extend(SingleSelleckt.prototype, {
         $sellecktEl.on('keydown', function(e){
             var whichKey = e.which;
 
-            if(whichKey === KEY_CODES.ENTER){
+            if (whichKey === KEY_CODES.ENTER) {
                 self._open();
             }
         });
@@ -1090,7 +1110,7 @@ _.extend(SingleSelleckt.prototype, {
         });
 
         $originalSelectEl.on('change.selleckt', function(e, data) {
-            if(data && data.origin === 'selleckt') {
+            if (data && data.origin === 'selleckt') {
                 return;
             }
 
@@ -1105,15 +1125,14 @@ _.extend(SingleSelleckt.prototype, {
 
         this.items = itemsObj.items;
 
-        if(itemsObj.selectedItems[0]){
+        if (itemsObj.selectedItems[0]) {
             this.selectItem(itemsObj.selectedItems[0], { silent: true });
         }
     },
 
     findItem: function(value){
         return _(this.items).find(function(item){
-            /*jshint eqeqeq:false*/
-            return item.value == value;
+            return item.value == value; //eslint-disable-line
         });
     },
 
@@ -1124,12 +1143,12 @@ _.extend(SingleSelleckt.prototype, {
         item = item || {};
         options = options || {};
 
-        if(item === this.selectedItem){
+        if (item === this.selectedItem) {
             return;
         }
 
-        if($sellecktEl){
-            $sellecktEl.find('.'+this.selectedTextClass).text(displayedLabel);
+        if ($sellecktEl) {
+            $sellecktEl.find('.' + this.selectedTextClass).text(displayedLabel);
         }
 
         this.selectedItem = item;
@@ -1143,7 +1162,7 @@ _.extend(SingleSelleckt.prototype, {
     selectItemByValue: function(value, options) {
         var item = this.findItem(value);
 
-        if(!item){
+        if (!item) {
             return;
         }
 
@@ -1162,9 +1181,9 @@ _.extend(SingleSelleckt.prototype, {
         var selectedItem = this.getSelection();
 
         return _.extend(this.mainTemplateData, {
-            showSearch : this.showSearch,
+            showSearch: this.showSearch,
             selectedItemText: selectedItem && selectedItem.label || this.placeholderText,
-            className : this.className,
+            className: this.className,
             selectedClass: this.selectedClass,
             selectedTextClass: this.selectedTextClass
         });
@@ -1200,7 +1219,7 @@ _.extend(SingleSelleckt.prototype, {
 
         this.items.push(item);
 
-        if(item.isSelected){
+        if (item.isSelected) {
             this.selectItem(item);
         }
 
@@ -1212,15 +1231,15 @@ _.extend(SingleSelleckt.prototype, {
         //stop observing mutations, else we'll get into a loop
         this._stopObservingMutations();
 
-        this.$originalSelectEl.find('option[value="' + value +'"]').remove();
+        this.$originalSelectEl.find('option[value="' + value + '"]').remove();
 
         this.items = _.filter(this.items, function(item){
             return value !== item.value;
         });
 
-        if(this.selectedItem.value === value){
-            if(this.$sellecktEl){
-                this.$sellecktEl.find('.'+this.selectedTextClass).text(this.placeholderText);
+        if (this.selectedItem.value === value) {
+            if (this.$sellecktEl) {
+                this.$sellecktEl.find('.' + this.selectedTextClass).text(this.placeholderText);
             }
 
             this.selectedItem = undefined;
@@ -1244,7 +1263,7 @@ _.extend(SingleSelleckt.prototype, {
     },
 
     destroy: function(){
-        if(!this.$sellecktEl){
+        if (!this.$sellecktEl) {
             return;
         }
 
@@ -1325,7 +1344,7 @@ var jqueryPlugin = require('./sellecktJqueryPlugin');
 
 //this is what we return in the CommonJS module.
 var selleckt = {
-    create : function(options){
+    create: function(options){
         var Super = !!options.multiple ? MultiSelleckt : SingleSelleckt,
             o = Object.create(Super.prototype);
 
@@ -1363,7 +1382,7 @@ module.exports = {
                         multiple: !!$self.attr('multiple')
                     }, options);
 
-                if(sellecktPlugin){
+                if (sellecktPlugin) {
                     return;
                 }
 
@@ -1385,7 +1404,7 @@ var Mustache = (typeof window !== "undefined" ? window['Mustache'] : typeof glob
 
 module.exports = {
     cacheTemplate: function(template) {
-        if(typeof(template) !== 'string'){
+        if (typeof(template) !== 'string') {
             throw new Error('Please provide a valid mustache template.');
         }
 
