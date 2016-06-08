@@ -63,7 +63,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                     searchInputClass: 'mySearchInputClass',
                     showSearch: true,
                     templateData: {foo: 'bar'},
-                    forcePopupPositionTop: true
+                    maxHeightPopupPositioning: true
                 };
 
                 popup = new SellecktPopup(popupOptions);
