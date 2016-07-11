@@ -33,7 +33,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             $el.remove();
             $el = undefined;
 
-            if(selleckt){
+            if (selleckt){
                 selleckt.destroy();
                 selleckt = undefined;
             }
@@ -47,10 +47,10 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 it('pukes if instantiated with an invalid template format', function(){
                     var err;
 
-                    try{
+                    try {
                         selleckt = new SingleSelleckt({
-                            mainTemplate : {template: '<div/>'},
-                            $selectEl : $el,
+                            mainTemplate: {template: '<div/>'},
+                            $selectEl: $el,
                             className: 'selleckt',
                             selectedClass: 'selected',
                             selectedTextClass: 'selectedText',
@@ -59,7 +59,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                             selectedClassName: 'isSelected',
                             highlightClassName: 'isHighlighted'
                         });
-                    } catch(e){
+                    } catch (e){
                         err = e;
                     }
 
@@ -86,10 +86,10 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         '{{/items}}' +
                     '</ul>' +
                 '</div>',
-                itemTemplate = '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
+                    itemTemplate = '<li class="{{itemClass}}" data-text="{{label}}" data-value="{{value}}">' +
                     '<span class="{{itemTextClass}}">{{label}}</span>' +
                 '</li>',
-                popupTemplate =
+                    popupTemplate =
                 '<div class="{{itemsClass}}">' +
                     '{{#showSearch}}' +
                     '<div class="searchContainer">' +
@@ -111,7 +111,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         popupTemplate: popupTemplate,
                         mainTemplateData: {foo: 'bar'},
                         popupTemplateData: {meh: 'boo'},
-                        $selectEl : $el,
+                        $selectEl: $el,
                         className: 'selleckt',
                         selectedClass: 'selected',
                         selectedTextClass: 'selectedText',
@@ -232,7 +232,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         var $newEl = $(selectHtml).appendTo($testArea);
 
                         selleckt = new SingleSelleckt({
-                            $selectEl : $newEl
+                            $selectEl: $newEl
                         });
 
                         expect(selleckt.items.length).toEqual(2);
@@ -254,7 +254,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         var $newEl = $(selectHtml).appendTo($testArea);
 
                         selleckt = new SingleSelleckt({
-                            $selectEl : $newEl
+                            $selectEl: $newEl
                         });
 
                         expect(selleckt.selectedItem).toBeUndefined();
@@ -270,7 +270,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         var $newEl = $(selectHtml).appendTo($testArea);
 
                         selleckt = new SingleSelleckt({
-                            $selectEl : $newEl
+                            $selectEl: $newEl
                         });
 
                         expect(selleckt.selectedItem).toBeUndefined();
@@ -293,7 +293,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                             selleckt = new SingleSelleckt({
                                 mainTemplate: template,
-                                $selectEl : $newEl,
+                                $selectEl: $newEl,
                                 className: 'selleckt',
                                 selectedClass: 'selected',
                                 selectedTextClass: 'selectedText',
@@ -324,7 +324,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                         selleckt = new SingleSelleckt({
                             mainTemplate: template,
                             itemTemplate: itemTemplate,
-                            $selectEl : $el,
+                            $selectEl: $el,
                             className: 'selleckt',
                             selectedClass: 'selected',
                             selectedTextClass: 'selectedText',
@@ -351,7 +351,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                         selleckt = new SingleSelleckt({
                             mainTemplate: template,
-                            $selectEl : $el,
+                            $selectEl: $el,
                             className: 'selleckt',
                             selectedClass: 'selected',
                             selectedTextClass: 'selectedText',
@@ -371,7 +371,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
         describe('rendering', function(){
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
@@ -387,7 +387,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 selleckt.destroy();
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
                 selleckt.render();
 
@@ -428,7 +428,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 selleckt.destroy();
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el,
+                    $selectEl: $el,
                     mainTemplate: customTemplate,
                     mainTemplateData: {
                         selectLabel: 'Please selleckt',
@@ -453,7 +453,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 };
 
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
@@ -511,7 +511,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     it('displays the item text in the selleckt element', function(){
                         selleckt.addItem(item);
 
-                        expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(item.label);
+                        expect(selleckt.$sellecktEl.find('.' + selleckt.selectedTextClass).text()).toEqual(item.label);
                     });
                 });
             });
@@ -521,9 +521,9 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 beforeEach(function(){
                     items = [
-                        { label: 'new 1', value: 'new value 1' },
-                        { label: 'new 2', value: 'new value 2' },
-                        { label: 'new 3', value: 'new value 3' }
+                        {label: 'new 1', value: 'new value 1' },
+                        {label: 'new 2', value: 'new value 2' },
+                        {label: 'new 3', value: 'new value 3' }
                     ];
                 });
 
@@ -586,7 +586,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     it('displays the item text in the selleckt element', function(){
                         selleckt.addItems(items);
 
-                        expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(items[0].label);
+                        expect(selleckt.$sellecktEl.find('.' + selleckt.selectedTextClass).text()).toEqual(items[0].label);
                     });
                 });
             });
@@ -597,7 +597,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
@@ -650,11 +650,11 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 });
 
                 it('sets the placeholder text back', function(){
-                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.selectedItem.label);
+                    expect(selleckt.$sellecktEl.find('.' + selleckt.selectedTextClass).text()).toEqual(selleckt.selectedItem.label);
 
                     selleckt.removeItem(removeItemValue);
 
-                    expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual(selleckt.placeholderText);
+                    expect(selleckt.$sellecktEl.find('.' + selleckt.selectedTextClass).text()).toEqual(selleckt.placeholderText);
                 });
             });
 
@@ -666,14 +666,14 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 makePopupStub = sandbox.stub(selleckt, '_makePopup');
 
                 selleckt.render();
 
-                $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+                $selectedItem = selleckt.$sellecktEl.find('.' + selleckt.selectedClass);
             });
 
             afterEach(function(){
@@ -776,7 +776,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 closeSpy = sandbox.spy(SingleSelleckt.prototype, '_close');
 
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
@@ -811,7 +811,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 cssStub = sandbox.stub($.fn, 'css');
 
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el,
+                    $selectEl: $el,
                     itemsClass: 'items',
                     itemslistClass: 'itemslist',
                     itemClass: 'item',
@@ -880,7 +880,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
@@ -907,7 +907,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 expect(selectItemStub.args[0][1]).toEqual(options);
             });
 
-            it('does nothing if the selectItemByValue is called with a value that does not exist', function () {
+            it('does nothing if the selectItemByValue is called with a value that does not exist', function() {
                 var selectItemStub = sandbox.stub(SingleSelleckt.prototype, 'selectItem');
 
                 sandbox.stub(SingleSelleckt.prototype, 'findItem').returns(undefined);
@@ -943,7 +943,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             it('updates the text of the selected item container with the selectedItem\'s label', function(){
                 popup.trigger('valueSelected', '2');
 
-                expect(selleckt.$sellecktEl.find('.'+selleckt.selectedTextClass).text()).toEqual('bar');
+                expect(selleckt.$sellecktEl.find('.' + selleckt.selectedTextClass).text()).toEqual('bar');
             });
 
             it('triggers an "itemSelected" event with this.selectedItem', function(){
@@ -1059,12 +1059,12 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
 
                 selleckt.render();
 
-                $selectedItem = selleckt.$sellecktEl.find('.'+selleckt.selectedClass);
+                $selectedItem = selleckt.$sellecktEl.find('.' + selleckt.selectedClass);
 
                 selleckt.$sellecktEl.focus();
             });
@@ -1077,9 +1077,9 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             it('opens the items list when enter is pressed on a closed selleckt', function(){
                 expect(selleckt.$sellecktEl.hasClass('open')).toEqual(false);
 
-                var makePopupStub = sandbox.stub(selleckt,  '_makePopup');
+                var makePopupStub = sandbox.stub(selleckt, '_makePopup');
 
-                $selectedItem.trigger($.Event('keydown', { which : KEY_CODES.ENTER }));
+                $selectedItem.trigger($.Event('keydown', { which: KEY_CODES.ENTER }));
 
                 expect(selleckt.$sellecktEl.hasClass('open')).toEqual(true);
 
@@ -1108,18 +1108,15 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                     '<option value="foobaz">foobaz</option>' +
                     '</select>';
 
-            var $searchInput;
-
             afterEach(function(){
                 selleckt._close();
-                $searchInput = undefined;
             });
 
             describe('rendering', function(){
                 it('shows the search input if settings.enableSearch is true and ' +
                     'there are more items than options.searchThreshold', function(){
                     selleckt = new SingleSelleckt({
-                        $selectEl : $(selectHtml),
+                        $selectEl: $(selectHtml),
                         enableSearch: true,
                         searchThreshold: 0
                     });
@@ -1133,7 +1130,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 it('does not display a searchbox if settings.enableSearch is true and ' +
                         'there are fewer items than options.searchThreshold', function(){
                     selleckt = new SingleSelleckt({
-                        $selectEl : $(selectHtml),
+                        $selectEl: $(selectHtml),
                         enableSearch: true,
                         searchThreshold: 100
                     });
@@ -1146,7 +1143,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 it('does not display a searchbox if settings.enableSearch is false', function(){
                     selleckt = new SingleSelleckt({
-                        $selectEl : $(selectHtml),
+                        $selectEl: $(selectHtml),
                         enableSearch: false
                     });
 
@@ -1172,7 +1169,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 var filteredItems = selleckt._filterItems(selleckt.items, 'foo');
 
                 expect(filteredItems.length).toEqual(1);
-                expect(filteredItems[0]).toEqual({ label: 'Foo', value: '1', matchStart: 0, matchEnd: 2 });
+                expect(filteredItems[0]).toEqual({label: 'Foo', value: '1', matchStart: 0, matchEnd: 2 });
             });
 
             it('can annotate the items with matchIndexes', function(){
@@ -1191,9 +1188,9 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 var filteredItems = selleckt._filterItems(selleckt.items, 'ba');
 
                 expect(filteredItems).toEqual([
-                    { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
-                    { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
-                    { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
+                    {label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
+                    {label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
+                    {label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
                 ]);
             });
 
@@ -1213,9 +1210,9 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 var filteredItems = selleckt._filterItems(selleckt.items, 'BA');
 
                 expect(filteredItems).toEqual([
-                    { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
-                    { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
-                    { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
+                    {label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
+                    {label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
+                    {label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 }
                 ]);
             });
 
@@ -1236,17 +1233,17 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 var filteredItems = selleckt._filterItems(selleckt.items, 'BA');
 
                 expect(filteredItems).toEqual([
-                    { label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
-                    { label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
-                    { label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 },
-                    { label: 'foo', value: 'foo', aliases: ['baaar'], matchStart: -1, matchEnd: -1 },
-                    { label: 'foo2', value: 'foo2', aliases: ['ohno', 'FOOBAR'], matchStart: -1, matchEnd: -1 }
+                    {label: 'bar', value: 'bar', matchStart: 0, matchEnd: 1 },
+                    {label: 'baz', value: 'baz', matchStart: 0, matchEnd: 1 },
+                    {label: 'foobaz', value: 'foobaz', matchStart: 3, matchEnd: 4 },
+                    {label: 'foo', value: 'foo', aliases: ['baaar'], matchStart: -1, matchEnd: -1 },
+                    {label: 'foo2', value: 'foo2', aliases: ['ohno', 'FOOBAR'], matchStart: -1, matchEnd: -1 }
                 ]);
             });
 
             it('does not refresh the popup with this.selectedItem, if this.hideSelectedItem === true', function() {
                 selleckt = new SingleSelleckt({
-                    $selectEl : $('<select>' +
+                    $selectEl: $('<select>' +
                         '<option value="foo">foo</option>' +
                         '<option value="bar">bar</option>' +
                         '<option value="baz">baz</option>' +
@@ -1272,7 +1269,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 var spy = sandbox.spy();
 
                 selleckt = new SingleSelleckt({
-                    $selectEl : $('<select><option value="foo">foo</option><option value="bar">bar</option></select>'),
+                    $selectEl: $('<select><option value="foo">foo</option><option value="bar">bar</option></select>'),
                     enableSearch: true,
                     searchThreshold: 0
                 });
@@ -1295,7 +1292,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
         describe('removal', function(){
             beforeEach(function(){
                 selleckt = new SingleSelleckt({
-                    $selectEl : $el
+                    $selectEl: $el
                 });
                 selleckt.render();
             });
@@ -1343,7 +1340,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
     });
 }
 
-(function (root, factory) {
+(function(root, factory) {
     if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
@@ -1366,6 +1363,6 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             root._
         );
     }
-}(this, function (exports, SingleSelleckt, templateUtils, $, _) {
+}(this, function(exports, SingleSelleckt, templateUtils, $, _) {
     return singleSellecktSpecs(SingleSelleckt, templateUtils, $, _);
 }));

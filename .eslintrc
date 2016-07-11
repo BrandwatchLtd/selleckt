@@ -44,7 +44,7 @@
         "max-len": [2, 140],
         "max-params": [1, 4],
         "max-statements": [2, 20],
-        "new-cap": [2, { "capIsNewExceptions": ["Q"] }],
+        "new-cap": [2, { "capIsNewExceptions": ["$.Event"] }],
         "no-eval": 2,
         "no-bitwise": 2,
         "no-caller": 2,
