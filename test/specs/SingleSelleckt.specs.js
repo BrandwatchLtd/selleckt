@@ -713,12 +713,12 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             it('triggers a "close" event when _close is called', function(){
                 var listener = sinon.stub();
 
-                selleckt.bind('close', listener);
+                selleckt.on('close', listener);
                 selleckt._close();
 
                 expect(listener.calledOnce).toEqual(true);
 
-                selleckt.unbind('close', listener);
+                selleckt.off('close', listener);
             });
 
             it('adds a class of "open" to this.$sellecktEl when the selleckt is opened', function(){
@@ -949,7 +949,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             it('triggers an "itemSelected" event with this.selectedItem', function(){
                 var spy = sandbox.spy();
 
-                selleckt.bind('itemSelected', spy);
+                selleckt.on('itemSelected', spy);
 
                 popup.trigger('valueSelected', '2');
 
@@ -960,7 +960,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
             it('does not trigger an "itemSelected" event when option.silent is passed', function(){
                 var spy = sandbox.spy();
 
-                selleckt.bind('trigger', spy);
+                selleckt.on('trigger', spy);
 
                 selleckt.selectItem(1, {silent: true});
 
@@ -972,7 +972,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                 popup.trigger('valueSelected', '1');
 
-                selleckt.bind('itemSelected', spy);
+                selleckt.on('itemSelected', spy);
 
                 popup.trigger('valueSelected', '1');
                 expect(spy.called).toEqual(false);
@@ -1277,7 +1277,7 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 selleckt.render();
                 selleckt._open();
 
-                selleckt.bind('optionsFiltered', spy);
+                selleckt.on('optionsFiltered', spy);
 
                 selleckt._refreshPopupWithSearchHits('ba');
 

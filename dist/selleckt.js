@@ -27,20 +27,20 @@ module.exports = KEY_CODES;
 
 var MicroEvent = function(){};
 MicroEvent.prototype = {
-    bind: function(event, fct){
+    on: function(event, fct){
         this._events = this._events || {};
         this._events[event] = this._events[event] || [];
         this._events[event].push(fct);
     },
-    on: this.bind,
-    unbind: function(event, fct){
+    bind: this.on,
+    off: function(event, fct){
         this._events = this._events || {};
         if (event in this._events === false) {
             return;
         }
         this._events[event].splice(this._events[event].indexOf(fct), 1);
     },
-    off: this.unbind,
+    unbind: this.off,
     trigger: function(event /* , args... */){
         this._events = this._events || {};
         if (event in this._events === false) {
@@ -829,7 +829,7 @@ _.extend(SingleSelleckt.prototype, {
 
     _removePopup: function() {
         if (this.popup) {
-            this.popup.unbind('valueSelected', this.onPopupValueSelected);
+            this.popup.off('valueSelected', this.onPopupValueSelected);
             this.popup.close();
             this.popup = undefined;
         }
@@ -866,9 +866,9 @@ _.extend(SingleSelleckt.prototype, {
 
         popup.open(this.$sellecktEl.find('.' + this.selectedClass), this.getItemsForPopup(), popupOptions);
 
-        popup.bind('close', _.bind(this._onPopupClose, this));
-        popup.bind('valueSelected', _.bind(this._onPopupValueSelected, this));
-        popup.bind('search', _.bind(this._refreshPopupWithSearchHits, this));
+        popup.on('close', _.bind(this._onPopupClose, this));
+        popup.on('valueSelected', _.bind(this._onPopupValueSelected, this));
+        popup.on('search', _.bind(this._refreshPopupWithSearchHits, this));
 
         this.trigger('onPopupCreated', popup);
 

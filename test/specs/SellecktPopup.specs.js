@@ -635,7 +635,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
             it('triggers a close event', function(){
                 var spy = sandbox.spy();
 
-                popup.bind('close', spy);
+                popup.on('close', spy);
                 popup.close();
 
                 expect(spy.calledOnce).toEqual(true);
@@ -803,7 +803,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 var spy = sandbox.spy();
                 var $firstItem = $popup.find('.' + popup.itemClass).first();
 
-                popup.bind('valueSelected', spy);
+                popup.on('valueSelected', spy);
 
                 $firstItem.addClass(popup.highlightClass);
                 $firstItem.trigger($.Event('keydown', {
@@ -935,7 +935,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                     O: 79
                 };
 
-                popup.bind('search', searchSpy);
+                popup.on('search', searchSpy);
 
                 $searchInput.val('foo');
                 $searchInput.trigger($.Event('keyup', {
