@@ -436,7 +436,7 @@ An example of using an event, where there is a select with id 'foo' to which sel
 ```javascript
 var sellecktInstance = $('#foo').data('selleckt');
 
-sellecktInstance.bind('itemSelected', function onItemSelected(item){
+sellecktInstance.on('itemSelected', function onItemSelected(item){
     console.log('Item selected: ', item);
 });
 ```

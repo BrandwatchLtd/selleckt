@@ -25,22 +25,34 @@ module.exports = KEY_CODES;
 */
 'use strict';
 
-var MicroEvent  = function(){};
+var MicroEvent = function(){};
 MicroEvent.prototype = {
-    bind    : function(event, fct){
+    on: function(event, fct){
         this._events = this._events || {};
-        this._events[event] = this._events[event]   || [];
+        this._events[event] = this._events[event] || [];
         this._events[event].push(fct);
     },
-    unbind  : function(event, fct){
+    bind: function() {
+        console.warn('SELLECKT: .bind() is deprecated. Use .on() instead.');
+        this.on.apply(this, arguments);
+    },
+    off: function(event, fct){
         this._events = this._events || {};
-        if( event in this._events === false  ) { return; }
+        if (event in this._events === false) {
+            return;
+        }
         this._events[event].splice(this._events[event].indexOf(fct), 1);
     },
-    trigger : function(event /* , args... */){
+    unbind: function() {
+        console.warn('SELLECKT: .unbind() is deprecated. Use .off() instead.');
+        this.off.apply(this, arguments);
+    },
+    trigger: function(event /* , args... */){
         this._events = this._events || {};
-        if( event in this._events === false  ) { return; }
-        for(var i = 0; i < this._events[event].length; i++){
+        if (event in this._events === false) {
+            return;
+        }
+        for (var i = 0; i < this._events[event].length; i++) {
             this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
         }
     }
@@ -54,9 +66,9 @@ MicroEvent.prototype = {
  * @param {Object} the object which will support MicroEvent
 */
 MicroEvent.mixin = function(destObject){
-    var props  = ['bind', 'unbind', 'trigger'];
-    for(var i = 0; i < props.length; i ++){
-        destObject.prototype[props[i]]  = MicroEvent.prototype[props[i]];
+    var props = ['bind', 'on', 'unbind', 'off', 'trigger'];
+    for (var i = 0; i < props.length; i++) {
+        destObject.prototype[props[i]] = MicroEvent.prototype[props[i]];
     }
 };
 
@@ -823,7 +835,7 @@ _.extend(SingleSelleckt.prototype, {
 
     _removePopup: function() {
         if (this.popup) {
-            this.popup.unbind('valueSelected', this.onPopupValueSelected);
+            this.popup.off('valueSelected', this.onPopupValueSelected);
             this.popup.close();
             this.popup = undefined;
         }
@@ -860,9 +872,9 @@ _.extend(SingleSelleckt.prototype, {
 
         popup.open(this.$sellecktEl.find('.' + this.selectedClass), this.getItemsForPopup(), popupOptions);
 
-        popup.bind('close', _.bind(this._onPopupClose, this));
-        popup.bind('valueSelected', _.bind(this._onPopupValueSelected, this));
-        popup.bind('search', _.bind(this._refreshPopupWithSearchHits, this));
+        popup.on('close', _.bind(this._onPopupClose, this));
+        popup.on('valueSelected', _.bind(this._onPopupValueSelected, this));
+        popup.on('search', _.bind(this._refreshPopupWithSearchHits, this));
 
         this.trigger('onPopupCreated', popup);
 

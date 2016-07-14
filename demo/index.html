@@ -217,7 +217,7 @@ $select3.data('selleckt').$sellecktEl.on('click', '.add', function(e){
                     {label: 'Baz', value:'3', customAttr: 'Z'}
                 ]);
 
-                $select4.data('selleckt').bind('onPopupCreated', function(popup){
+                $select4.data('selleckt').on('onPopupCreated', function(popup){
                     popup.$popup.on('click', '.add', function(e){
                         e.preventDefault();
                         e.stopPropagation();

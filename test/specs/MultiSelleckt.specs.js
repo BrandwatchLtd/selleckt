@@ -359,7 +359,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             it('does not trigger an "itemSelected" event when option.silent is passed', function(){
                 var spy = sandbox.spy();
 
-                multiSelleckt.bind('trigger', spy);
+                multiSelleckt.on('trigger', spy);
 
                 multiSelleckt.selectItem(1, {silent: true});
 
@@ -504,7 +504,7 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
             it('triggers an "itemUnselected" event with the removed item', function(){
                 var spy = sandbox.spy();
 
-                multiSelleckt.bind('itemUnselected', spy);
+                multiSelleckt.on('itemUnselected', spy);
                 $clickTarget.trigger('click');
 
                 expect(spy.calledOnce).toEqual(true);
