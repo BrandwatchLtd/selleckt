@@ -514,6 +514,16 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                     data: {}
                 });
             });
+
+            it('does not trigger an "itemUnselected" event when option.silent is passed', function(){
+                var spy = sandbox.spy();
+
+                multiSelleckt.on('trigger', spy);
+
+                multiSelleckt.unselectItem(1, {silent: true});
+
+                expect(spy.calledWith('itemUnselected')).toEqual(false);
+            });
         });
 
         describe('filtering', function(){
