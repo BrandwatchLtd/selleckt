@@ -1152,6 +1152,19 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
 
                     expect(selleckt.popup.$popup.find('.' + selleckt.searchInputClass).length).toEqual(0);
                 });
+
+                it('renders the defaultSearchTerm if settings.defaultSearchTerm is set and settings.enableSearch is true', function(){
+                    selleckt = new SingleSelleckt({
+                        $selectEl: $(selectHtml),
+                        enableSearch: true,
+                        defaultSearchTerm: 'myDefaultSearchTerm'
+                    });
+
+                    selleckt.render();
+                    selleckt._open();
+
+                    expect(selleckt.popup.$popup.find('.' + selleckt.searchInputClass).val()).toEqual('myDefaultSearchTerm');
+                });
             });
         });
 

@@ -355,6 +355,7 @@ function SellecktPopup(options){
         highlightClass: 'highlighted',
         searchInputClass: 'search',
         showSearch: false,
+        defaultSearchTerm: '',
         maxHeightPopupPositioning: false
     });
 
@@ -369,6 +370,7 @@ function SellecktPopup(options){
 
     this.searchInputClass = settings.searchInputClass;
     this.showSearch = settings.showSearch;
+    this.defaultSearchTerm = settings.defaultSearchTerm;
     this.maxHeightPopupPositioning = settings.maxHeightPopupPositioning;
 
     templateUtils.cacheTemplate(this.template);
@@ -397,7 +399,8 @@ _.extend(SellecktPopup.prototype, {
         this._attachResizeHandler($opener);
 
         if (this.showSearch) {
-            $popup.find('.' + this.searchInputClass).focus();
+            var $input = $popup.find('.' + this.searchInputClass);
+            $input.val(this.defaultSearchTerm).get(0).select();
         } else {
             //NB: set the tabindex so we can apply focus, which makes the key handling work
             $popup.find('.' + this.itemClass).first().attr('tabindex',-1).focus();
@@ -737,6 +740,7 @@ function SingleSelleckt(options){
         enableSearch: false,
         searchInputClass: 'search',
         searchThreshold: 0,
+        defaultSearchTerm: '',
         hideSelectedItem: false,
         maxHeightPopupPositioning: false
     });
@@ -764,6 +768,8 @@ function SingleSelleckt(options){
 
     this.showSearch = (settings.enableSearch &&
                         this.items.length > settings.searchThreshold);
+
+    this.defaultSearchTerm = settings.defaultSearchTerm;
 
     this.hideSelectedItem = settings.hideSelectedItem;
     this.maxHeightPopupPositioning = settings.maxHeightPopupPositioning;
@@ -810,6 +816,10 @@ _.extend(SingleSelleckt.prototype, {
         }
 
         this.popup = this._makePopup();
+
+        if (this.defaultSearchTerm) {
+            this._refreshPopupWithSearchHits(this.defaultSearchTerm);
+        }
 
         $sellecktEl.addClass('open').removeClass('closed');
 
@@ -860,6 +870,7 @@ _.extend(SingleSelleckt.prototype, {
             itemTextClass: this.itemTextClass,
             searchInputClass: this.searchInputClass,
             showSearch: this.showSearch,
+            defaultSearchTerm: this.defaultSearchTerm,
             maxHeightPopupPositioning: this.maxHeightPopupPositioning
         });
 

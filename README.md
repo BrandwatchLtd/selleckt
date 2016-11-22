@@ -214,6 +214,14 @@ The following options can be passed to selleckt:
             </td>
         </tr>
         <tr>
+            <td>defaultSearchTerm</td>
+            <td>string</td>
+            <td>''</td>
+            <td>
+                If enableSearch is true, prefill search input with defaultSearchTerm.
+            </td>
+        </tr>
+        <tr>
             <td>hideSelectedItem</td>
             <td>boolean</td>
             <td>false</td>

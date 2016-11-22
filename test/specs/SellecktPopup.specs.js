@@ -62,6 +62,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                     highlightClass: 'myHighlightClass',
                     searchInputClass: 'mySearchInputClass',
                     showSearch: true,
+                    defaultSearchTerm: 'myDefaultSearchTerm',
                     templateData: {foo: 'bar'},
                     maxHeightPopupPositioning: true
                 };
@@ -103,6 +104,10 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
             it('stores the showSearch passed in as this.showSearch', function(){
                 expect(popup.showSearch).toEqual(popupOptions.showSearch);
+            });
+
+            it('stores the defaultSearchTerm passed in as this.defaultSearchTerm', function(){
+                expect(popup.defaultSearchTerm).toEqual(popupOptions.defaultSearchTerm);
             });
 
             it('stores the templateData passed in as this.templateData', function(){
@@ -543,6 +548,25 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 popup.open($opener, items);
 
                 expect($(document.activeElement).hasClass(popup.searchInputClass)).toEqual(true);
+            });
+
+            describe('when showSearch is true and defaultSearchTerm is set', function() {
+                beforeEach(function(){
+                    popup = new SellecktPopup({
+                        showSearch: true,
+                        defaultSearchTerm: 'myDefaultSearchTerm'
+                    });
+                    popup.open($opener, items);
+                });
+                it('renders the defaultSearchTerm in the searchInput', function(){
+                    expect(popup.$popup.find('.' + popup.searchInputClass).val()).toEqual('myDefaultSearchTerm');
+                });
+
+                it('selects the defaultSearchTerm in the searchInput', function(){
+                    var activeElement = document.activeElement;
+                    var text = activeElement.value.slice(activeElement.selectionStart, activeElement.selectionEnd);
+                    expect(text).toEqual('myDefaultSearchTerm');
+                });
             });
 
             it('focuses the first item if showSearch is false', function(){
