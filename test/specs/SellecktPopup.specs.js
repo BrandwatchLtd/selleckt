@@ -550,7 +550,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
                 expect($(document.activeElement).hasClass(popup.searchInputClass)).toEqual(true);
             });
 
-            describe('when showSearch is true and defaultSearchTerm is set', function() {
+            describe('when showSearch is true, $input exists and defaultSearchTerm is set', function() {
                 beforeEach(function(){
                     popup = new SellecktPopup({
                         showSearch: true,
@@ -577,6 +577,25 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                 expect(focusStub.calledOnce).toEqual(true);
                 expect(focusStub.thisValues[0].is(popup.$popup.find('.' + popup.itemClass).eq(0))).toEqual(true);
+            });
+
+            it('focuses the first item if $input is undefined', function(){
+                var focusStub = sandbox.stub($.fn, 'focus');
+                var ITEMS_CONTAINER = '<div class="{{itemsClass}}">' +
+                    '<ul class="{{itemslistClass}}">' +
+                        '{{#items}}' +
+                            '{{> item}}' +
+                        '{{/items}}' +
+                    '</ul>' +
+                '</div>';
+
+                popup = new SellecktPopup({
+                    template: ITEMS_CONTAINER,
+                    showSearch: true
+                });
+                popup.open($opener, items);
+
+                expect(focusStub.calledOnce).toEqual(true);
             });
 
             it('renders the items into the popup', function(){
