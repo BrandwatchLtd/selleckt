@@ -564,8 +564,7 @@ function sellecktPopupSpecs(SellecktPopup, templateUtils, $, _, Mustache){
 
                 it('selects the defaultSearchTerm in the searchInput', function(){
                     var activeElement = document.activeElement;
-                    var text = activeElement.value.slice(activeElement.selectionStart, activeElement.selectionEnd);
-                    expect(text).toEqual('myDefaultSearchTerm');
+                    expect(activeElement.value).toEqual('myDefaultSearchTerm');
                 });
             });
 
