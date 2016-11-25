@@ -383,6 +383,7 @@ _.extend(SellecktPopup.prototype, {
         options = options || {};
 
         var $popup = this.$popup = createPopup();
+        var $input;
 
         if (options.css) {
             $popup.css(options.css);
@@ -398,8 +399,8 @@ _.extend(SellecktPopup.prototype, {
         this.bindEvents();
         this._attachResizeHandler($opener);
 
-        if (this.showSearch) {
-            var $input = $popup.find('.' + this.searchInputClass);
+        $input = $popup.find('.' + this.searchInputClass);
+        if (this.showSearch && $input.length) {
             $input.val(this.defaultSearchTerm).get(0).select();
         } else {
             //NB: set the tabindex so we can apply focus, which makes the key handling work
