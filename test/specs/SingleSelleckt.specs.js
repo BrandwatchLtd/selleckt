@@ -1300,6 +1300,27 @@ function singleSellecktSpecs(SingleSelleckt, templateUtils, $, _){
                 selleckt._close();
                 selleckt.destroy();
             });
+
+            it('resets the defaultSearchTerm when refreshing the search hits', function() {
+                selleckt = new SingleSelleckt({
+                    $selectEl: $('<select><option value="foo">foo</option><option value="bar">bar</option></select>'),
+                    enableSearch: true,
+                    defaultSearchTerm: 'query',
+                    searchThreshold: 0
+                });
+
+                selleckt.render();
+                selleckt._open();
+
+                expect(selleckt.defaultSearchTerm).toEqual('query');
+
+                selleckt._refreshPopupWithSearchHits('ba');
+
+                expect(selleckt.defaultSearchTerm).toEqual('ba');
+
+                selleckt._close();
+                selleckt.destroy();
+            });
         });
 
         describe('removal', function(){

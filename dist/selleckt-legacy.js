@@ -976,6 +976,7 @@ _.extend(SingleSelleckt.prototype, {
             itemsToShow = matchingItems;
         }
 
+        this.defaultSearchTerm = term;
         this.popup.refreshItems(itemsToShow);
 
         this.trigger('optionsFiltered', term);
