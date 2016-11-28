@@ -302,6 +302,8 @@ MultiSelleckt.prototype.unselectItem = function(item, options){
 
     this.toggleDisabled();
 
+    this._refreshPopupWithSearchHits(this.defaultSearchTerm);
+
     if (!options.silent) {
         this.updateOriginalSelect();
         this.trigger('itemUnselected', item);
@@ -977,7 +979,10 @@ _.extend(SingleSelleckt.prototype, {
         }
 
         this.defaultSearchTerm = term;
-        this.popup.refreshItems(itemsToShow);
+
+        if (this.popup) {
+            this.popup.refreshItems(itemsToShow);
+        }
 
         this.trigger('optionsFiltered', term);
     },

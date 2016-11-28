@@ -488,6 +488,16 @@ function multiSellecktSpecs(MultiSelleckt, templateUtils, $){
                 }]);
             });
 
+            it('refreshes the search hits when item the unselect link is clicked', function() {
+                var refreshPopupWithSearchHitsStub = sandbox.spy(multiSelleckt, '_refreshPopupWithSearchHits');
+                multiSelleckt.defaultSearchTerm = 'myquery';
+
+                $clickTarget.trigger('click');
+
+                expect(refreshPopupWithSearchHitsStub.callCount).toEqual(1);
+                expect(refreshPopupWithSearchHitsStub.args[0][0]).toEqual('myquery');
+            });
+
             it('triggers a change event on original select when item is removed', function(){
                 var changeHandler = sandbox.spy();
 
