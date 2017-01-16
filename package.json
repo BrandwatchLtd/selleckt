@@ -17,7 +17,8 @@
     "test": "./node_modules/karma/bin/karma start",
     "test-integration": "./node_modules/karma/bin/karma start ./karma.conf-integration.js",
     "test-saucelabs": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs.js",
-    "test-saucelabs-legacy": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs-legacyselleckt.js"
+    "test-saucelabs-legacy": "./node_modules/karma/bin/karma start ./karma.conf-saucelabs-legacyselleckt.js",
+    "version": "node update-bower-version.js && git add bower.json"
   },
   "devDependencies": {
     "browserify": "^13.0.1",
