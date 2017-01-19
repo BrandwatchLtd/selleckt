@@ -448,3 +448,8 @@ sellecktInstance.on('itemSelected', function onItemSelected(item){
     console.log('Item selected: ', item);
 });
 ```
+
+Versioning
+==========
+
+Versioning is done through `npm` by running `npm version [<newversion> | major | minor | patch]`. For documentation visit [npm](https://docs.npmjs.com/cli/version).
